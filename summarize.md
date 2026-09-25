@@ -47,7 +47,7 @@ Task table:
 |---|---|---|
 | 1 | manifest.js map sprite↔key engine | ✅ hết ảnh vỡ (QA broken=0) |
 | 2 | index.html + main.css design token (VT323, palette gỗ-kem-linh quang, [hidden] fix) | ✅ font Việt render đúng |
-| 3 | main.js: splash/prep/sell/summary router, HUD, modal, toast | ✅ chơi được全流程 trên browser |
+| 3 | main.js: splash/prep/sell/summary router, HUD, modal, toast | ✅ chơi được toàn bộ vòng lặp trên browser |
 | 4 | Prep rút gọn: nhập hàng −/+ trả tiền trước, chặn mở quán khi thiếu lẩu/nồi chén | ✅ tiền trừ đúng 400k, nút disable đúng |
 | 5 | Sell: khách spawn theo giờ cao điểm, bubble đơn, thanh kiên nhẫn tụt, timeout bỏ về 1 sao | ✅ playtest 2 ngày, khách vào/đi/bỏ về đúng |
 | 6 | Minigame canh lửa 3 nhánh: perfect (nồi chín)/weak (non lửa mất nguyên liệu)/spill (khét) | ✅ test thật cả 3 nhánh trên browser |
