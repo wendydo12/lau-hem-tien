@@ -2,7 +2,12 @@
 export const SPRITES = {
   /* chủ quán + khách thường (64x64) */
   owner: 'chars/vn_00.png',
-  vn: [ 'chars/vn_01.png','chars/vn_02.png','chars/vn_03.png','chars/vn_04.png','chars/vn_05.png','chars/vn_06.png','chars/vn_07.png','chars/vn_00.png' ],
+  /* khách Việt — OBJECT theo đúng SỐ FILE vn_XX (không phải mảng!) để WHO_SPR map chuẩn:
+   * vn_00 chủ quán · vn_01 ông già báo · vn_02 nữ sinh · vn_03 anh VP · vn_04 bà cụ · vn_05 bé trai · vn_06 chị váy hồng · vn_07 shipper */
+  vn: {
+    0: 'chars/vn_00.png', 1: 'chars/vn_01.png', 2: 'chars/vn_02.png', 3: 'chars/vn_03.png',
+    4: 'chars/vn_04.png', 5: 'chars/vn_05.png', 6: 'chars/vn_06.png', 7: 'chars/vn_07.png'
+  },
   /* khách tu tiên (64x64 — đồng bộ scale) */
   xian: Array.from({length:16}, (_,i) => 'chars/xian_' + String(i).padStart(2,'0') + '.png'),
   /* 8 nồi lẩu */

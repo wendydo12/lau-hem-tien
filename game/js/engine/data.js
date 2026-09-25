@@ -205,14 +205,18 @@ export const STARS = [
 ];
 
 /* ===== GIỌNG GỌI MÓN ===== (sáng tác gốc) */
+/* PERSONA theo who — khớp sprite/names (sửa 25/09 theo lệnh phu quân):
+ * who 0 = chị trẻ (vn_06) · 1 = em nữ sinh (vn_02) · 2 = anh văn phòng (vn_03)
+ * 3 = bà cụ (vn_04) · 4 = bé trai (vn_05) · 5 = ông/chú lớn tuổi (vn_01) · 6 = anh shipper (vn_07)
+ * vn_00 là CHỦ QUÁN — không bao giờ spawn làm khách. */
 export const PERSONA = [
-  { o: ['Cho mình', 'Bạn ơi, cho mình', 'Làm giúp mình'], e: [' nhé!', ' nha!', ' nghen, cảm ơn!'] },
-  { o: ['Em ơi', 'Cho chị', 'Chị lấy'], e: [' nha em!', ' giúp chị!', ' nghen!'] },
-  { o: ['Cho anh', 'Nhóc ơi cho anh', 'Anh lấy'], e: [' nha!', ' nhé!', ' nghen cháu!'] },
-  { o: ['Con ơi', 'Cho chú', 'Chú lấy'], e: [' nha con!', ' nghen con!', ' nhé!'] },
-  { o: ['Cho tui', 'Ủa quán mình bán lẩu hả, cho tui', 'Tui lấy'], e: [' nghen!', ' nha!', ' nhé!'] },
-  { o: ['Cháu ơi', 'Cho bà', 'Bà lấy'], e: [' nghen cháu!', ' nha con!', ' nhé!'] },
-  { o: ['Cho em', 'Anh chị ơi cho em', 'Em lấy'], e: [' ạ!', ' nha!', ' nhé, em cảm ơn!'] }
+  { o: ['Chị lấy', 'Cho chị', 'Em ơi chị lấy'], e: [' nha em!', ' giúp chị!', ' nghen em!'] },
+  { o: ['Em lấy', 'Cho em', 'Anh chị ơi em lấy'], e: [' ạ!', ' nha!', ' với ạ!'] },
+  { o: ['Cho anh', 'Anh lấy', 'Em ơi cho anh'], e: [' nha!', ' nhé!', ' nghen em!'] },
+  { o: ['Cho bà', 'Bà lấy', 'Cháu ơi cho bà'], e: [' nghen cháu!', ' nha con!', ' nhé cháu!'] },
+  { o: ['Con lấy', 'Cho con', 'Cô chú ơi con lấy'], e: [' ạ!', ' nha!', ' với ạ!'] },
+  { o: ['Cho chú', 'Chú lấy', 'Cháu ơi cho chú'], e: [' nha con!', ' nghen cháu!', ' nhé!'] },
+  { o: ['Anh ship lấy', 'Cho anh', 'Em ơi anh lấy'], e: [' nha, anh vội!', ' nhanh giùm anh!', ' nghen em!'] }
 ];
 export const XPERSONA = [
   { o: ['Chưởng quầy, cho bản tọa', 'Đạo hữu, dọn cho ta', 'Bổn tọa muốn'], e: ['.', ' đi.', ' nhé.'] },
@@ -227,6 +231,10 @@ export const NM_BE = ["Bé Bắp","Bé Đậu","Bé Gạo","Su Su","Bơ Bơ","M�
 export const NM_TIEN = ['Huyền','Bạch','Thanh','Tử','Vân','Mộc','Thủy','Hỏa','Lôi','Phong','Diệp','Tiêu','Sở','Mộ','Nam Cung','Đông Phương','Tây Môn','Bắc Đường','Âu Dương','Thượng Quan'];
 export const NM_TIEN_DANH = ['Vô Kỵ','Trường Phong','Ngạo Thiên','Băng Nhi','Tử Yến','Thanh Phong','Minh Nguyệt','Tuyết Cơ','Kiếm Tâm','Đan Thanh','Ngọc Hành','Phiêu Dao','Tịch Mịch','Hàn Yên','Vấn Thiên','Nhược Thủy'];
 export const NM_HO = ['Nguyễn','Trần','Lê','Phạm','Hoàng','Huỳnh','Phan','Vũ','Võ','Đặng','Bùi','Đỗ','Hồ','Ngô','Dương','Lý','Trương','Đinh','Lâm','Mai'];
+/* who → chỉ số sprite vn_XX (khớp giới tính/tuổi với tên + giọng gọi):
+ * 0 chị trẻ→vn_06 · 1 nữ sinh→vn_02 · 2 anh VP→vn_03 · 3 bà cụ→vn_04 · 4 bé trai→vn_05 · 5 ông chú→vn_01 · 6 shipper→vn_07
+ * (vn_00 = chủ quán, không spawn làm khách) */
+export const WHO_SPR = [6, 2, 3, 4, 5, 1, 7];
 
 /* ===== MÁY SINH REVIEW ===== (toàn bộ câu chữ: sáng tác gốc, lẩu hẻm Sài Gòn)
  * {mon} = tên nồi lẩu, {top} = topping đầu, {shop} = tên quán */

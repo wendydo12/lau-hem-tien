@@ -1,14 +1,16 @@
-/* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js. */
-import { makeCFG, GAME_VERSION } from './engine/config.js';
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname } from './engine/data.js';
-import { fresh, load, save, newPot } from './engine/state.js';
-import { addStock, qty, take, costOf } from './engine/stock.js';
-import { fmt, rating, starStr, recRev, recCost, price } from './engine/economy.js';
-import { makeNameGen, levelOf, genOrder, matches } from './engine/orders.js';
-import { rollDay, mkBadPlan, evText } from './engine/events.js';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount } from './engine/loop.js';
-import { makeRNG } from './engine/rng.js';
-import { SPRITES } from './manifest.js';
+/* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
+ * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=10';
+import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=10';
+import { fresh, load, save, newPot } from './engine/state.js?v=10';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=10';
+import { fmt, rating, starStr, recRev, recCost, price } from './engine/economy.js?v=10';
+import { makeNameGen, levelOf, genOrder, matches } from './engine/orders.js?v=10';
+import { rollDay, mkBadPlan, evText } from './engine/events.js?v=10';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount } from './engine/loop.js?v=10';
+import { makeRNG } from './engine/rng.js?v=10';
+import { SPRITES } from './manifest.js?v=10';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn } from './audio.js?v=10';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
@@ -28,6 +30,10 @@ function toast(msg, cls = '', ms = 2200) {
   $('toastWrap').appendChild(t);
   setTimeout(() => t.remove(), ms);
 }
+/* mọi nút bấm đều kêu "cộc" gỗ (delegate 1 chỗ) */
+document.addEventListener('pointerdown', e => {
+  if (e.target.closest('.btn, .pill, .ing, .icon-btn')) sfx('tap');
+}, true);
 function modal(html, btns, secret = false) {
   $('modalCard').innerHTML = html;
   $('modalCard').className = 'modal-card' + (secret ? ' secret' : '');
@@ -54,17 +60,44 @@ function boot() {
   S = r.S;
   if (!S.badPlan) S.badPlan = mkBadPlan(S.day, makeRNG(S.seed));
   rng = makeRNG(S.seed);
-  $('btnPlay').onclick = enterPrep;
+  /* mới vô game (chưa có save) → nút chính là "Mở quán" (new game);
+   * có save rồi mới hiện "Chơi tiếp" + "Quán mới" (lệnh phu quân 25/09) */
+  const hasSave = !!r.loaded && (S.day > 1 || Object.keys(S.stock).some(k => (S.stock[k] || []).length));
+  const btnPlay = $('btnPlay');
+  btnPlay.textContent = hasSave ? 'Chơi tiếp (Ngày ' + S.day + ')' : '🍲 Mở quán';
+  $('btnNew').hidden = !hasSave;   /* không có save thì không cần nút Quán mới */
+  btnPlay.onclick = () => { enterPrep(); firstGuide(); };
   $('btnNew').onclick = () => modal('<div class="big-ico">🍲</div><h2>Mở quán mới?</h2><p>Toàn bộ tiến trình hiện tại sẽ mất. Chắc chứ?</p>',
-    [['Huỷ', null], ['Mở quán mới', () => { S = fresh(cfg); rng = makeRNG(S.seed); save(S); toast('Đã mở quán mới', 'good'); }, true]]);
+    [['Huỷ', null], ['Mở quán mới', () => {
+      S = fresh(cfg); rng = makeRNG(S.seed); save(S);
+      updateHud(); enterPrep(); firstGuide();   /* vào thẳng ngày 1 luôn, không nằm lì ở splash */
+      toast('Đã mở quán mới — Ngày 1 bắt đầu!', 'good');
+      /* thay URL để F5/reload sau này không dính save cũ lẫn beforeunload */
+      history.replaceState(null, '', location.pathname + '?fresh=' + Date.now());
+    }, true]]);
   $('btnGuide').onclick = showGuide;
   $('btnPause').onclick = pauseDlg;
+  $('btnAudio').onclick = () => {
+    const on = toggleAudio();
+    $('btnAudio').textContent = on ? '🔊' : '🔇';
+    if (on && R && R.running) setAmbience(true);
+    toast(on ? 'Bật âm thanh' : 'Tắt âm thanh', '', 1200);
+  };
+  $('btnAudio').textContent = audioOn() ? '🔊' : '🔇';
   $('btnOpen').onclick = openShop;
   $('btnNextDay').onclick = nextDay;
   $('btnCook').onclick = startFire;
   $('btnServe').onclick = servePot;
   $('btnTrash').onclick = trashPot;
   updateHud();
+}
+/* lần đầu chơi → tự mở hướng dẫn (ghi nhớ bằng localStorage, chỉ hiện 1 lần) */
+function firstGuide() {
+  try {
+    if (localStorage.getItem('lhTienGuide') === '1') return;
+    localStorage.setItem('lhTienGuide', '1');
+    setTimeout(showGuide, 400);
+  } catch (e) { showGuide(); }
 }
 
 function showGuide() {
@@ -130,8 +163,8 @@ function renderPrep() {
     </div>`;
   });
   $('prepBody').innerHTML = h;
-  $('prepBody').querySelectorAll('[data-inc]').forEach(b => b.onclick = () => { const k = b.dataset.inc; const step = k === 'sup' ? 10 : 5; if (S.money >= planCost() + step * costOf(cfg, k)) { plan[k] = (plan[k] || 0) + step; renderPrep(); } else toast('Không đủ tiền nhập thêm', 'bad'); });
-  $('prepBody').querySelectorAll('[data-dec]').forEach(b => b.onclick = () => { const k = b.dataset.dec; const step = k === 'sup' ? 10 : 5; plan[k] = Math.max(0, (plan[k] || 0) - step); if (!plan[k]) delete plan[k]; renderPrep(); });
+  $('prepBody').querySelectorAll('[data-inc]').forEach(b => b.onclick = () => { const k = b.dataset.inc; const step = k === 'sup' ? 10 : 5; if (S.money >= planCost() + step * costOf(cfg, k)) { plan[k] = (plan[k] || 0) + step; sfx('tick'); renderPrep(); } else toast('Không đủ tiền nhập thêm', 'bad'); });
+  $('prepBody').querySelectorAll('[data-dec]').forEach(b => b.onclick = () => { const k = b.dataset.dec; const step = k === 'sup' ? 10 : 5; if ((plan[k] || 0) > 0) sfx('tick'); plan[k] = Math.max(0, (plan[k] || 0) - step); if (!plan[k]) delete plan[k]; renderPrep(); });
   const btn = $('btnOpen');
   btn.textContent = canOpen() ? `Nấu & nhập · ${fmtD(planCost())} — Mở cửa ngày ${S.day}` : 'Cần nhập ít nhất 1 loại lẩu + nồi chén';
   btn.disabled = !canOpen();
@@ -164,11 +197,12 @@ function startSell() {
   renderStations();
   renderLane();
   updateHud();
+  setAmbience(true);   // hẻm đêm: gió + dế rả rích
   // biến cố đầu ngày (bad/gift/debt)
   const st = startDay(ctx);
   setTimeout(() => {
-    if (st.bad) modal(`<div class="big-ico">💥</div><h2>${st.bad.n}</h2><p>${st.bad.all ? st.bad.all : st.bad.some.replace('%', '<b>' + fmtD(st.bad.v) + '</b>')}</p>`, [['Buồn ghê', null, true]]);
-    else if (st.gift) modal(`<div class="big-ico">🎁</div><h2>${st.gift.n}</h2><p>${st.gift.d}</p><p class="lvup">+${fmtD(st.gift.v)}</p>`, [['Tuyệt quá', () => updateHud(), true]]);
+    if (st.bad) { sfx('bad_ev'); modal(`<div class="big-ico">💥</div><h2>${st.bad.n}</h2><p>${st.bad.all ? st.bad.all : st.bad.some.replace('%', '<b>' + fmtD(st.bad.v) + '</b>')}</p>`, [['Buồn ghê', null, true]]); }
+    else if (st.gift) { sfx('gift'); modal(`<div class="big-ico">🎁</div><h2>${st.gift.n}</h2><p>${st.gift.d}</p><p class="lvup">+${fmtD(st.gift.v)}</p>`, [['Tuyệt quá', () => updateHud(), true]]); }
   }, 600);
   // vòng lặp ngày
   const TICK = 100;
@@ -202,9 +236,9 @@ function scheduleSpawns() {
     if (res) {
       if (res.kind === 'ok' || res.kind === 'star') {
         renderLane();
-        if (res.kind === 'star') { toast('⭐ ' + res.c.name + ' — đại năng vi hành!', 'good', 3500); secretOpenCheck(); }
-        else if (res.c.xian) { toast('🔮 ' + res.c.name + ' đáp xuống từ khe không gian...', '', 3000); secretOpenCheck(); }
-        else if (res.c.brat) toast('⚠️ ' + res.c.name + ' có vẻ khó ở...', 'bad', 2000);
+        if (res.kind === 'star') { sfx('xian'); toast('⭐ ' + res.c.name + ' — đại năng vi hành!', 'good', 3500); secretOpenCheck(); }
+        else if (res.c.xian) { sfx('xian'); toast('🔮 ' + res.c.name + ' đáp xuống từ khe không gian...', '', 3000); secretOpenCheck(); }
+        else { sfx('bell'); if (res.c.brat) toast('⚠️ ' + res.c.name + ' có vẻ khó ở...', 'bad', 2000); }
       } else if (res.kind === 'soldout') toast('🚫 Hết ' + iname(res.item).toLowerCase() + ', khách bỏ về', 'bad');
       else if (res.kind === 'pricy') toast('Khách xem menu chê đắt, bỏ đi', 'bad');
     }
@@ -225,7 +259,7 @@ function tickCustomers() {
       const p = bar.parentElement;
       p.className = 'pat' + (frac < .3 ? ' danger' : frac < .55 ? ' warn' : '');
     }
-    if (c.pat <= 0) { timeoutCustomer(ctx, i); changed = true; toast('💢 ' + c.name + ' bỏ về, để lại 1 sao', 'bad'); }
+    if (c.pat <= 0) { timeoutCustomer(ctx, i); changed = true; sfx('left'); toast('💢 ' + c.name + ' bỏ về, để lại 1 sao', 'bad'); }
   });
   if (changed) { renderLane(); secretOpenCheck(); }
 }
@@ -237,7 +271,7 @@ function secretOpenCheck() {
   if (hasXian !== R._secretShown) {
     R._secretShown = hasXian;
     renderStations();
-    if (hasXian) toast('🔮 Thực đơn bí mật đã mở — chỉ khách tiên gọi được', '', 3000);
+    if (hasXian) { sfx('secret'); toast('🔮 Thực đơn bí mật đã mở — chỉ khách tiên gọi được', '', 3000); }
   }
 }
 
@@ -250,13 +284,16 @@ function renderLane() {
     const el = document.createElement('div');
     el.className = 'cust' + (c.xian ? ' xian' : '') + (R.focus === c.id ? ' active' : '');
     el.dataset.slot = i;
-    /* vị trí: hàng dưới (gần người xem, TRƯỚC quầy) so le 3 slot */
-    const left = [20, 50, 78, 35][i % 4];
+    /* vị trí: hàng dưới (gần người xem, TRƯỚC quầy) — CHÂN CHẠM ĐẤT: cùng baseline, so le nhẹ
+     * theo slot; bubble nằm trên đầu nên không cần đẩy bottom lên cao (fix khách lơ lửng 25/09) */
+    const left = [22, 50, 76, 38][i % 4];
     el.style.left = left + '%';
-    el.style.bottom = [2, 8, 2, 8][i % 4] + '%';
-    const src = c.star != null ? SPRITES.xian[c.star % 16] : c.xian ? SPRITES.xian[(c.id + 3) % 16] : SPRITES.vn[(c.who ?? c.id) % 8];
+    el.style.bottom = '3%';
+    const src = c.star != null ? SPRITES.xian[c.star % 16]
+      : c.xian ? SPRITES.xian[(c.id + 3) % 16]
+      : SPRITES.vn[WHO_SPR[c.who % 7]];   /* sprite KHỚP tên/giới tính/tuổi (WHO_SPR map cố định) */
     el.innerHTML = `
-      <div class="bubble">${c.star != null ? '⭐ ' : ''}${c.xian ? '💎 ' : ''}${orderText(c.order)}</div>
+      <div class="bubble">${c.star != null ? '⭐ ' : ''}${c.xian ? '💎 ' : ''}${orderBubble(c.order)}</div>
       ${c.xian ? '<div class="pay-tag">💎</div>' : ''}
       <img src="${A + src}" alt="">
       <div class="name">${c.name}</div>
@@ -269,6 +306,15 @@ function orderText(o) {
   if (!o) return '...';
   const tops = o.tops.map(t => ITEMS[t].s).join(', ');
   return `${iname(o.base)}${o.size === 'L' ? ' lớn' : ''}${o.spicy ? ' · ' + o.spicy.toLowerCase() : ''}${o.dip ? ' · chấm ' + ITEMS[o.dip].s.toLowerCase() : ''}${tops ? ' · ' + tops : ''}`;
+}
+/* bong bóng "menu request": icon từng món + nhãn, khách giơ ra cho chủ quán đọc */
+function orderBubble(o) {
+  if (!o) return '...';
+  const parts = [`<span class="ob-i"><img src="${A + (SPRITES.pot[o.base] || '')}">${o.size === 'L' ? 'lớn' : ''}</span>`];
+  o.tops.forEach(t => parts.push(`<span class="ob-i"><img src="${A + spriteOf(t)}"></span>`));
+  if (o.dip) parts.push(`<span class="ob-i"><img src="${A + spriteOf(o.dip)}"></span>`);
+  const txt = `${o.spicy ? '🌶 ' + o.spicy : ''}`;
+  return `<span class="ob-txt">${iname(o.base)}${o.size === 'L' ? ' lớn' : ''}${txt}</span><span class="ob-icons">${parts.join('')}</span>`;
 }
 function showOrderDetail(c) {
   let rows = c.cups.map((o, k) => `<div class="step${!c.done[k] && R.focus === c.id ? (k === c.cups.findIndex(x => !c.done[c.cups.indexOf(x)]) ? ' cur' : '') : ''}">${c.done[k] ? '✅' : '🍲'} Ly ${k + 1}: ${orderText(o)}${o.dip ? ' · chấm ' + ITEMS[o.dip].s.toLowerCase() : ''}</div>`).join('');
@@ -331,14 +377,14 @@ function bindIngs() {
     const k = el.dataset.k;
     const it = ITEMS[k];
     if (qty(S, k) <= 0) { toast(it.n + ' hết hàng rồi!', 'bad'); return; }
-    if (it.type === 'base') { pot.base = pot.base === k ? null : k; pot.size = pot.size || 'N'; }
+    if (it.type === 'base') { pot.base = pot.base === k ? null : k; pot.size = pot.size || 'N'; sfx('pot'); }
     else if (it.type === 'dip') pot.dip = pot.dip === k ? null : k;
     else if (it.type === 'top' || it.type === 'duoc' || it.type === 'secret') {
       const lv = levelOf(S.day, cfg);
       const maxT = lv >= 4 ? 4 : lv >= 3 ? 2 : 1;
       if (pot.tops.includes(k)) pot.tops = pot.tops.filter(t => t !== k);
       else if (pot.tops.length >= maxT) toast('Đơn ngày này tối đa ' + maxT + ' món nhúng', 'bad');
-      else pot.tops.push(k);
+      else { pot.tops.push(k); sfx('plop'); }
     }
     renderStations();
   });
@@ -382,6 +428,8 @@ function startFire() {
     return;
   }
   $('fireBar').hidden = false;
+  sfx('fire_on');
+  setBoil(true);   // vòng sôi lăn tăn suốt lúc giữ lửa
   const [lo, hi] = cfg.pourPerfect;
   const zone = $('fireZone');
   const w = S.upg.phap_khi ? 0.1 : 0;
@@ -406,19 +454,23 @@ function finishFire(f) {
   if (!pouring) return;
   cancelAnimationFrame(pouring.raf);
   pouring = null;
+  setBoil(false);
   $('fireBar').hidden = true;
   $('btnCook').textContent = '🔥 Canh lửa nấu';
   $('btnCook').onclick = startFire;
   const res = pourResult(f, S, cfg);
   if (res === 'perfect') {
     pot.used = true;
+    sfx('perfect');
     toast('🔥 Lửa chuẩn! Nồi sôi sùng sục', 'good');
     renderPotVisual();
   } else if (res === 'weak') {
+    sfx('weak');
     toast('Non lửa... nước lẩu chưa ngọt, nấu lại đi (mất nguyên liệu!)', 'bad', 2800);
     S.cur.spoil.n++; S.cur.spoil.v += 0; // nguyên liệu đã trừ
     pot = newPot(); renderStations();
   } else {
+    sfx('burnt');
     toast('💥 KHÉT NỒI! Đổ bỏ, mất nguyên liệu', 'bad', 2800);
     S.cur.spoil.n++;
     S.cur.spoil.v += costOf(cfg, pot.base) + pot.tops.reduce((a, t) => a + costOf(cfg, t), 0);
@@ -443,9 +495,11 @@ function servePot() {
   if (res.ok) {
     const c = res.c;
     if (res.ls) {
+      sfx('ls_coin');
       toast('💎 ' + c.name + ' trả ' + fmtLS(res.ls) + (res.left ? ' · còn ' + res.left + ' nồi' : ''), 'good', 2600);
       flyMoney('+' + res.ls + ' 💎', true);
     } else {
+      sfx('coin');
       toast('+' + fmtD(res.vnd) + (res.left ? ' · còn ' + res.left + ' nồi' : ''), 'good');
       flyMoney('+' + fmtD(res.vnd), false);
     }
@@ -459,10 +513,12 @@ function servePot() {
         sp.className = 'star-pop'; sp.textContent = '★'.repeat(last.s);
         sp.style.left = '40%'; sp.style.top = '30%';
         $('lane').appendChild(sp); setTimeout(() => sp.remove(), 1200);
+        if (last.s >= 5) setTimeout(() => sfx('star'), 250);
         if (last.x) toast('🔮 "' + last.t.slice(0, 60) + '..."', '', 3200);
       }
     }
   } else if (res.why === 'wrong') {
+    sfx('wrong');
     const el = document.querySelector(`[data-slot="${idx}"]`);
     if (el) { el.classList.add('angry'); setTimeout(() => el.classList.remove('angry'), 350); }
     toast('❌ Sai món! Đổ bỏ nồi, khách giận (đạo tâm -30%)', 'bad', 2800);
@@ -471,7 +527,7 @@ function servePot() {
   }
 }
 function trashPot() {
-  if (pot.base && pot.used) { S.cur.spoil.n++; }
+  if (pot.base && pot.used) { S.cur.spoil.n++; sfx('trash'); }
   pot = newPot(); renderStations();
   toast('Đã dọn nồi cũ', '', 1200);
 }
@@ -490,6 +546,9 @@ function endDay() {
   if (!R || !R.running) return;
   clearInterval(dayTimer);
   R.running = false;
+  setBoil(false);
+  setAmbience(false);
+  sfx('end_day');
   const res = closeDay(ctx);
   save(S);
   renderSummary(res);
@@ -526,6 +585,13 @@ function nextDay() {
 }
 
 /* ============ chạy ============ */
+/* ?reset=1 → xoá TOÀN BỘ localStorage của game TRƯỚC KHI load
+ * (không đoán tên key — xoá sạch để chống beforeunload của tab cũ ghi đè lại) */
+try {
+  if (new URLSearchParams(location.search).has('reset')) {
+    localStorage.clear();
+  }
+} catch (e) {}
 boot();
 showScreen('splash');
-window.addEventListener('beforeunload', () => { try { save(S); } catch (e) {} });
+window.addEventListener('beforeunload', () => { try { if (!S._wiped) save(S); } catch (e) {} });

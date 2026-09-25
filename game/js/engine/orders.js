@@ -18,15 +18,17 @@ export function makeNameGen(S, rng) {
     return n;
   };
   return {
+    /* who → tên khớp ĐÚNG sprite (giới tính + tuổi + danh xưng):
+     * 0 chị trẻ nữ · 1 em nữ sinh · 2 anh văn phòng · 3 bà cụ · 4 bé trai · 5 ông/chú · 6 anh shipper */
     normal: who => {
       const P = {
-        0: () => uniq(() => rng.chance(.5) ? rng.pick(NM_NU) : HN(NM_NU)),
-        1: () => uniq(() => rng.chance(.5) ? rng.pick(NM_NU) : rng.pick(NM_BE)),
+        0: () => uniq(() => (rng.chance(.5) ? 'Chị ' : 'Cô ') + rng.pick(NM_NU)),
+        1: () => uniq(() => rng.chance(.5) ? 'Em ' + rng.pick(NM_NU) : HN(NM_NU)),
         2: () => uniq(() => rng.chance(.5) ? 'Anh ' + rng.pick(NM_NAM) : HN(NM_NAM)),
-        3: () => uniq(() => 'Chị ' + rng.pick(NM_NU)),
-        4: () => uniq(() => rng.chance(.6) ? rng.pick(NM_BE) : 'Bé ' + rng.pick(NM_NU)),
-        5: () => uniq(() => 'Chú ' + rng.pick(NM_NAM)),
-        6: () => uniq(() => 'Bà ' + rng.pick(NM_NU))
+        3: () => uniq(() => (rng.chance(.5) ? 'Bà ' : 'Má ') + rng.pick(NM_NU)),
+        4: () => uniq(() => rng.chance(.6) ? rng.pick(NM_BE) : 'Bé ' + rng.pick(NM_NAM)),
+        5: () => uniq(() => rng.chance(.5) ? 'Chú ' + rng.pick(NM_NAM) : 'Ông ' + rng.pick(NM_NAM)),
+        6: () => uniq(() => 'Anh ' + rng.pick(NM_NAM))
       };
       return (P[who] || P[0])();
     },
@@ -56,8 +58,8 @@ export function genOrder(S, cfg, rng, lv = levelOf(S.day, cfg), opts = {}) {
     .filter(k => has(k) || lv < 2)      /* ngày 1-2: không cần hàng (đơn trơn) */
     .sort(() => rng.next() - .5);
   const r = rng.next();
-  /* lv1 (ngày 1-5): chỉ nồi trơn không topping (như luật thể loại: ngày đầu đơn giản cho quen tay) */
-  let n = lv === 1 ? 0
+  /* lv1 (ngày 1-5): 1 món nhúng nếu còn hàng (nồi lẩu phải có đồ ăn trong đó — lệnh phu quân), hết hàng thì nồi trơn */
+  let n = lv === 1 ? (pool.length ? 1 : 0)
     : lv === 2 ? (r < .2 ? 0 : 1)
     : wpick(rng, [0, 1, 2, 3, 4], [.1, .3, .3, .18, .12]);
   n = Math.min(n, pool.length);
@@ -65,7 +67,7 @@ export function genOrder(S, cfg, rng, lv = levelOf(S.day, cfg), opts = {}) {
   for (const k of pool) {
     if (pick.length >= n) break;
     if (pick.includes(k)) continue;
-    if (lv >= 2 && !has(k)) continue;
+    if (!has(k)) continue;               // KHÔNG BAO GIỜ gọi món hết hàng (mọi cấp)
     if (addSkip(S, k, cfg, rng)) continue;
     pick.push(k);
   }

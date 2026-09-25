@@ -147,13 +147,13 @@ body{
 /* ===== counter / trạm nấu ===== */
 #counter{flex:1;display:flex;gap:10px;padding:10px;overflow:hidden;background:var(--bg)}
 #potArea{width:130px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:flex-start}
-#potArea .st-actions.col{flex-direction:column;width:100%;margin-top:8px}
+#potArea .st-actions.col{flex-direction:column;width:100%;margin-top:4px}
 #potArea .st-actions.col .btn{width:100%;font-size:16px;padding:10px 4px}
 #potVisual{width:110px;height:110px;background:var(--wood-lo);border:3px solid var(--ink);border-radius:8px;
   display:flex;align-items:center;justify-content:center;position:relative;box-shadow:inset 0 2px 0 var(--wood)}
 #potVisual img{width:88px;height:88px;image-rendering:pixelated}
 #potVisual .empty-pot{color:var(--panel);font-size:44px;opacity:.5}
-#potChips{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;min-height:28px;max-height:110px;overflow-y:auto;width:100%}
+#potChips{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;min-height:0;max-height:76px;overflow-y:auto;width:100%}
 .chip{background:var(--panel-white);border:2px solid var(--ink);border-radius:6px;padding:1px 6px;font-size:14px;color:var(--ink);
   display:flex;align-items:center;gap:3px}
 .chip img{width:18px;height:18px;image-rendering:pixelated}
@@ -201,6 +201,11 @@ body{
 /* nút hành động LUÔN thấy: dính đáy khu trạm */
 #counter{position:relative}
 .cust .bubble{max-width:190px;min-width:110px;font-size:14px;white-space:normal;line-height:1.15;padding:5px 9px}
+/* menu request trong bubble: chữ + hàng icon món */
+.ob-txt{display:block;font-weight:bold;white-space:nowrap}
+.ob-icons{display:flex;gap:2px;flex-wrap:nowrap;margin-top:2px;align-items:center}
+.ob-i{position:relative;display:inline-block;flex-shrink:0}
+.ob-i img{width:22px;height:22px;image-rendering:pixelated;display:block}
 
 /* ===== summary ===== */
 #summary{justify-content:center}
