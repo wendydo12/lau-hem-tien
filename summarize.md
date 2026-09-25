@@ -128,3 +128,42 @@ Cốt truyện: Minh 26 tuổi, nhân viên văn phòng → bị sếp mắng �
 ### Khác
 - Slogan splash mới: "Hẻm nhỏ, vị tiên — hương vị lẩu ăn quên lối về."
 - Test: 47 → **51/51 pass** (ramp 3 test + nợ phòng 1 test). Cache-bust v=15.
+
+## Phase 5a — 25/09 tối (commit cfd43d0, v=16)
+
+### Tính năng ĐẶC BIỆT (không có ở game gốc)
+1. **Creator nhân vật** (trước intro): tên tự đặt + nam/nữ + 4 diện mạo thuần Việt mỗi giới
+   (áo thun trắng, sơ mi xanh, ÁO BÀ BA, flannel — nữ có thêm khăn rằn). Sprite meowa 16 hình.
+2. **Intro v2 đồng bộ nhân vật**: 6 cảnh nền meowa mới (văn phòng ngày có sếp, đêm mưa,
+   PHỐ BITEXCO, phòng trọ, hẻm xe lẩu, quán sáng đèn) + pose desk/money của ĐÚNG nhân vật
+   người chơi chọn ghép canvas lúc chạy (pixel-perfect, bóng tiếp xúc). Tên nhân vật thay "Minh"
+   trong phụ đề (xưng cậu/cô theo giới tính).
+3. **Đặt tên quán** sau intro (12 tên gợi ý thuần Việt + 🎲 + ô tự viết).
+4. **GATE pha tu tiên ngày 7** (lệnh phu quân): ngày ≥8 + trả hết nợ phòng + dư ≥1 triệu
+   mới mở khách tu tiên/đại năng/thực đơn bí mật. Kèm lễ "thức tỉnh" 7 dòng cốt truyện
+   (mưa sao băng → cứu tu sĩ → được tặng linh thạch + tụ linh trận). Banner tiến độ 3 ✅/⬜ ở màn chuẩn bị.
+5. **Hệ tu vi 9 cảnh giới** (engine/cult.js): Phàm nhân nấu lẩu → Sơ nhập hỏa đạo → Trúc Cơ vị giác
+   → Kim Đan nước dùng → Nguyên Anh khói bếp → Hóa Thần gia vị → Luyện Hư đao công → Hợp Thể lẩu đạo
+   → Đại Thừa phàm tiên → Độ Kiếp Lẩu Tiên Tôn. Mỗi cấp buff THẬT (rộng vạch lửa +3%, kiên nhẫn +6%,
+   típ +12%, traffic +10%, giảm hàng hỏng 25%, nấu nhanh 15%, khách hâm -40%, LS +10%, all +5%).
+   Exp từ: bưng đúng +2/nồi, lửa chuẩn +1, 5 sao +3, khách tiên +4, đại năng +15, hộ pháp tóm bùng +3,
+   trọn ngày lãi +5; nghiệp: khách bỏ về -2, sai món -2, 1 sao -1. Đột phá có màn lễ riêng + thoại sáng tác.
+   Khách tiên Kim Đan+ có 40% "nhận ra cảnh giới" trong review.
+6. **Tường đánh giá** (ảnh chàng gửi làm mẫu): card review có avatar, tên, ngày, sao, chữ,
+   HÌNH NỒI LẨU khách đã gọi bên phải, ô "Phản hồi của quán". Phản hồi = lượt chơi chiến lược:
+   3 tông (Dịu dàng 0% rủi ro, Hài hước 10% viral +50-150k, Cà khịa 30% phản tác dụng ăn 1 sao bóc phốt,
+   viral +100-300k; cà khịa khách tiên 85% toang; khách chê vô lý thì risk -15%).
+   3 CÂU GỢI Ý chọn được theo tông + tự viết + 4 avatar phản hồi (mặt mình theo creator/ẩn danh/đầu bếp/ếch).
+7. **Thang phá sản 3 bậc** (engine/ruin.js): lãi dương reset. Âm 1 ngày → "Chủ nhà nhắc nợ" (traffic -10%);
+   âm 2-3 ngày → "Tin đồn lan ra" (-25%); âm 4+ ngày → "Ngân siết quán" (-45%, kê biên 30% két + 1 trang bị);
+   âm quá 5tr hoặc 6 ngày liên tiếp → GAME OVER tổng kết hành trình (ngày trụ, nồi đã bán, doanh thu,
+   rating, cảnh giới, món chạy nhất) + "Làm lại cuộc đời".
+
+### Kỹ thuật
+- File mới: engine/cult.js, engine/ruin.js, engine/replies.js, creator.js; intro.js viết lại v2;
+  assets/intro/compose_v2.py; assets/chars/creator_*.png (8 đứng + 16 pose).
+- Tests: 75/75 pass (51 cũ + 24 mới: cult buff/đột phá/nghiệp, ruin leo thang/kê biên/game over,
+  replies risk/viral/savage-tiên, gate 4 test).
+- QA browser thật: full flow creator→intro→tên quán→prep→tường review→phản hồi savage ẩn danh OK.
+- meowa: 515→145cr (10 job, ghi credits-log). Bài học: xlarge_3_4 perfect-pixel LUÔN cắt nội thất
+  thành fragment → nền PIL vẽ đặc + dán fragment; Bitexco regen 2 lần mới sạch.
