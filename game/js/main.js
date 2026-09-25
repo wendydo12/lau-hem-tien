@@ -1,17 +1,22 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=15';
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=15';
-import { fresh, load, save, newPot } from './engine/state.js?v=15';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=15';
-import { fmt, rating, starStr, recRev, recCost, price } from './engine/economy.js?v=15';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=15';
-import { rollDay, mkBadPlan, evText } from './engine/events.js?v=15';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=15';
-import { makeRNG } from './engine/rng.js?v=15';
-import { SPRITES } from './manifest.js?v=15';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn } from './audio.js?v=15';
-import { playIntro, introSeen } from './intro.js?v=15';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=16';
+import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=16';
+import { fresh, load, save, newPot } from './engine/state.js?v=16';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=16';
+import { fmt, rating, starStr, recRev, recCost, price } from './engine/economy.js?v=16';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=16';
+import { rollDay, mkBadPlan, evText } from './engine/events.js?v=16';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=16';
+import { makeRNG } from './engine/rng.js?v=16';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=16';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=16';
+import { RUIN_TIERS } from './engine/ruin.js?v=16';
+import { UPG } from './engine/data.js?v=16';
+import { SPRITES } from './manifest.js?v=16';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn } from './audio.js?v=16';
+import { playIntro, introSeen } from './intro.js?v=16';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=16';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
@@ -59,6 +64,9 @@ const itemImg = k => img(A + spriteOf(k), iname(k));
 function boot() {
   const r = load(cfg);
   S = r.S;
+  /* gắn tên nhân vật người chơi vào save (cho intro + cutscene gọi đúng tên) */
+  const cr0 = loadCreator();
+  if (cr0 && !S.creatorName) { S.creatorName = cr0.name; S.creatorGender = cr0.gender; S.creatorLook = cr0.look; }
   /* DEBUG HOOK (chỉ dev, localhost): ?testday=8&testmoney=300000 — giả lập ngày/két để test
    * game over nợ phòng trọ mà không phải chơi 7 ngày thật. beforeunload của tab cũ ghi đè
    * localStorage nên không thể patch save từ ngoài. */
@@ -79,10 +87,20 @@ function boot() {
   btnPlay.textContent = hasSave ? 'Chơi tiếp (Ngày ' + S.day + ')' : '🍲 Mở quán';
   $('btnNew').hidden = !hasSave;   /* không có save thì không cần nút Quán mới */
   btnPlay.onclick = () => {
-    /* lần đầu mở quán mới → chiếu PIXEL MOVIE intro (kiểu Stardew) kể cốt truyện trước */
-    if (!hasSave && !introSeen()) {
+    /* lần đầu mở quán mới → TẠO NHÂN VẬT → chiếu PIXEL MOVIE intro → ĐẶT TÊN QUÁN (kiểu Stardew) */
+    if (!hasSave) {
       btnPlay.disabled = true;
-      playIntro(document.body, { onDone: () => { btnPlay.disabled = false; enterPrep(); firstGuide(); } });
+      openCreator(document.body).then(creator => {
+        S.creatorName = creator.name; S.creatorGender = creator.gender; S.creatorLook = creator.look;
+        playIntro(document.body, { creator, onDone: () => {
+          openShopNaming(document.body, creator).then(shopName => {
+            if (shopName) S.shopName = shopName;
+            save(S); updateHud();
+            btnPlay.disabled = false;
+            enterPrep(); firstGuide();
+          });
+        }});
+      });
       return;
     }
     enterPrep(); firstGuide();
@@ -91,15 +109,24 @@ function boot() {
     [['Huỷ', null], ['Mở quán mới', () => {
       S = fresh(cfg); rng = makeRNG(S.seed); save(S);
       updateHud();
-      /* quán mới = cốt truyện mới → chiếu lại intro movie */
+      /* quán mới = nhân vật mới + cốt truyện mới → xóa creator + intro để chơi lại từ đầu */
       try { localStorage.removeItem('lhTienIntro'); } catch (e) {}
-      playIntro(document.body, { onDone: () => { enterPrep(); firstGuide(); } });
-      toast('Đã mở quán mới — Ngày 1 bắt đầu!', 'good');
-      /* thay URL để F5/reload sau này không dính save cũ lẫn beforeunload */
+      clearCreator();
       history.replaceState(null, '', location.pathname + '?fresh=' + Date.now());
+      openCreator(document.body).then(creator => {
+        playIntro(document.body, { creator, onDone: () => {
+          openShopNaming(document.body, creator).then(shopName => {
+            if (shopName) S.shopName = shopName;
+            save(S); updateHud();
+            enterPrep(); firstGuide();
+            toast('Đã mở quán mới — Ngày 1 bắt đầu!', 'good');
+          });
+        }});
+      });
     }, true]]);
   $('btnGuide').onclick = showGuide;
   $('btnPause').onclick = pauseDlg;
+  $('btnCloseReviews').onclick = () => { showScreen(rvBack); if (rvBack === 'prep') renderPrep(); };
   $('btnAudio').onclick = () => {
     const on = toggleAudio();
     $('btnAudio').textContent = on ? '🔊' : '🔇';
@@ -151,6 +178,13 @@ function updateHud() {
   $('hudRating').textContent = rt.toFixed(1).replace('.', ',') + ' · ' + (S.reviews.length) + ' đánh giá';
   const lsChip = $('hudLS');
   if (S.ls > 0) { lsChip.hidden = false; lsChip.querySelector('b').textContent = S.ls; }
+  /* TU VI: chip cảnh giới chủ quán trên HUD */
+  const C = initCult(S);
+  const realmChip = $('hudRealm');
+  if (realmChip) {
+    realmChip.querySelector('b').textContent = REALMS[C.realm].n;
+    realmChip.className = 'realm-chip r' + C.realm;
+  }
 }
 
 /* ============ PREP (bản rút gọn Phase 4 — đầy đủ ở Phase 5) ============ */
@@ -170,8 +204,23 @@ function gameOverDebt() {
   [['🍲 Làm lại từ đầu', () => {
     S = fresh(cfg); rng = makeRNG(S.seed); save(S);
     updateHud();
-    playIntro(document.body, { onDone: () => { enterPrep(); firstGuide(); } });
+    replayNewLife();
   }, true]]);
+}
+
+/* làm lại cuộc đời: tạo lại nhân vật → intro → đặt tên quán (dùng chung mọi nhánh game over) */
+function replayNewLife() {
+  try { localStorage.removeItem('lhTienIntro'); } catch (e) {}
+  clearCreator();
+  openCreator(document.body).then(creator => {
+    playIntro(document.body, { creator, onDone: () => {
+      openShopNaming(document.body, creator).then(shopName => {
+        if (shopName) S.shopName = shopName;
+        save(S); updateHud();
+        enterPrep(); firstGuide();
+      });
+    }});
+  });
 }
 function planCost() { return Object.entries(plan).reduce((a, [k, q]) => a + q * costOf(cfg, k), 0); }
 function canOpen() {
@@ -200,6 +249,35 @@ function renderPrep() {
   } else {
     h += `<div class="debt-banner paid"><span class="debt-ico">✅</span><div class="debt-txt"><b>Đã trả tiền phòng!</b><small>Thoát cảnh nợ nần — yên tâm buôn bán (trả ngày ${rd.paidDay})</small></div></div>`;
   }
+  /* ---- BANNER PHÁ SẢN (thang hậu quả âm tiền liên tiếp) ---- */
+  if ((S.ruin || 0) > 0) {
+    const T = RUIN_TIERS[S.ruin];
+    h += `<div class="debt-banner urgent">
+      <span class="debt-ico">⚠️</span>
+      <div class="debt-txt"><b>${T.n}</b>
+        <small>${T.d} — khách ngày mai còn ${Math.round(T.traffic * 100)}%. ${S.ruin >= 3 ? 'Không gượng dậy nổi là mất quán!' : 'Bán có lãi để xóa tin đồn!'}</small></div>
+    </div>`;
+  }
+  /* ---- GATE PHA TU TIÊN (lệnh phu quân): ngày 1-7 lo trả nợ + tích 1 triệu ---- */
+  if (!S.xianUnlock) {
+    const g = cfg.xianGate;
+    const okDay = S.day >= g.fromDay, okDebt = !!(rd.paid), okMoney = S.money >= g.surplus;
+    h += `<div class="gate-banner${okDay && okDebt && okMoney ? ' ready' : ''}">
+      <span class="debt-ico">🔮</span>
+      <div class="debt-txt"><b>Bí ẩn hẻm nhỏ</b>
+        <small>Dân hẻm đồn: khi quán vững vàng, khe không gian sẽ mở...
+        ${okDay ? '✅' : '⬜'} Qua ngày ${g.fromDay - 1} · ${okDebt ? '✅' : '⬜'} Trả hết nợ phòng · ${okMoney ? '✅' : '⬜'} Dư ra ${fmtD(g.surplus)}${okMoney ? '' : ' (thiếu ' + fmtD(g.surplus - Math.max(0, S.money)) + ')'}</small></div>
+    </div>`;
+  } else {
+    h += `<div class="gate-banner open">
+      <span class="debt-ico">💎</span>
+      <div class="debt-txt"><b>Pha tu tiên đã mở</b>
+        <small>Tụ linh trận sáng rực — khách tu tiên sẽ đáp xuống bất cứ lúc nào, trả bằng linh thạch</small></div>
+    </div>`;
+  }
+  /* ---- nút xem tường đánh giá (badge số review chưa trả lời) ---- */
+  const un = unanswered(S);
+  h += `<button class="btn ghost small rv-open" id="btnOpenReviews">📋 Đánh giá của khách${un ? ` <span class="rv-badge">${un}</span>` : ''}</button>`;
   keys.forEach(k => {
     if (!S.unlocked[k]) return;
     const it = ITEMS[k];
@@ -214,6 +292,9 @@ function renderPrep() {
     </div>`;
   });
   $('prepBody').innerHTML = h;
+  /* mở tường đánh giá */
+  const rvBtn = $('btnOpenReviews');
+  if (rvBtn) rvBtn.onclick = () => openReviews('prep');
   /* trả nợ phòng trọ */
   const payBtn = $('btnPayDebt');
   if (payBtn) payBtn.onclick = () => {
@@ -240,9 +321,59 @@ function openShop() {
 
 /* ============ SELL ============ */
 function showScreen(name) {
-  ['splash', 'prep', 'sell', 'summary'].forEach(s => $(s).hidden = s !== name);
+  ['splash', 'prep', 'sell', 'summary', 'reviews'].forEach(s => $(s).hidden = s !== name);
   $('hud').hidden = name === 'splash';
 }
+/* ---- modal biến cố (tách ra để lễ thức tỉnh nối chuỗi được) ---- */
+function showBad(bad) {
+  sfx('bad_ev');
+  modal(`<div class="big-ico">💥</div><h2>${bad.n}</h2><p>${bad.all ? bad.all : bad.some.replace('%', '<b>' + fmtD(bad.v) + '</b>')}</p>`, [['Buồn ghê', null, true]]);
+}
+function showGift(gift) {
+  sfx('gift');
+  modal(`<div class="big-ico">🎁</div><h2>${gift.n}</h2><p>${gift.d}</p><p class="lvup">+${fmtD(gift.v)}</p>`, [['Tuyệt quá', () => updateHud(), true]]);
+}
+
+/* ---- LỄ THỨC TỈNH PHA TU TIÊN (gate ngày 7 — lệnh phu quân) ----
+ * Kể chuyện bằng chữ + hiệu ứng ánh sáng (không cần asset mới): đêm mưa sao băng,
+ * tu sĩ trọng thương được cứu bằng nồi lẩu, tặng linh thạch + vẽ tụ linh trận. */
+function xianAwakenScene(onDone) {
+  sfx('xian');
+  const lines = [
+    ['🌌', 'Đêm ấy trời Sài Gòn bỗng có mưa sao băng...'],
+    ['💫', 'Một vệt sáng xé ngang con hẻm — có người rơi xuống cuối ngõ, áo bào rách nát, hơi thở yếu ớt.'],
+    ['🍲', (S.creatorName || 'Minh') + ' chẳng hiểu gì, nhưng thấy người ta đói thì bưng nồi lẩu nóng nhất ra mời.'],
+    ['✨', 'Vị tu sĩ ăn một miếng — chân khí hồi phục, hào quang sáng rực cả hẻm!'],
+    ['🙏', '"Đa tạ đạo hữu cứu mạng. Nồi lẩu có đạo vận — phàm trần hiếm lắm."'],
+    ['💎', 'Người tặng lại một viên LINH THẠCH và vẽ Tụ Linh Trận lên tường: "Đồng đạo ngửi mùi sẽ tìm tới quán."'],
+    ['🔮', 'Từ hôm nay: khách tu tiên sẽ ghé quán, trả bằng linh thạch 💎, và thực đơn bí mật được mở!']
+  ];
+  const overlay = document.createElement('div');
+  overlay.className = 'break-overlay awaken';
+  let i = 0;
+  const body = () => `
+    <div class="break-rays"></div>
+    <div class="break-card awaken">
+      <div class="awaken-ico">${lines[i][0]}</div>
+      <p class="break-txt">${lines[i][1]}</p>
+      <small class="awaken-hint">${i < lines.length - 1 ? 'chạm để tiếp tục...' : ''}</small>
+      ${i === lines.length - 1 ? '<button class="btn big">Mở kỷ nguyên mới!</button>' : ''}
+    </div>`;
+  overlay.innerHTML = body();
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('in'));
+  const finish = () => {
+    overlay.classList.remove('in');
+    setTimeout(() => { overlay.remove(); save(S); updateHud(); renderStations(); onDone && onDone(); }, 500);
+  };
+  const next = () => {
+    i++;
+    if (i >= lines.length - 1) { overlay.innerHTML = body(); overlay.querySelector('button').onclick = finish; return; }
+    overlay.innerHTML = body();
+  };
+  overlay.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; next(); });
+}
+
 function startSell() {
   R = initRuntime(S, cfg, slotCount(S, cfg));
   ctx = { R, S, cfg, rng, names: makeNameGen(S, rng) };
@@ -255,11 +386,12 @@ function startSell() {
   renderLane();
   updateHud();
   setAmbience(true);   // hẻm đêm: gió + dế rả rích
-  // biến cố đầu ngày (bad/gift/debt)
+  // biến cố đầu ngày (bad/gift/debt) + GATE pha tu tiên thức tỉnh
   const st = startDay(ctx);
   setTimeout(() => {
-    if (st.bad) { sfx('bad_ev'); modal(`<div class="big-ico">💥</div><h2>${st.bad.n}</h2><p>${st.bad.all ? st.bad.all : st.bad.some.replace('%', '<b>' + fmtD(st.bad.v) + '</b>')}</p>`, [['Buồn ghê', null, true]]); }
-    else if (st.gift) { sfx('gift'); modal(`<div class="big-ico">🎁</div><h2>${st.gift.n}</h2><p>${st.gift.d}</p><p class="lvup">+${fmtD(st.gift.v)}</p>`, [['Tuyệt quá', () => updateHud(), true]]); }
+    if (st.xianAwaken) { xianAwakenScene(() => { if (st.bad) showBad(st.bad); else if (st.gift) showGift(st.gift); }); }
+    else if (st.bad) { showBad(st.bad); }
+    else if (st.gift) { showGift(st.gift); }
   }, 600);
   // vòng lặp ngày
   const TICK = 100;
@@ -506,14 +638,15 @@ function startFire() {
   $('fireBar').hidden = false;
   sfx('fire_on');
   setBoil(true);   // vòng sôi lăn tăn suốt lúc giữ lửa
-  const [lo, hi] = cfg.pourPerfect;
+  let [lo, hi] = cfg.pourPerfect;
+  if (S.upg.phap_khi) { lo -= .05; hi += .05; }
+  [lo, hi] = fireZone(S, lo, hi);   /* TU VI: cảm lửa theo cảnh giới — vẽ đúng vùng engine chấm */
   const zone = $('fireZone');
-  const w = S.upg.phap_khi ? 0.1 : 0;
-  zone.style.left = ((lo - w / 2) * 100) + '%';
-  zone.style.width = ((hi - lo + w) * 100) + '%';
+  zone.style.left = (lo * 100) + '%';
+  zone.style.width = ((hi - lo) * 100) + '%';
   const fill = $('fireFill');
   const start = performance.now();
-  const dur = cfg.pot.fillMs;
+  const dur = cultFillMs(S, cfg.pot.fillMs);   /* TU VI Luyện Hư: nấu nhanh hơn */
   pouring = {};
   const anim = () => {
     if (!pouring) return;
@@ -540,6 +673,7 @@ function finishFire(f) {
   const res = pourResult(f, S, cfg);
   if (res === 'perfect') {
     pot.used = true;
+    pot.perfect = true;
     sfx('perfect');
     toast('🔥 Lửa chuẩn! Nồi sôi sùng sục', 'good');
     renderPotVisual();
@@ -655,12 +789,240 @@ function renderSummary(res) {
   ${res.loanOut ? `<div class="sum-line"><span>Trả nợ</span><span class="neg">−${fmtD(res.loanOut)}</span></div>` : ''}
   ${res.tax ? `<div class="sum-line"><span>Thuế</span><span class="neg">−${fmtD(res.tax)}</span></div>` : ''}
   <div class="sum-line total profit"><span>Lãi hôm nay</span><span class="${rev - cost >= 0 ? 'pos' : 'neg'}">${rev - cost >= 0 ? '+' : ''}${fmtD(rev - cost)}</span></div>
-  <div class="sum-line total"><span>Két hiện tại</span><b>${fmtD(S.money)}</b></div>`;
+  <div class="sum-line total"><span>Két hiện tại</span><b>${fmtD(S.money)}</b></div>
+  ${cultSummaryHtml()}
+  ${ruinSummaryHtml(res)}`;
   updateHud();
+  R.pendingBreak = R.today.broke;   /* đột phá trong ngày → hiện lễ khi bấm sang ngày */
+  S._lastRuin = res.ruin;           /* cho enterPrep hiện cảnh báo phá sản */
+}
+
+/* ---- TU VI trong tổng kết ---- */
+function cultSummaryHtml() {
+  const C = initCult(S);
+  const Rl = REALMS[C.realm], NX = REALMS[C.realm + 1];
+  let h = `<div class="cult-box r${C.realm}">
+    <div class="cult-head"><span class="cult-ico">🧘</span>
+      <div><b>${Rl.n}</b><small>${NX ? 'Tu vi ' + C.exp + ' / ' + NX.exp : 'Đạo hạnh viên mãn — Lẩu Tiên Tôn'}</small></div>
+    </div>`;
+  if (NX) {
+    const pct = Math.min(100, Math.max(0, Math.round((C.exp - Rl.exp) / (NX.exp - Rl.exp) * 100)));
+    h += `<div class="cult-bar"><i style="width:${pct}%"></i></div>`;
+  }
+  if (Rl.buff) h += `<div class="cult-buff">✨ ${Rl.buffD}</div>`;
+  h += `</div>`;
+  return h;
+}
+
+/* ---- PHÁ SẢN trong tổng kết ---- */
+const UPGNAME = {};
+UPG.forEach(u => { UPGNAME[u.id] = u.n; });
+function ruinSummaryHtml(res) {
+  const ru = res && res.ruin;
+  if (!ru || ru.tier === 0) return '';
+  const T = RUIN_TIERS[ru.tier];
+  let h = `<div class="ruin-box t${ru.tier}">
+    <div class="ruin-head"><span>⚠️</span><b>${T.n}</b><small>âm ${ru.streak} ngày liên tiếp</small></div>
+    <div class="ruin-d">${T.d}</div>`;
+  if (ru.lostMoney) h += `<div class="ruin-loss">Chủ nợ lấy đi: −${fmtD(ru.lostMoney)}</div>`;
+  if (ru.lostUpg) h += `<div class="ruin-loss">Bị kê biên: ${UPGNAME[ru.lostUpg] || ru.lostUpg}</div>`;
+  if (ru.deep) h += `<div class="ruin-loss">Két ÂM quá ${fmtD(cfg.ruinDeep)} — bờ vực đóng cửa!</div>`;
+  h += `<div class="ruin-traffic">Khách e dè tin đồn: mai chỉ còn ${Math.round(T.traffic * 100)}% khách</div></div>`;
+  return h;
 }
 function nextDay() {
   /* closeDay() trong engine đã rollDay + autoBak + save + tăng S.day — ở đây chỉ chuyển màn hình */
+  /* GAME OVER PHÁ SẢN: bậc 3 (ngân siết quán) + âm sâu hoặc kéo dài 6 ngày */
+  if ((S.ruin || 0) >= 3 && ((S.negStreak || 0) >= 6 || S.money < -(cfg.ruinDeep || 5000000))) {
+    gameOverBankrupt();
+    return;
+  }
+  /* ĐỘT PHÁ CẢNH GIỚI: hiện lễ trước khi sang ngày */
+  if (R && R.pendingBreak != null) {
+    const nr = R.pendingBreak;
+    R.pendingBreak = null;
+    showBreakthrough(nr, () => enterPrep());
+    return;
+  }
   enterPrep();
+}
+
+/* ---- màn ĐỘT PHÁ CẢNH GIỚI (tính năng đặc biệt) ---- */
+function showBreakthrough(nr, onDone) {
+  const Rl = REALMS[nr];
+  sfx('lvup');
+  const overlay = document.createElement('div');
+  overlay.className = 'break-overlay r' + nr;
+  overlay.innerHTML = `
+    <div class="break-rays"></div>
+    <div class="break-card">
+      <div class="break-realm">⚡ ĐỘT PHÁ ⚡</div>
+      <h2>${Rl.n}</h2>
+      <p class="break-txt">${breakText(nr)}</p>
+      ${Rl.buff ? `<div class="break-buff">✨ ${Rl.buffD}</div>` : ''}
+      <button class="btn big">Tiếp tục buôn bán</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('in'));
+  const done = () => {
+    overlay.classList.remove('in');
+    setTimeout(() => { overlay.remove(); save(S); updateHud(); onDone && onDone(); }, 500);
+  };
+  overlay.querySelector('button').onclick = done;
+  overlay.addEventListener('pointerdown', e => { if (e.target === overlay) done(); });
+}
+
+/* ---- GAME OVER PHÁ SẢN: tổng kết hành trình rồi mới đóng ---- */
+function gameOverBankrupt() {
+  const j = journeyStats(S);
+  const Rl = REALMS[j.realm] || REALMS[0];
+  showScreen('splash');
+  modal(`<div class="big-ico">🏚️</div><h2>Quán đóng cửa...</h2>
+  <p>Âm tiền ${j.days} ngày trời, chủ nợ dán cáo thị trước quán. Minh tháo bảng hiệu, xếp nồi niêu vào thùng...</p>
+  <div class="journey">
+    <div class="jr-line"><span>📅 Số ngày trụ được</span><b>${j.days}</b></div>
+    <div class="jr-line"><span>🍲 Nồi lẩu đã bưng</span><b>${j.served}</b></div>
+    <div class="jr-line"><span>💵 Tổng doanh thu</span><b>${fmtD(j.totalRev)}</b></div>
+    <div class="jr-line"><span>⭐ Đánh giá</span><b>${j.rating.toFixed(1).replace('.', ',')} · ${j.reviews} review</b></div>
+    <div class="jr-line"><span>🧘 Cảnh giới</span><b>${Rl.n}</b></div>
+    ${j.bestMon ? `<div class="jr-line"><span>🥘 Món bán chạy nhất</span><b>${iname(j.bestMon)} · ${j.bestQ} nồi</b></div>` : ''}
+  </div>
+  <p style="margin-top:8px"><i>"Thất bại không đáng sợ. Đáng sợ là chưa kịp nấu nồi nào ra hồn."</i></p>`,
+  [['🍲 Làm lại cuộc đời', () => {
+    S = fresh(cfg); rng = makeRNG(S.seed); save(S);
+    updateHud();
+    playIntro(document.body, { onDone: () => { enterPrep(); firstGuide(); } });
+  }, true]]);
+}
+
+/* ============ TƯỜNG ĐÁNH GIÁ + PHẢN HỒI 3 TÔNG GIỌNG (tính năng đặc biệt) ============ */
+let rvBack = 'prep';
+function openReviews(back) {
+  rvBack = back || 'prep';
+  renderReviews();
+  showScreen('reviews');
+}
+function renderReviews() {
+  const C = initCult(S);
+  $('rvSum').textContent = starStr(rating(S)) + ' ' + rating(S).toFixed(1).replace('.', ',') +
+    ' · ' + S.reviews.length + ' đánh giá · ' + unanswered(S) + ' chưa phản hồi';
+  const list = $('reviewList');
+  list.innerHTML = '';
+  const shown = S.reviews.slice(0, 60);
+  if (!shown.length) {
+    list.innerHTML = '<div class="rv-empty">Chưa có đánh giá nào. Bán vài nồi lẩu rồi khách sẽ nói về quán thôi!</div>';
+    return;
+  }
+  shown.forEach((r, idx) => {
+    const el = document.createElement('div');
+    el.className = 'rv-card' + (r.x ? ' xian' : '') + (r.back ? ' backfire' : '');
+    /* HÌNH MÓN MINH HỌA bên phải — review nồi nào hiện đúng hình nồi đó (như game gốc) */
+    const monImg = r.b ? `<img class="rv-dish" src="${A + (SPRITES.pot[r.b] || SPRITES.pot.ca_chua)}" alt="">` : '';
+    const stars = '★'.repeat(r.s) + '☆'.repeat(5 - r.s);
+    let h = `<div class="rv-top">
+        <span class="rv-face">${r.x ? (r.st != null ? '⭐' : '🔮') : (r.f || '🙂')}</span>
+        <div class="rv-who"><b>${r.n}</b><small>Ngày ${r.d}${r.o ? ' · đơn tiên hạc' : ''}${r.back ? ' · ⚡ khách giận vì bị cà khịa' : ''}</small></div>
+        ${monImg}
+      </div>
+      <div class="rv-stars">${stars}</div>
+      <div class="rv-text">${r.t}</div>`;
+    if (r.reply) {
+      const T = TONES[r.reply.tone];
+      const avKind = r.reply.av || 'me';
+      const avHtml = avKind === 'me'
+        ? `<img src="${A + ownerSprite(loadCreator())}" alt="">`
+        : avKind === 'anon' ? '🕶️' : avKind === 'chef' ? '🧑‍🍳' : '🐸';
+      h += `<div class="rv-reply ${r.reply.tone}">
+        <div class="rv-reply-head"><span class="rv-reply-av">${avHtml}</span>${T ? 'Phản hồi của quán · ' + T.ico + ' ' + T.n : 'Phản hồi của quán'}${r.reply.edited ? ' (đã sửa)' : ''}</div>
+        <div class="rv-reply-body">${r.reply.text}</div>
+        <button class="rv-edit" data-i="${idx}">Sửa</button>
+      </div>`;
+    } else {
+      h += `<button class="btn ghost small rv-replybtn" data-i="${idx}">💬 Trả lời</button>`;
+    }
+    el.innerHTML = h;
+    list.appendChild(el);
+  });
+  list.querySelectorAll('.rv-replybtn').forEach(b => b.onclick = () => openReplyModal(shown[+b.dataset.i]));
+  list.querySelectorAll('.rv-edit').forEach(b => b.onclick = () => openReplyModal(shown[+b.dataset.i], true));
+}
+
+let _rvSeed = 1;
+const previewReply = (tone, r, mon) => genReply(makeRNG((Date.now() * 7 + _rvSeed++) >>> 0), tone, r.s, r.n, mon);
+const pickSuggestions = (tone, r, mon) => {
+  /* 3 câu gợi ý KHÁC NHAU theo tông — người chơi bấm chọn câu nào gửi câu đó */
+  const out = [];
+  const prng = makeRNG((Date.now() * 13 + _rvSeed++) >>> 0);
+  for (let t = 0; t < 12 && out.length < 3; t++) {
+    const s = genReply(prng, tone, r.s, r.n, mon);
+    if (!out.includes(s)) out.push(s);
+  }
+  return out;
+};
+/* avatar phản hồi: mặt chủ quán (sprite creator) / ẩn danh / emoji vui */
+const AV_OPTS = [
+  { id: 'me', ico: '🙂', n: 'Mặt mình' },
+  { id: 'anon', ico: '🕶️', n: 'Ẩn danh' },
+  { id: 'chef', ico: '🧑‍🍳', n: 'Đầu bếp' },
+  { id: 'fun', ico: '🐸', n: 'Cho vui' }
+];
+
+function openReplyModal(r, isEdit) {
+  if (!r) return;
+  const mon = r.b ? iname(r.b).toLowerCase() : 'lẩu';
+  let tone = r.reply ? r.reply.tone : 'polite';
+  let chosen = r.reply ? r.reply.text : null;   // câu đã chọn/đã gửi
+  let av = r.reply ? (r.reply.av || 'me') : 'me';
+  const render = () => {
+    const sugg = pickSuggestions(tone, r, mon);
+    modal(`<div class="big-ico">${r.x ? '🔮' : '💬'}</div><h2>${isEdit ? 'Sửa phản hồi' : 'Trả lời ' + r.n}</h2>
+    <p class="rv-quote">"${r.t}"</p>
+    <div class="tone-pick">${TONE_KEYS.map(k => {
+      const T = TONES[k];
+      return `<button class="tone-btn${k === tone ? ' sel' : ''}" data-tone="${k}">
+        <b>${T.ico} ${T.n}</b><small>${T.d}</small></button>`;
+    }).join('')}</div>
+    <div class="sugg-label">Chọn câu phản hồi:</div>
+    <div class="sugg-list">${sugg.map((s, i) => `<button class="sugg${chosen === s ? ' sel' : ''}" data-s="${i}">${s}</button>`).join('')}</div>
+    <textarea id="replyCustom" rows="2" maxlength="400" placeholder="Hoặc tự viết câu của bạn...">${chosen && !sugg.includes(chosen) ? chosen.replace(/</g, '&lt;') : ''}</textarea>
+    <div class="av-row"><span class="av-label">Hiện danh:</span>${AV_OPTS.map(o =>
+      `<button class="av-btn${o.id === av ? ' sel' : ''}" data-av="${o.id}" title="${o.n}">${o.ico}</button>`).join('')}</div>`,
+    [['Huỷ', null], [isEdit ? 'Lưu' : 'Gửi phản hồi', () => sendReply(r, tone, av, chosen), true]]);
+    document.querySelectorAll('.tone-btn').forEach(b => b.onclick = () => {
+      tone = b.dataset.tone; chosen = null; sfx('tick'); render();
+    });
+    document.querySelectorAll('.sugg').forEach(b => b.onclick = () => {
+      chosen = b.textContent; sfx('tick');
+      document.querySelectorAll('.sugg').forEach(x => x.classList.toggle('sel', x === b));
+      const ta = document.getElementById('replyCustom'); if (ta) ta.value = '';
+    });
+    document.querySelectorAll('.av-btn').forEach(b => b.onclick = () => {
+      av = b.dataset.av; sfx('tick');
+      document.querySelectorAll('.av-btn').forEach(x => x.classList.toggle('sel', x === b));
+    });
+  };
+  render();
+}
+
+function sendReply(r, tone, av, chosen) {
+  const ta = document.getElementById('replyCustom');
+  const custom = ta && ta.value.trim();
+  const text = custom || chosen || null;   // không có gì → engine tự sinh câu theo tông
+  const out = applyReply(S, cfg, rng, r, tone, { text, av });
+  if (!out || !out.ok) { toast('Không phản hồi được', 'bad'); return; }
+  save(S);
+  if (out.backfire) {
+    sfx('wrong');
+    toast(r.x ? '🔮 Dám cà khịa đại năng?! Một review 1 sao giáng xuống quán!' : '🔥 Cà khịa quá đà — khách đăng bài bóc phốt quán!', 'bad', 3600);
+  } else {
+    sfx('coin');
+    if (out.viral) toast('📈 Câu trả lời lên xu hướng! +' + fmtD(out.money) + ' từ cộng đồng mạng', 'good', 4000);
+    else if (out.starUp) toast('🌸 Khách nguôi giận, sửa tăng thêm 1 sao!', 'good', 3200);
+    else if (out.broke) { renderReviews(); showBreakthrough(out.newRealm, () => {}); return; }
+    else toast('Đã gửi phản hồi ✨ +1 tu vi đối nhân', 'good');
+  }
+  renderReviews();
+  updateHud();
 }
 
 /* ============ chạy ============ */

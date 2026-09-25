@@ -21,6 +21,10 @@ export function fresh(cfg = makeCFG()) {
     lsRate: cfg.ls.rate,          // tỷ giá linh thạch hôm nay (VNĐ/hạ phẩm)
     debts: [],                    // sổ nợ khách tu tiên: {id, name, ls, day, resolveAt, resolved}
     debtRoom: { amount: cfg.storyDebt.amount, due: cfg.storyDebt.dueDay, paid: false }, // nợ phòng trọ cốt truyện
+    cult: { exp: 0, realm: 0, totalExp: 0, log: [] },  // TU VI chủ quán (tính năng đặc biệt)
+    ruin: 0, negStreak: 0,        // bậc phá sản + số ngày âm két liên tiếp
+    replied: 0,                   // số review đã phản hồi
+    xianUnlock: false, xianUnlockDay: null,   // GATE pha tu tiên (ngày 8 + hết nợ phòng + dư 1tr)
     seed: (Date.now() ^ 0x5f3a) >>> 0
   };
   Object.keys(ITEMS).forEach(k => { s.stock[k] = []; s.unlocked[k] = ITEMS[k].unlock === 0; });

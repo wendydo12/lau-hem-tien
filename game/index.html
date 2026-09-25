@@ -23,6 +23,7 @@
         <span id="hudMoney">400.000đ</span>
       </div>
       <div class="hud-right">
+        <span id="hudRealm" class="realm-chip" title="Cảnh giới tu vi chủ quán">🧑‍🍳 <b>Phàm nhân</b></span>
         <span id="hudLS" class="ls-chip" hidden>💎 <b>0</b></span>
         <span id="hudStars">★★★★☆</span>
         <small id="hudRating">4,0 · 0 đánh giá</small>
@@ -96,10 +97,20 @@
       <button id="btnNextDay" class="btn big">Ngày tiếp theo →</button>
     </section>
 
+    <!-- TƯỜNG ĐÁNH GIÁ + PHẢN HỒI (tính năng đặc biệt) -->
+    <section id="reviews" class="screen" hidden>
+      <div class="rv-head">
+        <h2>📋 Đánh giá của khách</h2>
+        <small id="rvSum"></small>
+        <button id="btnCloseReviews" class="btn ghost small">← Quay lại</button>
+      </div>
+      <div id="reviewList" class="rv-list"></div>
+    </section>
+
     <!-- Modal chung -->
     <div id="modal" class="modal" hidden><div class="modal-card" id="modalCard"></div></div>
     <div id="toast" class="toast" hidden></div>
   </div>
-  <script type="module" src="js/main.js?v=15"></script>
+    <script type="module" src="js/main.js?v=16"></script>
 </body>
 </html>

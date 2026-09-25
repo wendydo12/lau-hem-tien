@@ -1,5 +1,6 @@
 /* engine/reviews.js — máy ghép review khớp sự thật, chống lặp (port nguyên cơ chế TXT/PARTS/LONG + reviewFits gốc) */
 import { TXT, PARTS, LONG, TAIL_MOOD, MOOD, STAR_TXT, STARS, dname, iname, low } from './data.js';
+import { XIAN_RECOGNIZE, initCult } from './cult.js';
 
 const RX = {
   wait: /chờ|đợi|lâu|chậm|mỏi chân|xếp hàng|hàng dài|quán đông|đông quá|cao điểm|trễ|xoay không kịp/,
@@ -69,6 +70,11 @@ export function xReviewText(S, why, c, rng) {
   for (let n = 0; n < 20 && used.has(t); n++) t = rng.pick(pool);
   const o = c && c.cups ? c.cups[0] : null;
   if (o) t = t.replace(/\{mon\}/g, low(dname(o)));
+  /* TU VI: khách tiên NHẬN RA cảnh giới của chủ quán (Kim Đan trở lên, 40% review tốt) */
+  const realm = initCult(S).realm;
+  if (good && realm >= 3 && XIAN_RECOGNIZE[realm] && rng.chance(.4)) {
+    t = XIAN_RECOGNIZE[realm];
+  }
   return { t, k: 'X' + t, x: true };
 }
 

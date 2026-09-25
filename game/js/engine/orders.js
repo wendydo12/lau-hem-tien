@@ -3,6 +3,7 @@ import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, SI
 import { qty } from './stock.js';
 import { addOk, addSkip, lChance, priceIdx, orderPricey, overCap } from './economy.js';
 import { wpick } from './rng.js';
+import { patMul, bratMul } from './cult.js';
 
 export const levelOf = (day, cfg) => day >= cfg.levels.l4 ? 4 : day >= cfg.levels.l3 ? 3 : day >= cfg.levels.l2 ? 2 : 1;
 
@@ -121,7 +122,7 @@ export function wrongKinds(pot, o) {
 export function maxPat(cups, lv, S, cfg, isXian = false) {
   const nc = cups.length;
   const per = cups.reduce((a, x) => a + x.tops.length * .18 + slowN(x) * .2, 0) / nc;
-  let max = (55 + (lv >= 2 ? 8 : 0)) * (S.upg.seats ? 1.25 : 1) * (1 + .8 * (nc - 1)) * (1 + per);
+  let max = (55 + (lv >= 2 ? 8 : 0)) * (S.upg.seats ? 1.25 : 1) * (1 + .8 * (nc - 1)) * (1 + per) * patMul(S);
   if (isXian) {
     max *= cfg.ls.daoTam;
     if (S.upg.anthan) max *= 1.25;
@@ -157,10 +158,12 @@ export function stars(c, S, cfg, rng, online = false) {
   return { s, why };
 }
 
-/* chọn loại khách hâm (port pickBrat gốc: ngày 1-9 không có; xác suất tăng dần) */
+/* chọn loại khách hâm (port pickBrat gốc: ngày 1-9 không có; xác suất tăng dần)
+ * TU VI Hợp Thể lẩu đạo: khí chất chủ quán át vía → giảm 40% tổng xác suất */
 export function pickBrat(S, cfg, rng) {
   if (S.day < 10) return null;
-  const r = rng.next();
+  const r = rng.next() / bratMul(S);
+  if (r >= 1) return null;
   if (r < .04) return 'hoi';
   if (r < .07) return 'doi';
   if (r < .09) return 'mac';

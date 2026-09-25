@@ -89,3 +89,20 @@ QA bộ 6 cảnh final: **8.5/10**.
 | thunder_rain.mp3 (3s) | /tieng-sam-set-khi-troi-bat-dau-mua | 2 — sấm điểm xuyết |
 | motorbike_alley.mp3 (50s) | /tieng-rat-nhieu-xe-may-chay-tren-duong | 3 + 5 — phố/hẻm |
 | count_money.mp3 (23s) | /tieng-dem-tien | 4 — đếm vốn phòng trọ |
+
+## 25/09 (tối) — CREATOR SPRITES + INTRO v2 (đồng bộ nhân vật theo lệnh phu quân)
+| Job | Template | Nội dung | Cost |
+|---|---|---|---|
+| job_d6d12dc4 | general_character_64px | 8 chủ quán NAM (4 diện mạo × đứng) — áo thun trắng/sơ mi xanh/bà ba/flannel | 20 |
+| job_23d07b93 | general_character_64px | 8 chủ quán NỮ (4 diện mạo × đứng) — tóc dài/ponytail/bà ba khăn rằn/bob | 20 |
+| job_af8cea5c→ec1b3e77→4dd9cc8e | xlarge_3_4 | bg1 văn phòng ngày + boss (regen 2 lần: lần 1 bị cắt nền, lần 2 sạch 1 cluster) | 75 |
+| job_8307ccb5 | xlarge_3_4 | bg2 văn phòng đêm mưa (fragment bàn+monitor — sau bỏ, dùng nền PIL đặc) | 25 |
+| job_48b45588 | xlarge_3_4 | bg3 phố Bitexco ✅ dùng luôn | 25 |
+| job_110e043b→3f557f55 | xlarge_3_4 | bg4 phòng trọ đêm props (regen 1 lần) | 50 |
+| job_1dbd7535 | xlarge_3_4 | bg5 hẻm đêm xe lẩu ✅ | 25 |
+| job_e2f7b8ee | xlarge_3_4 | bg6 quán sáng đèn ✅ (ghép nền hẻm PIL) | 25 |
+| job_95567e92 | general_character_64px | 8 pose NAM (4 nhân vật × desk/money) — ghép intro cảnh 2+4 | 20 |
+| job_8d7f14b7 | general_character_64px | 8 pose NỮ (4 nhân vật × desk/money) | 20 |
+
+Tổng tối 25/09: 310cr. **Balance: 515 → 145cr.**
+Bài học: xlarge_3_4 perfect-pixel LUÔN cắt nội thất thành fragment trong suốt (kể cả remove_bg none) → nền phải PIL vẽ đặc + dán fragment; ngoài trời ra ảnh đặc OK. Ghi vào skill meowa-pixel-gen.

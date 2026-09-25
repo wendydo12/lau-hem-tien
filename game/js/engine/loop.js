@@ -7,6 +7,8 @@ import { addReview } from './reviews.js';
 import { ev, evIs, evMul, rollDay, badCheck, takeGift, mkBadPlan } from './events.js';
 import { newRec, newPot, save, autoBak } from './state.js';
 import { makeRNG } from './rng.js';
+import { addExp, EXP, fireZone, tipMul, lsMul, wasteMul } from './cult.js';
+import { ruinUpdate } from './ruin.js';
 
 export const FACES = ['🧑','👩','👨','👧','🧔','👩‍🦰','👵','🧑‍🎓','👦','👱‍♀️','🧑‍💼','👴','👩‍💻','🧑‍🔧','👩‍🎓','👨‍🍳','👩‍🎨','🧑‍🎤','👱','👩‍🦱','👨‍🦱','🧕','👲','🧒','👸','🤵','👷‍♀️','🧑‍🚀','🥷','🧑‍🌾'];
 export const XFACE = ['🧙','🧝','🧚','⚔️','🌙','✨','🔥','❄️'];
@@ -31,6 +33,7 @@ const bigOrder = R => R.slots.some(c => c && !c.staffCooking && c.done.filter(x 
 export function pourResult(fill, S, cfg) {
   let [lo, hi] = cfg.pourPerfect;
   if (S.upg.phap_khi) { lo -= .05; hi += .05; }  /* lò địa hỏa mở rộng vạch xanh */
+  [lo, hi] = fireZone(S, lo, hi);                /* TU VI: cảnh giới cao → cảm lửa tốt hơn */
   hi += (cfg.pourGrace || 0);                    /* dung sai ngón tay thả trễ một nhịp */
   lo = Math.max(0, lo); hi = Math.min(1, hi);
   if (fill > hi) return 'spill';      /* quá lửa — khét nồi */
@@ -55,15 +58,16 @@ export function spawn(ctx) {
     return { kind: 'pricy', item: pi[0] };
   }
 
-  /* đại năng vi hành? (port spawnStar gốc) */
-  if (S.starPend) {
+  /* đại năng vi hành? (port spawnStar gốc) — CHỈ sau khi pha tu tiên mở */
+  if (S.starPend && S.xianUnlock) {
     S.starPend = false;
     return spawnStar(ctx, i, lv);
   }
 
-  /* khách tu tiên? */
+  /* khách tu tiên? — GATE 25/09 (lệnh phu quân): ngày 1-7 CHỈ khách thường;
+   * từ ngày 8 + đã trả hết nợ phòng + dư 1 triệu mới có khe không gian mở ra */
   let tienChance = cfg.ls.tienChance + (S.upg.tulin ? .2 : 0) * cfg.ls.tienChance;
-  if (S.day < 3) tienChance = 0;             /* 2 ngày đầu toàn khách thường cho quen tay */
+  if (S.day < 3 || !S.xianUnlock) tienChance = 0;
   const xian = rng.chance(tienChance);
 
   /* số nồi mỗi khách (port gốc: lv3+ có thể 1-5) */
@@ -134,6 +138,7 @@ export function serve(ctx, i, pot) {
     c.wk = wrongKinds(pot, c.order);
     c.wrong++;
     R.today.wrong++;
+    addExp(S, EXP.wrong, 'sai món');   /* TU VI: nấu sai là tự hủy đạo hạnh */
     c.pat = Math.max(.5, c.pat - c.max * .3);
     /* mất nguyên liệu (port spoilCup gốc) */
     S.cur.spoil.n++;
@@ -143,12 +148,14 @@ export function serve(ctx, i, pot) {
 
   const o = c.cups[j];
   c.done[j] = true;
+  if (pot.perfect) { addExp(S, EXP.perfect, 'lửa chuẩn'); R.today.exp = (R.today.exp || 0) + EXP.perfect; }   /* TU VI: canh lửa perfect */
 
   /* thanh toán: khách thường VNĐ / khách tu tiên linh thạch */
   if (c.xian) {
     const isStar = c.star != null;
     const pl = priceLS(o, S, cfg);
-    const ls = isStar ? pl.totalLS * 3 : Math.round(pl.totalLS * (cfg.ls.payMul[0] + rng.next() * (cfg.ls.payMul[1] - cfg.ls.payMul[0])));
+    let ls = isStar ? pl.totalLS * 3 : Math.round(pl.totalLS * (cfg.ls.payMul[0] + rng.next() * (cfg.ls.payMul[1] - cfg.ls.payMul[0])));
+    ls = Math.round(ls * lsMul(S));              /* TU VI: Đại Thừa trở lên → tu sĩ nể phục, hậu tạ thêm */
     S.ls += ls;
     S.cur.lsEarned = (S.cur.lsEarned || 0) + ls;
     R.today.lsEarned += ls;
@@ -167,7 +174,7 @@ export function serve(ctx, i, pot) {
     }
     /* khách bùng tiền (brat bung): nồi cuối ôm chạy — hộ pháp tóm được (port gốc) */
     if (c.brat === 'bung' && c.done.filter(x => !x).length === 1) {
-      if (S.upg.ho_phap && rng.next() >= .02) { R.today.gRun = (R.today.gRun || 0) + p; }
+      if (S.upg.ho_phap && rng.next() >= .02) { R.today.gRun = (R.today.gRun || 0) + p; addExp(S, EXP.bung_caught, 'hộ pháp tóm kẻ bùng'); }
       else { S.bungN = (S.bungN || 0) + 1; p = 0; }
     }
     recSale(S, o, p, false);
@@ -181,10 +188,16 @@ export function serve(ctx, i, pot) {
 
 export function finishCustomer(ctx, i, c, isXian) {
   const { R, S, cfg, rng } = ctx;
-  /* típ (port gốc: tip theo kiên nhẫn còn lại ×5k, sealer +30%, holiday ×2) */
-  let tip = Math.round((c.pat / c.max) * 5) * 1000 * (S.upg.sealer ? 1.3 : 1) * (evIs(S, 'holiday') ? 2 : 1) * c.cups.length;
+  /* típ (port gốc: tip theo kiên nhẫn còn lại ×5k, sealer +30%, holiday ×2) + TU VI Kim Đan nước dùng */
+  let tip = Math.round((c.pat / c.max) * 5) * 1000 * (S.upg.sealer ? 1.3 : 1) * tipMul(S) * (evIs(S, 'holiday') ? 2 : 1) * c.cups.length;
   const rv = stars(c, S, cfg, rng, false);
   const toStaff = ['staff1', 'staff2', 'staff3'].some(x => S.upg[x]);
+  /* TU VI: bưng đúng món = tu vi; đại năng hài lòng = tu vi khủng; khách tiên xong việc = đạo vận */
+  let expG = EXP.serve * c.cups.length + (rv.s >= 5 ? EXP.star5 : rv.s === 4 ? EXP.star4 : rv.s <= 2 ? EXP.star1 : 0);
+  if (isXian) expG += c.star != null ? EXP.star_cust : EXP.xian;
+  const br = addExp(S, expG, c.name);
+  R.today.exp = (R.today.exp || 0) + expG;
+  R.today.broke = br.broke ? br.newRealm : (R.today.broke ?? null);
   if (isXian) {
     /* típ tu tiên = linh thạch */
     const lsTip = Math.max(1, Math.round(tip / (S.lsRate || cfg.ls.rate)));
@@ -206,6 +219,8 @@ export function timeoutCustomer(ctx, i) {
   if (!c) return null;
   R.today.lost++; S.cur.lost = (S.cur.lost || 0) + 1;
   addReview(S, 1, c.xian ? 'timeout' : 'timeout', false, c, null, rng, R);
+  const br = addExp(S, EXP.timeout, 'khách bỏ về');   /* TU VI: để khách chờ tới bỏ về = nghiệp */
+  R.today.broke = br.broke ? br.newRealm : (R.today.broke ?? null);
   R.slots[i] = null;
   return c;
 }
@@ -215,10 +230,11 @@ export function closeDay(ctx) {
   const { R, S, cfg, rng } = ctx;
   R.running = false;
 
-  /* hàng hết hạn đổ bỏ (tiền đã trả lúc nhập — chỉ ghi nhận số lượng để báo cáo) */
+  /* hàng hết hạn đổ bỏ (tiền đã trả lúc nhập — chỉ ghi nhận số lượng để báo cáo)
+   * TU VI Hóa Thần gia vị: biết liệu cơm gắp mắm → giảm thiệt hại ghi nhận (không hoàn tiền, chỉ bớt đau) */
   const expired = expireStock(S, cfg);
   expired.forEach(e => { S.cur.waste[e.k] = (S.cur.waste[e.k] || 0) + e.q; });
-  const wasteV = expired.reduce((a, e) => a + e.v, 0);
+  const wasteV = Math.round(expired.reduce((a, e) => a + e.v, 0) * wasteMul(S));
   S.cur.spoil.n += expired.reduce((a, e) => a + e.q, 0);
   S.cur.spoil.v += wasteV;
 
@@ -242,6 +258,12 @@ export function closeDay(ctx) {
   S.cur.tax = tax;
   S.money -= tax;
 
+  /* THANG PHÁ SẢN: tính lãi ngày rồi cập nhật bậc ruin (âm liên tiếp → leo thang) */
+  const dayProfit = recRev(S.cur) - recCost(S.cur, cfg);
+  const ruin = ruinUpdate(S, cfg, dayProfit);
+  /* TU VI: sống sót qua ngày lãi dương = đạo vận nhỏ giọt */
+  if (dayProfit >= 0) { const br = addExp(S, EXP.day_clear, 'trọn một ngày'); R.today.broke = br.broke ? br.newRealm : (R.today.broke ?? null); }
+
   /* đẩy vào history */
   S.history.unshift(S.cur);
   if (S.history.length > 400) S.history.length = 400;
@@ -251,14 +273,24 @@ export function closeDay(ctx) {
   rollDay(S, cfg, rng);
   if (!S.badPlan || S.day > S.badPlan.start + 90) S.badPlan = mkBadPlan(S.day, rng);
   autoBak(S); save(S);
-  return { rev, tax, wage, loanOut, expired, rent: fx.rent, util: fx.util };
+  return { rev, tax, wage, loanOut, expired, rent: fx.rent, util: fx.util, dayProfit, ruin };
 }
 
-/* ---------- đầu ngày mới: biến cố sổ nợ + tai họa + quà ---------- */
+/* ---------- đầu ngày mới: biến cố sổ nợ + tai họa + quà + GATE pha tu tiên ---------- */
 export function startDay(ctx) {
   const { S, cfg, rng } = ctx;
-  const out = { debtEvents: [], bad: null, gift: null };
+  const out = { debtEvents: [], bad: null, gift: null, xianAwaken: null };
   out.debtEvents = resolveDebts(S, cfg);
+  /* GATE TU TIÊN (lệnh phu quân): ngày ≥ 8 + trả xong nợ phòng + két dư ≥ 1 triệu
+   * → mở pha tu tiên 1 lần duy nhất (kèm cutscene UI). Chưa đủ → im lặng chờ ngày sau. */
+  const gate = cfg.xianGate || { fromDay: 8, surplus: 1000000 };
+  if (!S.xianUnlock && S.day >= gate.fromDay && S.debtRoom && S.debtRoom.paid && S.money >= gate.surplus) {
+    S.xianUnlock = true;
+    S.xianUnlockDay = S.day;
+    /* lịch đại năng bắt đầu tính từ ngày mở (nếu rollDay đã đặt trước đó thì bỏ qua) */
+    S.starSch = null;
+    out.xianAwaken = { day: S.day };
+  }
   out.bad = badCheck(S, cfg, rng);
   if (!out.bad && S.gift) out.gift = takeGift(S);
   return out;

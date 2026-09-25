@@ -587,6 +587,7 @@ test('spawn: 2 ngày đầu không có khách tu tiên, sau đó có', () => {
     R.slots.forEach((c, i) => { if (c) { R.slots[i] = null; } });
   }
   S.day = 10;
+  S.xianUnlock = true;   /* gate pha tu tiên (25/09): phải mở khóa mới có khách tiên */
   let xianSeen = 0;
   for (let t = 0; t < 300; t++) {
     const res = spawn(ctx);

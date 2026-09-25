@@ -1,6 +1,8 @@
 /* engine/economy.js — giá, chi phí, traffic, thuế, vay, cầm đồ linh thạch, sổ nợ. Port công thức gốc. */
 import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, SECRET_KEYS, UPG, DEF_SELL, XTOP_KEYS } from './data.js';
 import { costOf } from './stock.js';
+import { trafficMul } from './cult.js';
+import { ruinTrafficMul } from './ruin.js';
 
 /* món secret bán bằng linh thạch (sell = số LS hạ phẩm) */
 const isLSItem = k => ITEMS[k] && ITEMS[k].type === 'secret' && ITEMS[k].sell <= 10;
@@ -74,13 +76,14 @@ export const fixed = (S, cfg) => ({ rent: cfg.rent, util: cfg.utilBase + upgCoun
 export function rating(S) { const r = S.reviews.slice(0, 40); if (!r.length) return 4; return r.reduce((a, x) => a + x.s, 0) / r.length; }
 export const starStr = v => { const f = Math.round(v); return '★'.repeat(f) + '☆'.repeat(5 - f); };
 
-/* công thức traffic port nguyên xi từ gốc: rating → hệ số khách, boost trang bị, giá RẺ hút khách (avgIdx<1), giá đắt bị phạt qua pricyItems ở spawn */
+/* công thức traffic port nguyên xi từ gốc: rating → hệ số khách, boost trang bị, giá RẺ hút khách (avgIdx<1), giá đắt bị phạt qua pricyItems ở spawn
+ * + TU VI Nguyên Anh khói bếp (trafficMul) + THANG PHÁ SẢN (ruinTrafficMul — tin đồn quán sắp đóng) */
 export function traffic(S, cfg, evMul = 1) {
   const r = rating(S);
   const rf = (.55 + (r - 1) / 4 * .9) * Math.min(1, Math.max(.6, .6 + (r - 3.5) * .4)) * (S.day < 10 ? .8 + .02 * S.day : 1);
   const boost = 1 + (S.upg.sign ? .2 : 0) + (S.upg.ads ? .25 : 0) + Math.min(S.day, 40) * .012;
   const avgIdx = BASE_KEYS.filter(k => S.unlocked[k]).reduce((a, k) => a + S.sell[k] / DEF_SELL[k], 0) / Math.max(1, BASE_KEYS.filter(k => S.unlocked[k]).length);
-  return rf * boost * evMul / Math.max(.85, Math.min(1, avgIdx) ** 2);
+  return rf * boost * evMul * trafficMul(S) * ruinTrafficMul(S) / Math.max(.85, Math.min(1, avgIdx) ** 2);
 }
 
 /* ---------- ghi nhận doanh thu ngày ----------

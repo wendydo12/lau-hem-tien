@@ -6,6 +6,10 @@ export const DEFAULT_CONFIG = {
   dayMin: 4,                 // phút thật cho 1 ngày bán (11:00-22:00 trong game)
   startMoney: 500000,        // vốn ban đầu (VNĐ) — cốt truyện intro: nghỉ việc, còn đúng 500k
   storyDebt: { amount: 2000000, dueDay: 7 }, // NỢ PHÒNG TRỌ theo cốt truyện: 2 triệu, hạn trả trong 7 ngày
+  /* GATE PHA TU TIÊN (lệnh phu quân 25/09): sau ngày 7 + trả hết nợ phòng + dư 1 triệu
+   * mới mở khách tu tiên / thực đơn bí mật / linh thạch / đại năng — kèm cutscene "Đêm mưa sao băng". */
+  xianGate: { fromDay: 8, surplus: 1000000 },
+  ruinDeep: 5000000,       // THANG PHÁ SẢN: âm quá mức này + bậc 3 = siết quán → game over
   startLS: 0,                // linh thạch hạ phẩm khởi đầu
   commission: 20,            // % phí "Tiên Hạc Truyền Tin" (đơn online)
   wage1: 90000,              // đệ tử học việc /ngày
