@@ -31,6 +31,7 @@ C('d_muoi_ot', 'Muối ớt xanh', '', '#9fbf3a', 7, 0, 5000, 0);
 C('d_chao', 'Chao', '', '#e8c9a8', 7, 0, 5000, 0);
 C('d_sa_te', 'Sa tế', '', '#d4501e', 7, 0, 6000, 120000);
 C('d_sot_me', 'Sốt me', '', '#9c6b3c', 7, 0, 6000, 150000);
+C('d_mix', 'Nước chấm mix', 'Chấm mix', '#6b4a2a', 7, 0, 8000, 200000); // tương+dầu hào+bơ đậu phộng+dầu mè+hành tỏi đậu phộng
 C('d_tuong_tien', 'Tương tiên giới', '', '#9a5fd4', 7, 0, 0, 300000); // tính linh thạch, xử lý riêng
 
 /* --- TOPPING THƯỜNG --- */
@@ -38,20 +39,37 @@ const T = mk('top', 'top');
 T('t_bo', 'Thịt bò', 'Bò', '#b5453c', 1, 8000, 15000, 0);
 T('t_gau', 'Gầu bò', 'Gầu', '#d8a06a', 1, 7000, 13000, 100000);
 T('t_sun', 'Sụn sườn', 'Sụn', '#e8c9a8', 1, 6000, 12000, 0);
+T('t_cuu', 'Thịt cừu', 'Cừu', '#c86a6a', 1, 9000, 17000, 200000);
+T('t_de', 'Thịt dê', 'Dê', '#a0453c', 1, 9000, 17000, 250000);
+T('t_ba_chi', 'Ba chỉ heo mỏng', 'Ba chỉ', '#e8a0a0', 1, 7000, 13000, 150000);
 T('t_tom', 'Tôm tươi', 'Tôm', '#f08a5d', 1, 10000, 18000, 150000);
 T('t_muc', 'Mực ống', 'Mực', '#f4efe4', 1, 9000, 16000, 150000);
 T('t_ngheu', 'Nghêu', 'Nghêu', '#a8b8a0', 1, 6000, 12000, 200000);
+T('t_ca_dieu', 'Cá điêu hồng', 'Cá điêu hồng', '#e88a8a', 1, 8000, 15000, 250000);
 T('t_bo_vien', 'Bò viên', 'Bò viên', '#8a5a3b', 3, 5000, 10000, 0);
 T('t_ca_vien', 'Cá viên', 'Cá viên', '#e8d8b0', 3, 4000, 9000, 0);
+T('t_ca_vien_chien', 'Cá viên chiên', 'Cá viên chiên', '#d4a03c', 3, 4500, 9500, 120000);
 T('t_dau_hu_ky', 'Tàu hũ ky', 'Hũ ky', '#f2d16b', 2, 3000, 7000, 100000);
+T('t_dau_hu_non', 'Đậu hũ non', 'Đậu hũ non', '#f4f0e4', 1, 2000, 5000, 80000);
 T('t_rau_muong', 'Rau muống', 'Rau muống', '#5fa84a', 1, 2000, 5000, 0);
 T('t_cai_cuc', 'Cải cúc', 'Cải cúc', '#7ab648', 1, 3000, 6000, 0);
+T('t_chan_vit', 'Rau chân vịt', 'Chân vịt', '#3f7a34', 1, 2000, 5000, 80000);
+T('t_cai_thia', 'Cải thìa', 'Cải thìa', '#8ac05a', 1, 2000, 5000, 0);
 T('t_kim_cham', 'Nấm kim châm', 'Kim châm', '#f4ead0', 2, 4000, 8000, 100000);
+T('t_dong_co', 'Nấm đông cô', 'Đông cô', '#6b4a2a', 2, 4000, 8000, 120000);
+T('t_dui_ga', 'Nấm đùi gà', 'Đùi gà', '#d8c8a0', 2, 4500, 9000, 150000);
+T('t_cu_sen', 'Củ sen', 'Củ sen', '#f0e8d8', 2, 3000, 7000, 100000);
 T('t_mi_goi', 'Mì gói', 'Mì gói', '#f2c14e', 7, 2000, 4000, 0);
-T('t_mien', 'Miến', 'Miến', '#e8dcc0', 7, 2000, 5000, 0);
+T('t_mien', 'Miến', 'Miến', '#c8c8c0', 7, 2000, 5000, 0);
 T('t_bun', 'Bún tươi', 'Bún', '#fbf8f0', 1, 2000, 4000, 0);
 T('t_udong', 'Mì udon', 'Udon', '#f4efe4', 3, 3000, 6000, 150000);
 T('t_trung', 'Trứng gà', 'Trứng', '#f7d56b', 3, 3000, 7000, 0);
+
+/* --- DƯỢC THIỆN (duoc — cao cấp, khách tu tiên rất thích) --- */
+const D = mk('duoc', 'duoc');
+D('du_nhan_sam', 'Nhân sâm', 'Nhân sâm', '#d8b06a', 3, 12000, 22000, 300000);
+D('du_dong_trung', 'Đông trùng hạ thảo', 'Đông trùng', '#e08a2e', 3, 15000, 28000, 400000);
+D('du_nam_bung_de', 'Nấm bụng dê', 'Bụng dê', '#8a6a4a', 2, 8000, 16000, 350000);
 
 /* --- TOPPING TIÊN GIỚI (sell = số linh thạch hạ phẩm) --- */
 const X = mk('xtop', 'xtop');
@@ -66,11 +84,12 @@ ITEMS.sup = { n: 'Nồi + muỗng + chén', s: 'Nồi chén', type: 'supply', g:
 export const BASE_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'base');
 export const DIP_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'dip');
 export const TOP_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'top');
+export const DUOC_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'duoc');
 export const XTOP_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'xtop');
 
 /* món "chậm" (sơ chế lâu) → đơn chứa chúng được khách chờ lâu hơn một chút */
-export const SLOW_KEYS = ['t_tom', 't_muc', 't_ngheu'];
-export const slowN = o => o.tops.filter(t => ITEMS[t]?.g === 'xtop' || SLOW_KEYS.includes(t)).length;
+export const SLOW_KEYS = ['t_tom', 't_muc', 't_ngheu', 't_ca_dieu', 't_de'];
+export const slowN = o => o.tops.filter(t => ITEMS[t]?.g === 'xtop' || ITEMS[t]?.g === 'duoc' || SLOW_KEYS.includes(t)).length;
 
 export const SPICY = ['Không cay', 'Cay vừa', 'Cay nhiều', 'Cay Tứ Xuyên'];
 export const SIZES = ['N', 'L'];

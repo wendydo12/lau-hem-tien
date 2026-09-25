@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LẨU HẺM TIÊN — Kho Asset</title>
+<style>
+  :root {
+    --bg: #1a1426;
+    --panel: #241c33;
+    --wood: #b8894c;
+    --cream: #f3e5c2;
+    --ink: #5f4523;
+    --amber: #c98d28;
+    --teal: #74cfbf;
+    --violet: #9a5fd4;
+    --rose: #d4506b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+    padding: 40px 5vw 80px;
+    background-image: radial-gradient(ellipse at 50% -10%, rgba(154,95,212,.12), transparent 60%);
+  }
+  h1 {
+    font-size: 34px; letter-spacing: 2px; text-align: center; margin-bottom: 8px;
+    color: var(--cream);
+    text-shadow: 0 0 24px rgba(201,141,40,.5);
+  }
+  .sub { text-align: center; color: #a89bb8; margin-bottom: 48px; font-size: 14px; }
+  h2 {
+    font-size: 20px; color: var(--amber); margin: 48px 0 6px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  h2::after { content: ''; flex: 1; height: 2px; background: linear-gradient(90deg, var(--wood), transparent); }
+  .note { color: #a89bb8; font-size: 13px; margin-bottom: 20px; }
+  .grid {
+    display: grid; gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+  .card {
+    background: var(--panel);
+    border: 2px solid #3a2f4d;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+    transition: transform .15s ease-out, border-color .15s ease-out;
+  }
+  .card:hover { transform: translateY(-3px); border-color: var(--teal); }
+  .card img {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    max-width: 100%;
+    background:
+      linear-gradient(45deg, #2c2340 25%, transparent 25%, transparent 75%, #2c2340 75%),
+      linear-gradient(45deg, #2c2340 25%, #241c33 25%, #241c33 75%, #2c2340 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 8px 8px;
+    border-radius: 6px;
+  }
+  .card .label { margin-top: 10px; font-size: 13px; color: var(--cream); font-weight: 600; }
+  .card .tag { margin-top: 4px; font-size: 11px; color: #8a7ba0; }
+  .card.magic { border-color: rgba(154,95,212,.45); }
+  .card.magic .label { color: var(--violet); }
+  .card.magic:hover { border-color: var(--violet); box-shadow: 0 0 18px rgba(154,95,212,.25); }
+  .scene img { width: 100%; max-width: 520px; }
+  .scene { display: flex; justify-content: center; }
+  .badge {
+    display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px;
+    background: rgba(116,207,191,.15); color: var(--teal); border: 1px solid rgba(116,207,191,.4);
+    margin-left: 8px; vertical-align: middle;
+  }
+  .footer { margin-top: 64px; text-align: center; color: #6a5d80; font-size: 12px; line-height: 1.8; }
+</style>
+</head>
+<body>
+<h1>🍲 LẨU HẺM TIÊN</h1>
+<div class="sub">Kho pixel art — 100% sinh mới bằng meowa.ai theo art direction riêng · 10 job · 210 credit · QA trung bình 8.4/10</div>
+
+<h2>Cảnh nền chính <span class="badge">QA 8/10</span></h2>
+<div class="note">Quán lẩu hẻm Sài Gòn về đêm — đèn vàng ấm, biển neon hình nồi lẩu (không chữ), khói bốc, ghế nhựa, nền ướt phản chiếu. Đây là background màn bán hàng.</div>
+<div class="grid scene"><div class="card"><img src="scene_alley_night.png" style="width:100%"><div class="label">Hẻm đêm — 378×498</div></div></div>
+
+<h2>7+1 nồi lẩu <span class="badge">QA 9/10</span></h2>
+<div class="note">Mỗi nồi một bản sắc: cà chua đỏ tươi, nấm vàng trong, sườn hổ phách, Thái chua cay, sukiyaki nâu đậm, đông trùng hạ thảo phát sáng, Tứ Xuyên ớt nổi. Nồi 8 (hải sản) là bonus — dùng làm nồi ẩn mở khóa muộn.</div>
+<div class="grid">
+  <div class="card"><img src="food/pot_00.png" style="width:128px"><div class="label">Lẩu cà chua</div><div class="tag">mở đầu · free</div></div>
+  <div class="card"><img src="food/pot_01.png" style="width:128px"><div class="label">Lẩu nấm</div><div class="tag">mở đầu · free</div></div>
+  <div class="card"><img src="food/pot_02.png" style="width:128px"><div class="label">Lẩu sườn</div><div class="tag">mở đầu · free</div></div>
+  <div class="card"><img src="food/pot_03.png" style="width:128px"><div class="label">Lẩu Thái</div><div class="tag">mở khóa 150k</div></div>
+  <div class="card"><img src="food/pot_04.png" style="width:128px"><div class="label">Sukiyaki</div><div class="tag">mở khóa 250k</div></div>
+  <div class="card magic"><img src="food/pot_05.png" style="width:128px"><div class="label">Đông trùng hạ thảo ✨</div><div class="tag">mở khóa 600k · khách tiên mê</div></div>
+  <div class="card"><img src="food/pot_06.png" style="width:128px"><div class="label">Tứ Xuyên</div><div class="tag">mở khóa 400k · cay nhất</div></div>
+  <div class="card magic"><img src="food/pot_07.png" style="width:128px"><div class="label">Lẩu hải sản (bonus)</div><div class="tag">nồi ẩn cuối game</div></div>
+</div>
+
+<h2>Khách người Việt <span class="badge">QA 9/10</span></h2>
+<div class="note">Trả VNĐ, review kiểu Google Maps. Sprite 64×64 đã tách nền.</div>
+<div class="grid">
+  <div class="card"><img src="chars/vn_00.png" style="width:128px"><div class="label">Chủ quán (nữ)</div><div class="tag">tạp dề · tóc cột</div></div>
+  <div class="card"><img src="chars/vn_01.png" style="width:128px"><div class="label">Ông chú đọc báo</div><div class="tag">ba lỗ trắng</div></div>
+  <div class="card"><img src="chars/vn_02.png" style="width:128px"><div class="label">Nữ sinh</div><div class="tag">đồng phục · balo</div></div>
+  <div class="card"><img src="chars/vn_03.png" style="width:128px"><div class="label">Dân văn phòng</div><div class="tag">thẻ dây đeo</div></div>
+  <div class="card"><img src="chars/vn_04.png" style="width:128px"><div class="label">Bà cụ</div><div class="tag">áo bà ba nâu</div></div>
+  <div class="card"><img src="chars/vn_05.png" style="width:128px"><div class="label">Em bé</div><div class="tag">áo vàng</div></div>
+  <div class="card"><img src="chars/vn_06.png" style="width:128px"><div class="label">Food blogger</div><div class="tag">giơ điện thoại</div></div>
+  <div class="card"><img src="chars/vn_07.png" style="width:128px"><div class="label">Shipper</div><div class="tag">áo xanh · thùng hàng</div></div>
+</div>
+
+<h2>Khách tu tiên <span class="badge">QA 8/10</span></h2>
+<div class="note">Trả linh thạch, đạo tâm mỏng, típ khủng. Mọi sprite có aura phát sáng teal/tím — chữ ký thị giác của tầng tiên giới. 15 sprite: 10 archetype + 5 biến thể pose.</div>
+<div class="grid">
+  <div class="card magic"><img src="chars/xian_00.png" style="width:112px"><div class="label">Kiếm khách</div><div class="tag">lam bạch · kiếm sau lưng</div></div>
+  <div class="card magic"><img src="chars/xian_01.png" style="width:112px"><div class="label">Tiên nữ</div><div class="tag">váy trắng hồng</div></div>
+  <div class="card magic"><img src="chars/xian_02.png" style="width:112px"><div class="label">Lão giả</div><div class="tag">gậy gỗ · râu dài</div></div>
+  <div class="card magic"><img src="chars/xian_03.png" style="width:112px"><div class="label">Ma tu</div><div class="tag">mắt đỏ · khói đen</div></div>
+  <div class="card magic"><img src="chars/xian_04.png" style="width:112px"><div class="label">Hồ ly nhỏ</div><div class="tag">tai cáo · đuôi bông</div></div>
+  <div class="card magic"><img src="chars/xian_05.png" style="width:112px"><div class="label">Đệ tử tông môn</div><div class="tag">áo teal · đai ngọc</div></div>
+  <div class="card magic"><img src="chars/xian_06.png" style="width:112px"><div class="label">Thể tu</div><div class="tag">da đồng · cơ bắp</div></div>
+  <div class="card magic"><img src="chars/xian_07.png" style="width:112px"><div class="label">Nữ tu che mạng</div><div class="tag">tím · hoa sen bay</div></div>
+  <div class="card magic"><img src="chars/xian_08.png" style="width:112px"><div class="label">Thương nhân</div><div class="tag">gấm vàng · quạt</div></div>
+  <div class="card magic"><img src="chars/xian_09.png" style="width:112px"><div class="label">Thần đồng</div><div class="tag">bùa giấy bay</div></div>
+  <div class="card magic"><img src="chars/xian_10.png" style="width:112px"><div class="label">Kiếm khách (pose 2)</div><div class="tag">biến thể</div></div>
+  <div class="card magic"><img src="chars/xian_11.png" style="width:112px"><div class="label">Tiên nữ (pose 2)</div><div class="tag">biến thể</div></div>
+  <div class="card magic"><img src="chars/xian_12.png" style="width:112px"><div class="label">Ma tu (pose 2)</div><div class="tag">biến thể</div></div>
+  <div class="card magic"><img src="chars/xian_13.png" style="width:112px"><div class="label">Hồ ly (pose 2)</div><div class="tag">biến thể</div></div>
+  <div class="card magic"><img src="chars/xian_14.png" style="width:112px"><div class="label">Đệ tử (rút kiếm)</div><div class="tag">biến thể</div></div>
+</div>
+
+<h2>Topping · Nước chấm · Nguyên liệu tiên giới <span class="badge">QA 9/10</span></h2>
+<div class="note">24 icon 64×64: đủ 17 topping thường + 5 nước chấm + 4 nguyên liệu tiên giới phát sáng (viền aura tím-teal). <b>Đã sửa nhãn 25/09:</b> topping2 = nhóm nước chấm + rau nấm, topping3 = nhóm đạm + mì (trước đó gán đảo).</div>
+<div class="grid">
+  <div class="card"><img src="food/topping_00.png" style="width:96px"><div class="label">Bò cuộn</div></div>
+  <div class="card"><img src="food/topping_01.png" style="width:96px"><div class="label">Tôm tươi</div></div>
+  <div class="card"><img src="food/topping_02.png" style="width:96px"><div class="label">Nấm kim châm</div></div>
+  <div class="card"><img src="food/topping_03.png" style="width:96px"><div class="label">Sa tế (chén đỏ)</div></div>
+  <div class="card"><img src="food/topping_04.png" style="width:96px"><div class="label">Bò viên</div></div>
+  <div class="card magic"><img src="food/topping_05.png" style="width:96px"><div class="label">Linh chi (đỏ tím) ✨</div><div class="tag">aura tím</div></div>
+  <div class="card magic"><img src="food/topping_06.png" style="width:96px"><div class="label">Thịt linh thú ✨</div><div class="tag">aura vàng</div></div>
+  <div class="card magic"><img src="food/topping_07.png" style="width:96px"><div class="label">Băng tằm ✨</div><div class="tag">aura băng</div></div>
+  <div class="card"><img src="food/topping3_00.png" style="width:96px"><div class="label">Mực ống</div></div>
+  <div class="card"><img src="food/topping3_01.png" style="width:96px"><div class="label">Nghêu</div></div>
+  <div class="card"><img src="food/topping3_02.png" style="width:96px"><div class="label">Cá viên xiên</div></div>
+  <div class="card"><img src="food/topping3_03.png" style="width:96px"><div class="label">Tàu hũ ky</div></div>
+  <div class="card"><img src="food/topping3_04.png" style="width:96px"><div class="label">Rau muống</div></div>
+  <div class="card"><img src="food/topping3_05.png" style="width:96px"><div class="label">Mì gói</div></div>
+  <div class="card"><img src="food/topping3_06.png" style="width:96px"><div class="label">Bún tươi</div></div>
+  <div class="card"><img src="food/topping3_07.png" style="width:96px"><div class="label">Trứng gà</div></div>
+  <div class="card"><img src="food/topping2_00.png" style="width:96px"><div class="label">Muối ớt xanh</div></div>
+  <div class="card"><img src="food/topping2_01.png" style="width:96px"><div class="label">Chao</div></div>
+  <div class="card"><img src="food/topping2_02.png" style="width:96px"><div class="label">Sa tế (chén đen)</div></div>
+  <div class="card"><img src="food/topping2_03.png" style="width:96px"><div class="label">Sốt me</div></div>
+  <div class="card"><img src="food/topping2_04.png" style="width:96px"><div class="label">Mì udon</div></div>
+  <div class="card"><img src="food/topping2_05.png" style="width:96px"><div class="label">Cải cúc</div></div>
+  <div class="card"><img src="food/topping2_06.png" style="width:96px"><div class="label">Kim châm (bó buộc)</div></div>
+  <div class="card magic"><img src="food/topping2_07.png" style="width:96px"><div class="label">Linh chi (đỏ tươi) ✨</div><div class="tag">aura teal-tím</div></div>
+</div>
+
+<h2>Món mới theo yêu cầu phu quân (25/09) <span class="badge">QA xác nhận từng ô</span></h2>
+<div class="note">20 icon mới: thịt cừu/dê/ba chỉ, cá điêu hồng, cá viên chiên, đậu hũ non, rau chân vịt, cải thìa, nước chấm mix (tương+dầu hào+bơ đậu phộng+dầu mè+hành tỏi đậu phộng), củ sen, nhân sâm, đông trùng hạ thảo, nấm bụng dê, nấm đông cô, nấm đùi gà + bộ gầu/sụn/bún/miếng thay thế chuẩn hơn. Đặc biệt: <b>huyết sen phát sáng</b> ở ô cuối — bù đúng nguyên liệu tiên giới trước còn thiếu.</div>
+<div class="grid">
+  <div class="card"><img src="food/new1_00.png" style="width:96px"><div class="label">Thịt cừu</div></div>
+  <div class="card"><img src="food/new1_01.png" style="width:96px"><div class="label">Thịt dê</div></div>
+  <div class="card"><img src="food/new1_02.png" style="width:96px"><div class="label">Ba chỉ heo mỏng</div></div>
+  <div class="card"><img src="food/new1_03.png" style="width:96px"><div class="label">Cá điêu hồng</div></div>
+  <div class="card"><img src="food/new1_04.png" style="width:96px"><div class="label">Cá viên chiên</div></div>
+  <div class="card"><img src="food/new1_05.png" style="width:96px"><div class="label">Đậu hũ non</div></div>
+  <div class="card"><img src="food/new1_06.png" style="width:96px"><div class="label">Rau chân vịt</div></div>
+  <div class="card"><img src="food/new1_07.png" style="width:96px"><div class="label">Cải thìa</div></div>
+  <div class="card"><img src="food/new2_00.png" style="width:96px"><div class="label">Nước chấm mix</div><div class="tag">đậu phộng+hành+tỏi</div></div>
+  <div class="card"><img src="food/new2_01.png" style="width:96px"><div class="label">Củ sen cắt lát</div></div>
+  <div class="card"><img src="food/new2_02.png" style="width:96px"><div class="label">Nhân sâm</div><div class="tag">dược thiện</div></div>
+  <div class="card"><img src="food/new2_03.png" style="width:96px"><div class="label">Đông trùng hạ thảo</div><div class="tag">dược thiện</div></div>
+  <div class="card"><img src="food/new2_04.png" style="width:96px"><div class="label">Nấm bụng dê</div><div class="tag">dược thiện</div></div>
+  <div class="card"><img src="food/new2_05.png" style="width:96px"><div class="label">Nấm đông cô</div></div>
+  <div class="card"><img src="food/new2_06.png" style="width:96px"><div class="label">Nấm đùi gà</div></div>
+  <div class="card magic"><img src="food/new2_07.png" style="width:96px"><div class="label">Huyết sen ✨</div><div class="tag">nguyên liệu tiên giới</div></div>
+  <div class="card"><img src="food/new3_00.png" style="width:96px"><div class="label">Gầu bò</div></div>
+  <div class="card"><img src="food/new3_01.png" style="width:96px"><div class="label">Sụn sườn</div></div>
+  <div class="card"><img src="food/new3_02.png" style="width:96px"><div class="label">Bún tươi</div></div>
+  <div class="card"><img src="food/new3_03.png" style="width:96px"><div class="label">Miến</div></div>
+</div>
+
+<h2>Props & đạo cụ <span class="badge">QA 8-9/10</span></h2>
+<div class="note">Decor quán + icon nâng cấp + biểu tượng tiền tệ. Hạc trắng chở hàng = đơn Tiên Hạc Truyền Tin; đỉnh đồng lửa tím = pháp khí tự nấu; bùa giấy = sổ nợ.</div>
+<div class="grid">
+  <div class="card"><img src="props/prop_00.png" style="width:96px"><div class="label">Bàn + bếp than</div></div>
+  <div class="card"><img src="props/prop_01.png" style="width:96px"><div class="label">Đèn lồng đôi</div></div>
+  <div class="card"><img src="props/prop_02.png" style="width:96px"><div class="label">Xửng hấp</div></div>
+  <div class="card"><img src="props/prop_03.png" style="width:96px"><div class="label">Mực khô treo</div></div>
+  <div class="card"><img src="props/prop_04.png" style="width:96px"><div class="label">Bàn trưng bày</div></div>
+  <div class="card"><img src="props/prop_05.png" style="width:96px"><div class="label">Máy kẹo bông</div><div class="tag">decor vui</div></div>
+  <div class="card"><img src="props/prop_06.png" style="width:96px"><div class="label">Đống quà vặt</div><div class="tag">decor</div></div>
+  <div class="card magic"><img src="props/prop_07.png" style="width:96px"><div class="label">Biển neon</div><div class="tag">blank — sẽ tự vẽ chữ LẨU</div></div>
+  <div class="card"><img src="props/prop2_00.png" style="width:96px"><div class="label">Ghế nhựa đỏ</div></div>
+  <div class="card"><img src="props/prop2_01.png" style="width:96px"><div class="label">Ghế nhựa xanh</div></div>
+  <div class="card"><img src="props/prop2_02.png" style="width:96px"><div class="label">Lẩu đồng ống khói</div></div>
+  <div class="card magic"><img src="props/prop2_03.png" style="width:96px"><div class="label">Hạc đưa tin ✨</div><div class="tag">đơn tiên hạc</div></div>
+  <div class="card magic"><img src="props/prop2_04.png" style="width:96px"><div class="label">Đỉnh đồng lửa tím ✨</div><div class="tag">pháp khí tự nấu</div></div>
+  <div class="card"><img src="props/prop2_05.png" style="width:96px"><div class="label">Két tiền gỗ</div></div>
+  <div class="card magic"><img src="props/prop2_06.png" style="width:96px"><div class="label">Đồng xu cổ ✨</div><div class="tag">tiền tệ tu tiên</div></div>
+  <div class="card magic"><img src="props/prop2_07.png" style="width:96px"><div class="label">Bùa giấy ✨</div><div class="tag">sổ nợ khách tiên</div></div>
+</div>
+
+<h2>UI kit (tham khảo — crop phần không chữ)</h2>
+<div class="note">Sheet gốc có chữ meowa tự thêm nên chỉ dùng làm tham khảo palette + crop coin/gem/sao/progress. Panel, nút, nameplate của game sẽ render bằng CSS theo design token riêng.</div>
+<div class="grid"><div class="card" style="max-width:640px"><img src="ui/kit_main.png" style="width:100%"><div class="label">UI sheet — 516×387</div></div></div>
+
+<div class="footer">
+  Art direction gốc của dự án: hi-bit pixel · viền sticker nâu đậm 1px · palette ấm kem-caramel-nâu · linh quang teal #74cfbf + violet #9a5fd4 cho tầng tu tiên<br>
+  Mọi asset sinh mới 100% trên meowa.ai — không sao chép từ bất kỳ nguồn nào · chi tiết job: credits-log/credits.md
+</div>
+</body>
+</html>

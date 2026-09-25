@@ -16,6 +16,17 @@ Mọi job pixel-gen ghi vào đây. Balance khởi điểm 25/09/2026: 1.215.
 
 Tổng chi: 210cr / 10 job. Còn lại: 1.005cr.
 
+| 25/09 | job_98ae39f4 | food | Món mới batch A (8: cừu, dê, ba chỉ, cá điêu hồng, cá viên chiên, đậu hũ non, chân vịt, cải thìa) | 20 | 985 | ✅ QA xác nhận đúng thứ tự từng ô |
+| 25/09 | job_6a4552e4 | food | Món mới batch B (8: chấm mix, củ sen, nhân sâm, đông trùng, nấm bụng dê, đông cô, đùi gà, HUYẾT SEN glow) | 20 | 965 | ✅ QA xác nhận đúng thứ tự |
+| 25/09 | job_9797e1fd | food | Món mới batch C (4: gầu bò, sụn, bún, miến — bản đẹp thay thế) | 20 | 945 | ✅ QA xác nhận đúng thứ tự |
+
+Tổng chi cả dự án tới nay: 270cr / 13 job. Còn lại: 945cr.
+
+## SỬA NHÃN 25/09 (phu quân phát hiện khi xem gallery)
+- topping2_00..07 = muối ớt xanh, chao, sa tế đen, sốt me, udon, cải cúc, kim châm bó, linh chi đỏ
+- topping3_00..07 = mực, nghêu, cá viên xiên, tàu hũ ky, rau muống, mì gói, bún, trứng
+- Bài học: sheet meowa có thể trả thứ tự KHÁC prompt → luôn QA "đọc từng ô" trước khi gán nhãn, không gán theo thứ tự prompt.
+
 ## Art direction gốc của dự án (mọi prompt sau phải theo)
 "Cozy hi-bit pixel art, uniform 1px dark brown-black sticker outline, warm palette
 (cream #f3e5c2, caramel #b8894c, deep brown #5f4523) with teal #74cfbf + violet #9a5fd4

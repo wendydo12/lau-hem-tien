@@ -20,11 +20,11 @@ export function price(o, S) {
     + o.tops.reduce((a, t) => a + sv(S, t), 0)
     + (o.size === 'L' ? sv(S, 'L') : 0);
 }
-/* giá tính bằng linh thạch (đơn tu tiên): base quy LS + xtop tính LS trực tiếp */
+/* giá tính bằng linh thạch (đơn tu tiên): base+dip+top VNĐ quy LS theo tỷ giá + xtop tính LS trực tiếp */
 export function priceLS(o, S, cfg) {
   const rate = S.lsRate || cfg.ls.rate;
   const vnd = sv(S, o.base) + (o.dip && ITEMS[o.dip] ? sv(S, o.dip) : 0)
-    + o.tops.filter(t => ITEMS[t]?.type === 'top').reduce((a, t) => a + sv(S, t), 0)
+    + o.tops.filter(t => ITEMS[t]?.type !== 'xtop').reduce((a, t) => a + sv(S, t), 0)
     + (o.size === 'L' ? sv(S, 'L') : 0);
   const ls = o.tops.filter(t => ITEMS[t]?.type === 'xtop').reduce((a, t) => a + (ITEMS[t].sell || 0), 0);
   return { vnd, ls, totalLS: Math.max(1, Math.round(vnd / rate)) + ls };
@@ -52,7 +52,7 @@ export const addSkip = (S, k, cfg, rng) => sv(S, k) > cfg.addWarn && rng.next() 
 /* ---------- chi phí ---------- */
 export const unitCost = (o, cfg) => costOf(cfg, o.base)
   + (o.dip && ITEMS[o.dip] ? costOf(cfg, o.dip) : 0)
-  + o.tops.filter(t => ITEMS[t]?.type === 'top').reduce((a, t) => a + costOf(cfg, t), 0)
+  + o.tops.filter(t => ITEMS[t] && ITEMS[t].type !== 'xtop').reduce((a, t) => a + costOf(cfg, t), 0)
   + costOf(cfg, 'sup');
 export const upgCount = S => UPG.filter(u => u.tier === 'equip' && S.upg[u.id]).length;
 export const xUpgCount = S => UPG.filter(u => u.tier === 'xian' && S.upg[u.id]).length;
