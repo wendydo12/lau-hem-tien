@@ -67,3 +67,25 @@ magic-glow accents, flat 2-3 tone shading, crisp pixels no anti-aliasing, NO TEX
 - assets/food/topping_*, topping2_*, topping3_* → 24 icon: 17 topping thường + 4 xtop + 5 dip (sẽ map cụ thể trong assets/manifest.js phase 4)
 - assets/props/prop_*, prop2_* → decor + icon nâng cấp (biển neon, ghế, đèn lồng, hạc, đỉnh, bùa, xu...)
 - assets/ui/kit_main.png → crop: coin, gem, sao, progress bar (các phần tử KHÔNG chữ)
+
+## INTRO MOVIE — 14 job meowa (25/09, cốt truyện nghỉ việc mở quán lẩu)
+| Đợt | Job | Template | Chi | Kết quả |
+|---|---|---|---|---|
+| 1 | 6 cảnh intro (s1_vanphong → s6_mo_quan) | xlarge_3_4 | 150cr | s4 (8/10) + s6 (9/10) dùng luôn; 4 cảnh thiếu nền (cutout 7-27% opaque) |
+| 2 | regen s1,s2,s3,s5 (ép nền đầy đủ) | xlarge_3_4 | 100cr | vẫn cutout → chuyển hướng composite PIL |
+| 3 | regen lần 2 (ép OPAQUE full-canvas) | xlarge_3_4 | 100cr | s1 (50% opaque) dùng được với composite; còn lại chọn bản cũ tốt nhất |
+Tổng intro: 350cr. Balance: 865 → **515cr**.
+
+Composite (assets/intro/compose.py — tự thiếp viết, không tốn credit):
+nền pixel tự vẽ PIL (văn phòng ngày/đêm mưa, phố VN ngày, hẻm đêm đèn lồng) +
+cutout meowa grade màu theo ánh sáng cảnh + bóng tiếp xúc dính chân + Ken Burns trong game.
+QA bộ 6 cảnh final: **8.5/10**.
+
+## ÂM THANH INTRO (tiengdong.com — 25/09)
+| File | Nguồn | Cảnh |
+|---|---|---|
+| office_keyboard.mp3 (53s) | /tieng-ban-phim-may-tinh-o-van-phong-lam-viec | 1 — văn phòng bị mắng |
+| rain_attic.mp3 (70s) | /tieng-nuoc-mua-dot-mai-ben-trong-can-gac-xep | 2 — stress đêm mưa |
+| thunder_rain.mp3 (3s) | /tieng-sam-set-khi-troi-bat-dau-mua | 2 — sấm điểm xuyết |
+| motorbike_alley.mp3 (50s) | /tieng-rat-nhieu-xe-may-chay-tren-duong | 3 + 5 — phố/hẻm |
+| count_money.mp3 (23s) | /tieng-dem-tien | 4 — đếm vốn phòng trọ |

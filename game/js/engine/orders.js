@@ -6,6 +6,17 @@ import { wpick } from './rng.js';
 
 export const levelOf = (day, cfg) => day >= cfg.levels.l4 ? 4 : day >= cfg.levels.l3 ? 3 : day >= cfg.levels.l2 ? 2 : 1;
 
+/* ---- DIFFICULTY RAMP (25/09 — lệnh phu quân: "tăng độ khó từ từ, dần tăng nhiều topping, balance với thời gian chờ") ----
+ * Trần số món nhúng theo ngày — dùng CHUNG cho cả engine (sinh đơn) lẫn UI (chọn món nấu),
+ * để đơn gọi mấy món thì người chơi được phép bỏ đúng bấy nhiêu. Bậc thang mượt: 1→2→3→4→5. */
+export function maxTops(day, cfg) {
+  const lv = levelOf(day, cfg);
+  if (lv === 1) return day <= 2 ? 1 : 2;     // ngày 1-2: 1 món (học việc) · ngày 3-5: tối đa 2
+  if (lv === 2) return day <= 12 ? 2 : 3;    // ngày 6-12: 2 · ngày 13-29: 3
+  if (lv === 3) return day <= 45 ? 3 : 4;    // ngày 30-45: 3 · ngày 46-59: 4
+  return 5;                                   // ngày 60+: 5 món — cao thủ lẩu
+}
+
 /* tên khách thường (port uniqName/PNAME gốc) */
 export function makeNameGen(S, rng) {
   const HN = L => rng.pick(NM_HO) + ' ' + rng.pick(L);
@@ -57,11 +68,17 @@ export function genOrder(S, cfg, rng, lv = levelOf(S.day, cfg), opts = {}) {
     .filter(k => ITEMS[k].type === 'secret' ? isXian : addOk(S, k, cfg))
     .filter(k => has(k) || lv < 2)      /* ngày 1-2: không cần hàng (đơn trơn) */
     .sort(() => rng.next() - .5);
-  const r = rng.next();
-  /* lv1 (ngày 1-5): 1 món nhúng nếu còn hàng (nồi lẩu phải có đồ ăn trong đó — lệnh phu quân), hết hàng thì nồi trơn */
-  let n = lv === 1 ? (pool.length ? 1 : 0)
-    : lv === 2 ? (r < .2 ? 0 : 1)
-    : wpick(rng, [0, 1, 2, 3, 4], [.1, .3, .3, .18, .12]);
+  /* ---- số món nhúng theo RAMP ngày (maxTops) — phân phối lệch dần về trần khi ngày càng cao ---- */
+  const cap = maxTops(S.day, cfg);
+  const TOP_DIST = {
+    1: [[1], [1]],                                   // ngày 1-2: đúng 1 món (nếu còn hàng)
+    2: [[0, 1, 2], [.12, .44, .44]],                 // ngày 3-12: 0-2, thiên về 1-2
+    3: [[0, 1, 2, 3], [.07, .25, .42, .26]],         // ngày 13-45: 0-3, thiên về 2
+    4: [[0, 1, 2, 3, 4], [.05, .16, .31, .32, .16]], // ngày 46-59
+    5: [[0, 1, 2, 3, 4, 5], [.04, .1, .2, .29, .27, .1]] // ngày 60+
+  };
+  const D = TOP_DIST[Math.min(5, Math.max(1, cap))];
+  let n = cap <= 1 ? 1 : wpick(rng, D[0], D[1]);
   n = Math.min(n, pool.length);
   const pick = [];
   for (const k of pool) {
@@ -97,11 +114,14 @@ export function wrongKinds(pot, o) {
   return k;
 }
 
-/* kiên nhẫn tối đa (port công thức gốc + đạo tâm tu tiên) */
+/* kiên nhẫn tối đa (port công thức gốc + đạo tâm tu tiên)
+ * RAMP BALANCE 25/09: đơn càng nhiều món nhúng khách càng kiên nhẫn chờ —
+ * +18% mỗi món nhúng, món lâu chín (tôm/mực/nghêu/cá/dê/dược thiện/secret) cộng thêm +20% mỗi món,
+ * để số topping tăng dần theo ngày không làm khách bỏ về oan. */
 export function maxPat(cups, lv, S, cfg, isXian = false) {
   const nc = cups.length;
-  let max = (55 + (lv >= 2 ? 8 : 0)) * (S.upg.seats ? 1.25 : 1) * (1 + .8 * (nc - 1))
-    * (1 + .35 * cups.reduce((a, x) => a + slowN(x) + Math.max(0, x.tops.length - 1), 0) / nc);
+  const per = cups.reduce((a, x) => a + x.tops.length * .18 + slowN(x) * .2, 0) / nc;
+  let max = (55 + (lv >= 2 ? 8 : 0)) * (S.upg.seats ? 1.25 : 1) * (1 + .8 * (nc - 1)) * (1 + per);
   if (isXian) {
     max *= cfg.ls.daoTam;
     if (S.upg.anthan) max *= 1.25;

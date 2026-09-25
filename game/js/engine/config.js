@@ -4,7 +4,8 @@ export const GAME_VERSION = '0.1.0';
 export const DEFAULT_CONFIG = {
   cfgVer: 1,
   dayMin: 4,                 // phút thật cho 1 ngày bán (11:00-22:00 trong game)
-  startMoney: 400000,        // vốn ban đầu (VNĐ)
+  startMoney: 500000,        // vốn ban đầu (VNĐ) — cốt truyện intro: nghỉ việc, còn đúng 500k
+  storyDebt: { amount: 2000000, dueDay: 7 }, // NỢ PHÒNG TRỌ theo cốt truyện: 2 triệu, hạn trả trong 7 ngày
   startLS: 0,                // linh thạch hạ phẩm khởi đầu
   commission: 20,            // % phí "Tiên Hạc Truyền Tin" (đơn online)
   wage1: 90000,              // đệ tử học việc /ngày

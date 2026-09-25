@@ -86,3 +86,45 @@ Task table:
 - Game URL: http://localhost:8793/game/index.html — localStorage key lhTienSave.
 - Asset path từ game/: `../../assets/` (hằng A trong main.js).
 - gitnexus: chạy sau mỗi commit.
+
+## Phase 4c (25/09) — INTRO MOVIE + cốt truyện nợ + difficulty ramp + composite nồi lẩu
+
+### 1. Pixel movie intro (kiểu Stardew Valley — lệnh phu quân)
+Cốt truyện: Minh 26 tuổi, nhân viên văn phòng → bị sếp mắng → stress đêm mưa → nghỉ việc
+(còn đúng 500k) → phòng trọ nợ 2 triệu hạn 7 ngày → đẩy xe lẩu đêm → mở quán LẨU HẺM TIÊN.
+- 6 cảnh: 14 job meowa xlarge_3_4 (350cr, balance 865→515). Meowa trả cutout thiếu nền
+  → composite PIL (assets/intro/compose.py): nền pixel tự vẽ (văn phòng ngày/đêm mưa, phố VN,
+  hẻm đèn lồng) + grade màu cutout theo ánh sáng + bóng tiếp xúc dính chân + Ken Burns.
+- BUG tự phát hiện: grade() nhân tint 0-255 không chia 255 → tràn uint8 → nhiễu cầu vồng.
+  QA bộ final: 8.5/10.
+- game/js/intro.js: trình chiếu DOM, phụ đề tiếng Việt timeline, skip/chạm/phím,
+  nhớ đã xem (localStorage), chạy khi mở quán mới / quán mới / game over làm lại.
+- Âm thanh THẬT theo cảnh (tiengdong.com): bàn phím VP, mưa+sấm, xe máy, đếm tiền,
+  bếp+phố (playIntroSfx trong audio.js, decode OK cả 5 file).
+
+### 2. Kinh tế cốt truyện
+- startMoney 400k → **500k** (đúng lời thoại "trong túi còn 500 nghìn").
+- Nợ phòng trọ **2.000.000đ hạn ngày 7**: banner ở màn prep (đỏ nhấp nháy khi ≤2 ngày),
+  nút "Trả ngay"; sáng ngày 8 chưa trả → **game over cốt truyện** (mất phòng, bán xe) → làm lại.
+- Engine: cfg.storyDebt + S.debtRoom + roomDebt/payRoomDebt/roomDebtOverdue (loop.js).
+- Debug hook ?testday=8&testmoney=300000 để test không phải chơi 7 ngày.
+
+### 3. Difficulty ramp (lệnh phu quân: tăng topping từ từ + balance kiên nhẫn)
+- maxTops(day) dùng CHUNG engine+UI: ngày 1-2:1 → 3-5:2 → 6-12:2 → 13-29:3 → 30-45:3
+  → 46-59:4 → 60+:5. Phân phối đơn lệch dần về trần.
+- maxPat mới: +18%/món nhúng, món lâu chín (tôm/mực/nghêu/cá/dê/dược/secret) +20%/món
+  → đơn phức tạp khách chờ lâu hơn, không bỏ về oan.
+
+### 4. Composite nồi lẩu (lệnh phu quân: "bỏ topping nào lẩu hiện đúng topping đó kiểu trà sữa")
+- renderPotVisual: thả icon topping vào elip miệng nồi, xếp vòng theo mặt nước,
+  animation dropIn (rơi-tõm nảy), món secret phát sáng tím, nồi L topping to hơn.
+- QA screenshot: cải cúc nằm gọn lòng nồi. Không tốn credit meowa.
+
+### 5. BUG NẶNG phát hiện + sửa: literal '***' trong source
+- SAVE_KEY/OWNER_KEY (state.js) và KEY intro bị bộ lọc che-secret ghi đè thành '***'
+  khi chép qua tool → save game và intro flag DÙNG CHUNG 1 key, ghi đè nhau.
+- Fix: nối chuỗi ['lhTien','Save'].join('') — grep toàn repo sạch.
+
+### Khác
+- Slogan splash mới: "Hẻm nhỏ, vị tiên — hương vị lẩu ăn quên lối về."
+- Test: 47 → **51/51 pass** (ramp 3 test + nợ phòng 1 test). Cache-bust v=15.

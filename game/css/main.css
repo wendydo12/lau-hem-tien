@@ -153,6 +153,40 @@ body{
   display:flex;align-items:center;justify-content:center;position:relative;box-shadow:inset 0 2px 0 var(--wood)}
 #potVisual img{width:88px;height:88px;image-rendering:pixelated}
 #potVisual .empty-pot{color:var(--panel);font-size:44px;opacity:.5}
+/* ===== INTRO MOVIE (pixel cutscene kiểu Stardew) ===== */
+#introOverlay{position:fixed;inset:0;z-index:200;background:#070510;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.intro-stage{position:absolute;inset:0;opacity:0;transition:opacity .6s ease;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.intro-stage.in{opacity:1}
+.intro-img{max-width:100%;max-height:100%;image-rendering:pixelated;will-change:transform}
+.intro-img.kb{transform-origin:center center}
+.intro-img.kba{animation:kbA linear both}
+.intro-img.kbb{animation:kbB linear both}
+@keyframes kbA{from{transform:scale(1) translate(0,0)}to{transform:scale(1.08) translate(-1.5%,1%)}}
+@keyframes kbB{from{transform:scale(1.08) translate(1.5%,-1%)}to{transform:scale(1) translate(0,0)}}
+.intro-sub{position:absolute;left:50%;bottom:8vh;transform:translateX(-50%);max-width:86vw;
+  background:rgba(10,8,18,.82);border:2px solid #8a7a5c;border-radius:10px;color:#f5ecd8;
+  font-size:17px;line-height:1.5;padding:10px 18px;text-align:center;opacity:0;transition:opacity .45s ease;
+  text-shadow:0 1px 2px #000;pointer-events:none}
+.intro-sub.show{opacity:1}
+.intro-badge{position:absolute;top:calc(8px + env(safe-area-inset-top));left:14px;color:#6f6450;font-size:13px;letter-spacing:1px;pointer-events:none}
+.intro-skip{position:absolute;top:calc(8px + env(safe-area-inset-top));right:14px;z-index:5;
+  background:rgba(30,24,44,.8);color:#d8cbae;border:2px solid #6f6450;border-radius:8px;
+  font-size:14px;padding:6px 12px;cursor:pointer}
+.intro-skip:active{transform:scale(.96)}
+
+/* ===== BANNER NỢ PHÒNG TRỌ (cốt truyện) ===== */
+.debt-banner{display:flex;align-items:center;gap:10px;background:#f7e7c6;border:3px solid #a0522d;border-radius:10px;
+  padding:8px 12px;margin-bottom:10px;box-shadow:inset 0 2px 0 #fff8e7}
+.debt-banner .debt-ico{font-size:26px}
+.debt-banner .debt-txt{flex:1;display:flex;flex-direction:column;color:#5a3a1e}
+.debt-banner .debt-txt small{color:#8a6a45}
+.debt-banner.urgent{border-color:#c0392b;background:#f9dcc4;animation:pulseDebt 1.2s ease-in-out infinite}
+.debt-banner.late{border-color:#7b1f1f;background:#f2c4b8}
+.debt-banner.paid{border-color:#2e7d32;background:#dff0d8}
+.debt-banner .debt-pay{background:#c0392b;color:#fff;font-weight:bold;padding:6px 12px;font-size:15px}
+.debt-banner .debt-pay:disabled{background:#9a8a72;cursor:not-allowed}
+@keyframes pulseDebt{0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,.4)}50%{box-shadow:0 0 0 6px rgba(192,57,43,0)}}
+
 /* topping composite trong nồi + animation thả rơi */
 #potVisual .tops{position:absolute;inset:0;pointer-events:none;z-index:2}
 #potVisual .tops .t{position:absolute;width:24px;height:24px;transform:translate(-50%,-50%);

@@ -630,3 +630,86 @@ test('tên khách: không lặp trong 380 tên gần nhất, tên tiên đúng h
   const xn = names.xian();
   assert.ok(xn.length >= 3);
 });
+
+/* ===== DIFFICULTY RAMP (25/09) ===== */
+test('ramp: maxTops tăng dần theo ngày, không nhảy bậc gắt', async () => {
+  const { maxTops } = await import('../js/engine/orders.js');
+  const { makeCFG } = await import('../js/engine/config.js');
+  const cfg = makeCFG();
+  assert.equal(maxTops(1, cfg), 1);
+  assert.equal(maxTops(2, cfg), 1);
+  assert.equal(maxTops(3, cfg), 2);
+  assert.equal(maxTops(5, cfg), 2);
+  assert.equal(maxTops(6, cfg), 2);
+  assert.equal(maxTops(13, cfg), 3);
+  assert.equal(maxTops(30, cfg), 3);
+  assert.equal(maxTops(46, cfg), 4);
+  assert.equal(maxTops(60, cfg), 5);
+  // đơn điệu không giảm
+  let prev = 0;
+  for (let d = 1; d <= 120; d++) { const m = maxTops(d, cfg); assert.ok(m >= prev, `giảm ở ngày ${d}`); prev = m; }
+});
+
+test('ramp: số topping đơn không vượt maxTops, đơn ngày 3+ phần lớn có topping', async () => {
+  const { genOrder, maxTops } = await import('../js/engine/orders.js');
+  const { makeCFG } = await import('../js/engine/config.js');
+  const { fresh } = await import('../js/engine/state.js');
+  const { makeRNG } = await import('../js/engine/rng.js');
+  const { addStock } = await import('../js/engine/stock.js');
+  const cfg = makeCFG();
+  for (const day of [1, 4, 8, 15, 35, 50, 70]) {
+    const S = fresh(cfg); S.day = day; S.unlocked.t_tom = true; S.unlocked.t_bo = true; S.unlocked.t_rau_muong = true;
+    addStock(S, 't_tom', 10, cfg); addStock(S, 't_bo', 10, cfg); addStock(S, 't_rau_muong', 10, cfg);
+    const rng = makeRNG(12345 + day);
+    let withTop = 0, N = 60;
+    for (let i = 0; i < N; i++) {
+      const o = genOrder(S, cfg, rng);
+      assert.ok(o.tops.length <= maxTops(day, cfg), `ngày ${day} vượt trần: ${o.tops.length}`);
+      if (o.tops.length) withTop++;
+    }
+    if (day >= 4) assert.ok(withTop / N >= 0.5, `ngày ${day} chỉ ${withTop}/${N} đơn có topping`);
+  }
+});
+
+test('ramp balance: maxPat tăng theo số topping (khách chờ lâu hơn khi đơn phức tạp)', async () => {
+  const { maxPat } = await import('../js/engine/orders.js');
+  const { makeCFG } = await import('../js/engine/config.js');
+  const { fresh } = await import('../js/engine/state.js');
+  const cfg = makeCFG();
+  const S = fresh(cfg);
+  const cup0 = [{ tops: [] }], cup2 = [{ tops: ['t_bo', 't_rau_muong'] }], cup4 = [{ tops: ['t_bo', 't_rau_muong', 't_tom', 't_muc'] }];
+  const p0 = maxPat(cup0, 3, S, cfg), p2 = maxPat(cup2, 3, S, cfg), p4 = maxPat(cup4, 3, S, cfg);
+  assert.ok(p2 > p0, '2 topping phải kiên nhẫn hơn đơn trơn');
+  assert.ok(p4 > p2, '4 topping (kèm món lâu chín) phải kiên nhẫn hơn 2');
+  // mỗi topping +18%, món slow +20%: cup2 = +36%, cup4 = 4*.18 + 2*.2 = +112%
+  assert.ok(Math.abs(p2 / p0 - 1.36) < 0.01, `tỉ lệ p2/p0 = ${p2 / p0}`);
+  assert.ok(Math.abs(p4 / p0 - 2.12) < 0.01, `tỉ lệ p4/p0 = ${p4 / p0}`);
+});
+
+/* ===== NỢ PHÒNG TRỌ CỐT TRUYỆN (25/09) ===== */
+test('story debt: vốn 500k, nợ 2 triệu hạn ngày 7, trả được khi đủ tiền, quá hạn ngày 8', async () => {
+  const { makeCFG } = await import('../js/engine/config.js');
+  const { fresh } = await import('../js/engine/state.js');
+  const { roomDebt, payRoomDebt, roomDebtOverdue } = await import('../js/engine/loop.js');
+  const cfg = makeCFG();
+  assert.equal(cfg.startMoney, 500000);
+  assert.equal(cfg.storyDebt.amount, 2000000);
+  assert.equal(cfg.storyDebt.dueDay, 7);
+  const S = fresh(cfg);
+  let rd = roomDebt(S, cfg);
+  assert.equal(rd.amount, 2000000);
+  assert.equal(rd.daysLeft, 6);              // ngày 1: còn 6 ngày
+  assert.equal(payRoomDebt(S, cfg), false);  // 500k không đủ 2 triệu
+  S.money = 2500000;
+  assert.equal(payRoomDebt(S, cfg), true);
+  assert.equal(S.money, 500000);
+  assert.equal(S.debtRoom.paid, true);
+  assert.equal(payRoomDebt(S, cfg), false);  // trả rồi không trừ lần 2
+  // quá hạn
+  const S2 = fresh(cfg); S2.day = 8;
+  assert.equal(roomDebtOverdue(S2, cfg), true);
+  const S3 = fresh(cfg); S3.day = 7;
+  assert.equal(roomDebtOverdue(S3, cfg), false);  // ngày 7 = hạn chót, chưa quá
+  S3.debtRoom.paid = true; S3.day = 20;
+  assert.equal(roomDebtOverdue(S3, cfg), false);  // đã trả thì không bao giờ quá hạn
+});

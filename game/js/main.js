@@ -1,16 +1,17 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=13';
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=13';
-import { fresh, load, save, newPot } from './engine/state.js?v=13';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=13';
-import { fmt, rating, starStr, recRev, recCost, price } from './engine/economy.js?v=13';
-import { makeNameGen, levelOf, genOrder, matches } from './engine/orders.js?v=13';
-import { rollDay, mkBadPlan, evText } from './engine/events.js?v=13';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount } from './engine/loop.js?v=13';
-import { makeRNG } from './engine/rng.js?v=13';
-import { SPRITES } from './manifest.js?v=13';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn } from './audio.js?v=13';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=15';
+import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=15';
+import { fresh, load, save, newPot } from './engine/state.js?v=15';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=15';
+import { fmt, rating, starStr, recRev, recCost, price } from './engine/economy.js?v=15';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=15';
+import { rollDay, mkBadPlan, evText } from './engine/events.js?v=15';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=15';
+import { makeRNG } from './engine/rng.js?v=15';
+import { SPRITES } from './manifest.js?v=15';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn } from './audio.js?v=15';
+import { playIntro, introSeen } from './intro.js?v=15';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
@@ -58,6 +59,17 @@ const itemImg = k => img(A + spriteOf(k), iname(k));
 function boot() {
   const r = load(cfg);
   S = r.S;
+  /* DEBUG HOOK (chỉ dev, localhost): ?testday=8&testmoney=300000 — giả lập ngày/két để test
+   * game over nợ phòng trọ mà không phải chơi 7 ngày thật. beforeunload của tab cũ ghi đè
+   * localStorage nên không thể patch save từ ngoài. */
+  try {
+    const qs = new URLSearchParams(location.search);
+    if (qs.has('testday')) {
+      S.day = Math.max(1, parseInt(qs.get('testday'), 10) || 1);
+      if (qs.has('testmoney')) S.money = parseInt(qs.get('testmoney'), 10) || 0;
+      save(S);
+    }
+  } catch (e) {}
   if (!S.badPlan) S.badPlan = mkBadPlan(S.day, makeRNG(S.seed));
   rng = makeRNG(S.seed);
   /* mới vô game (chưa có save) → nút chính là "Mở quán" (new game);
@@ -66,11 +78,22 @@ function boot() {
   const btnPlay = $('btnPlay');
   btnPlay.textContent = hasSave ? 'Chơi tiếp (Ngày ' + S.day + ')' : '🍲 Mở quán';
   $('btnNew').hidden = !hasSave;   /* không có save thì không cần nút Quán mới */
-  btnPlay.onclick = () => { enterPrep(); firstGuide(); };
+  btnPlay.onclick = () => {
+    /* lần đầu mở quán mới → chiếu PIXEL MOVIE intro (kiểu Stardew) kể cốt truyện trước */
+    if (!hasSave && !introSeen()) {
+      btnPlay.disabled = true;
+      playIntro(document.body, { onDone: () => { btnPlay.disabled = false; enterPrep(); firstGuide(); } });
+      return;
+    }
+    enterPrep(); firstGuide();
+  };
   $('btnNew').onclick = () => modal('<div class="big-ico">🍲</div><h2>Mở quán mới?</h2><p>Toàn bộ tiến trình hiện tại sẽ mất. Chắc chứ?</p>',
     [['Huỷ', null], ['Mở quán mới', () => {
       S = fresh(cfg); rng = makeRNG(S.seed); save(S);
-      updateHud(); enterPrep(); firstGuide();   /* vào thẳng ngày 1 luôn, không nằm lì ở splash */
+      updateHud();
+      /* quán mới = cốt truyện mới → chiếu lại intro movie */
+      try { localStorage.removeItem('lhTienIntro'); } catch (e) {}
+      playIntro(document.body, { onDone: () => { enterPrep(); firstGuide(); } });
       toast('Đã mở quán mới — Ngày 1 bắt đầu!', 'good');
       /* thay URL để F5/reload sau này không dính save cũ lẫn beforeunload */
       history.replaceState(null, '', location.pathname + '?fresh=' + Date.now());
@@ -133,8 +156,22 @@ function updateHud() {
 /* ============ PREP (bản rút gọn Phase 4 — đầy đủ ở Phase 5) ============ */
 const plan = {};   // {key: qty} nhập hàng
 function enterPrep() {
+  /* QUÁ HẠN NỢ PHÒNG TRỌ (ngày 8 chưa trả đủ 2 triệu) → game over theo cốt truyện */
+  if (roomDebtOverdue(S, cfg)) { gameOverDebt(); return; }
   showScreen('prep');
   renderPrep();
+}
+function gameOverDebt() {
+  showScreen('splash');
+  modal(`<div class="big-ico">🏚️</div><h2>Hết hạn tiền phòng...</h2>
+  <p>Đã ${S.day - 1} ngày kể từ khi Minh nghỉ việc, nhưng không gom đủ 2 triệu trả tiền phòng trọ.<br>
+  Chủ nhà lấy lại phòng, chiếc xe lẩu cũng phải bán đi trả nợ...<br><br>
+  <i>"Lần sau nhớ: mỗi ngày để dành một ít, hạn chót ngày 7."</i></p>`,
+  [['🍲 Làm lại từ đầu', () => {
+    S = fresh(cfg); rng = makeRNG(S.seed); save(S);
+    updateHud();
+    playIntro(document.body, { onDone: () => { enterPrep(); firstGuide(); } });
+  }, true]]);
 }
 function planCost() { return Object.entries(plan).reduce((a, [k, q]) => a + q * costOf(cfg, k), 0); }
 function canOpen() {
@@ -149,6 +186,20 @@ function renderPrep() {
   let h = `<div class="sum-title">Ngày ${S.day} — Chuẩn bị</div>
   <div class="sum-sub">${ev ? '📅 ' + ev : 'Một ngày bình thường trong hẻm'}</div>`;
   h += `<div style="font-size:17px;color:var(--ink-soft);margin-bottom:8px">Tiền: <b>${fmtD(S.money)}</b>${S.ls > 0 ? ' · 💎 ' + S.ls : ''} — chọn số phần muốn nhập (trả tiền ngay, có hạn dùng):</div>`;
+  /* ---- BANNER NỢ PHÒNG TRỌ (cốt truyện intro) ---- */
+  const rd = roomDebt(S, cfg);
+  if (!rd.paid) {
+    const late = rd.daysLeft < 0;
+    const urgent = rd.daysLeft <= 2;
+    h += `<div class="debt-banner${urgent ? ' urgent' : ''}${late ? ' late' : ''}">
+      <span class="debt-ico">🏠</span>
+      <div class="debt-txt"><b>Nợ tiền phòng: ${fmtD(rd.amount)}</b>
+        <small>${late ? 'QUÁ HẠN! Sang ngày mai không trả là mất phòng!' : rd.daysLeft === 0 ? 'HẠN CHÓT HÔM NAY!' : 'Còn ' + rd.daysLeft + ' ngày (hạn ngày ' + rd.due + ')'}</small></div>
+      <button class="pill debt-pay" id="btnPayDebt"${S.money < rd.amount ? ' disabled' : ''}>${S.money >= rd.amount ? 'Trả ngay' : 'Thiếu ' + fmtD(rd.amount - S.money)}</button>
+    </div>`;
+  } else {
+    h += `<div class="debt-banner paid"><span class="debt-ico">✅</span><div class="debt-txt"><b>Đã trả tiền phòng!</b><small>Thoát cảnh nợ nần — yên tâm buôn bán (trả ngày ${rd.paidDay})</small></div></div>`;
+  }
   keys.forEach(k => {
     if (!S.unlocked[k]) return;
     const it = ITEMS[k];
@@ -163,6 +214,12 @@ function renderPrep() {
     </div>`;
   });
   $('prepBody').innerHTML = h;
+  /* trả nợ phòng trọ */
+  const payBtn = $('btnPayDebt');
+  if (payBtn) payBtn.onclick = () => {
+    if (payRoomDebt(S, cfg)) { sfx('coin'); toast('Đã trả 2.000.000đ tiền phòng — nhẹ cả người!', 'good', 3200); save(S); updateHud(); renderPrep(); }
+    else toast('Chưa đủ tiền trả nợ phòng', 'bad');
+  };
   $('prepBody').querySelectorAll('[data-inc]').forEach(b => b.onclick = () => { const k = b.dataset.inc; const step = k === 'sup' ? 10 : 5; if (S.money >= planCost() + step * costOf(cfg, k)) { plan[k] = (plan[k] || 0) + step; sfx('tick'); renderPrep(); } else toast('Không đủ tiền nhập thêm', 'bad'); });
   $('prepBody').querySelectorAll('[data-dec]').forEach(b => b.onclick = () => { const k = b.dataset.dec; const step = k === 'sup' ? 10 : 5; if ((plan[k] || 0) > 0) sfx('tick'); plan[k] = Math.max(0, (plan[k] || 0) - step); if (!plan[k]) delete plan[k]; renderPrep(); });
   const btn = $('btnOpen');
@@ -380,10 +437,10 @@ function bindIngs() {
     if (it.type === 'base') { pot.base = pot.base === k ? null : k; pot.size = pot.size || 'N'; sfx('pot'); }
     else if (it.type === 'dip') pot.dip = pot.dip === k ? null : k;
     else if (it.type === 'top' || it.type === 'duoc' || it.type === 'secret') {
-      const lv = levelOf(S.day, cfg);
-      const maxT = lv >= 4 ? 4 : lv >= 3 ? 2 : 1;
+      /* trần món nhúng = maxTops dùng chung với engine (ramp theo ngày) */
+      const maxT = maxTops(S.day, cfg);
       if (pot.tops.includes(k)) pot.tops = pot.tops.filter(t => t !== k);
-      else if (pot.tops.length >= maxT) toast('Đơn ngày này tối đa ' + maxT + ' món nhúng', 'bad');
+      else if (pot.tops.length >= maxT) toast('Ngày này tối đa ' + maxT + ' món nhúng (ngày sau mở thêm)', 'bad');
       else { pot.tops.push(k); sfx('plop'); }
     }
     renderStations();

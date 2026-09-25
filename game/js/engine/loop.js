@@ -263,3 +263,22 @@ export function startDay(ctx) {
   if (!out.bad && S.gift) out.gift = takeGift(S);
   return out;
 }
+
+/* ---------- NỢ PHÒNG TRỌ (cốt truyện intro: 2 triệu, hạn 7 ngày) ---------- */
+export function roomDebt(S, cfg) {
+  const d = S.debtRoom || (S.debtRoom = { amount: cfg.storyDebt.amount, due: cfg.storyDebt.dueDay, paid: false });
+  return { ...d, daysLeft: d.due - S.day };   // ngày 7 là hạn chót (daysLeft=0)
+}
+export function payRoomDebt(S, cfg) {
+  const d = S.debtRoom;
+  if (!d || d.paid) return false;
+  if (S.money < d.amount) return false;
+  S.money -= d.amount;
+  d.paid = true;
+  d.paidDay = S.day;
+  return true;
+}
+export function roomDebtOverdue(S, cfg) {
+  const d = S.debtRoom;
+  return !!(d && !d.paid && S.day > d.due);   // sáng ngày 8 chưa trả = quá hạn
+}

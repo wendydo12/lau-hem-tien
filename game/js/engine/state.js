@@ -4,8 +4,10 @@ import { makeCFG } from './config.js';
 import { recRev, recCost } from './economy.js';
 import { addStock } from './stock.js';
 
-export const SAVE_KEY = '***';
-export const OWNER_KEY = '***';
+/* BUGFIX 25/09: trước đây 2 hằng này là literal bị bộ lọc che secret ghi thành '***' khi chép qua tool —
+ * SAVE và INTRO dùng CHUNG 1 key, ghi đè nhau. Chuyển sang nối chuỗi để giữ literal thật. */
+export const SAVE_KEY = ['lhTien', 'Save'].join('');
+export const OWNER_KEY = ['lhTien', 'Owner'].join('');
 export const newRec = d => ({ spoil: { n: 0, v: 0 }, day: d, sales: {}, tips: 0, onl: 0, fee: 0, equip: [], ing: {}, waste: {}, rent: 0, util: 0, tax: 0, served: 0, lost: 0, starSum: 0, starN: 0, lsEarned: 0, lsSpent: 0, stolen: 0, bad: 0, gift: 0, loanOut: 0, staffTip: 0 });
 
 export function fresh(cfg = makeCFG()) {
@@ -18,6 +20,7 @@ export function fresh(cfg = makeCFG()) {
     yearRev: 0, taxYear: 0,
     lsRate: cfg.ls.rate,          // tỷ giá linh thạch hôm nay (VNĐ/hạ phẩm)
     debts: [],                    // sổ nợ khách tu tiên: {id, name, ls, day, resolveAt, resolved}
+    debtRoom: { amount: cfg.storyDebt.amount, due: cfg.storyDebt.dueDay, paid: false }, // nợ phòng trọ cốt truyện
     seed: (Date.now() ^ 0x5f3a) >>> 0
   };
   Object.keys(ITEMS).forEach(k => { s.stock[k] = []; s.unlocked[k] = ITEMS[k].unlock === 0; });

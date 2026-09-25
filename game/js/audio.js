@@ -261,6 +261,73 @@ function ambOff() {
   }
 }
 
+/* ============ INTRO MOVIE: âm thanh thật từng cảnh (tiengdong.com — ghi nguồn credits-log) ============
+ * office_keyboard.mp3 = tiếng bàn phím văn phòng       → cảnh 1 (bị sếp mắng)
+ * rain_attic.mp3      = mưa dột mái gác xép            → cảnh 2 (stress đêm mưa)
+ * thunder_rain.mp3    = sấm sét khi trời bắt đầu mưa   → cảnh 2 (điểm xuyết)
+ * motorbike_alley.mp3 = rất nhiều xe máy chạy trên đường → cảnh 3 + 5 (phố/hẻm đêm)
+ * count_money.mp3     = tiếng tay đếm tiền             → cảnh 4 (đếm vốn phòng trọ)
+ * street_buzz.mp3 + kitchen_clang.mp3                  → cảnh 6 (quán lẩu sáng đèn) */
+const INTRO_SND = {
+  office_keyboard: '../../assets/snd/office_keyboard.mp3',
+  rain_attic:      '../../assets/snd/rain_attic.mp3',
+  thunder_rain:    '../../assets/snd/thunder_rain.mp3',
+  motorbike_alley: '../../assets/snd/motorbike_alley.mp3',
+  count_money:     '../../assets/snd/count_money.mp3',
+};
+const INTRO_MAP = {
+  office:         ['office_keyboard'],
+  rain:           ['rain_attic', 'thunder_rain'],
+  street_day:     ['motorbike_alley'],
+  money:          ['count_money'],
+  motorbike:      ['motorbike_alley'],
+  kitchen_street: ['kitchen_clang', 'street_buzz'],
+};
+const IBUF = {};
+function loadIntroBuf(url) {
+  const c = AU.ctx; if (!c) return Promise.reject(0);
+  if (IBUF[url]) return Promise.resolve(IBUF[url]);
+  if (IBUF[url + '_l']) return IBUF[url + '_l'];
+  const p = fetch(url).then(r => r.ok ? r.arrayBuffer() : Promise.reject(0))
+    .then(b => new Promise((ok, no) => { const q = c.decodeAudioData(b, ok, no); if (q && q.then) q.then(ok, no); }))
+    .then(buf => { IBUF[url] = buf; delete IBUF[url + '_l']; return buf; });
+  IBUF[url + '_l'] = p;
+  return p;
+}
+/* phát 1 nhóm âm cho cảnh intro; trả về {stop()} */
+export function playIntroSfx(name, vol = 0.5, durSec = 8) {
+  if (!AU.on) return { stop() {} };
+  const c = au(); if (!c) return { stop() {} };
+  const urls = (INTRO_MAP[name] || []).map(k => INTRO_SND[k] || ('../../assets/snd/' + k + '.mp3'));
+  const nodes = [];
+  let alive = true;
+  urls.forEach((url, i) => {
+    loadIntroBuf(url).then(buf => {
+      if (!alive || !buf) return;
+      const s = c.createBufferSource(), g = c.createGain();
+      s.buffer = buf; s.loop = true;
+      const t0 = c.currentTime + i * 0.35;                       // lớp thứ 2 vào trễ tí cho tự nhiên
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.linearRampToValueAtTime(vol / urls.length + (i ? 0.05 : 0), t0 + 0.7);  // fade in
+      s.connect(g); g.connect(AU.fx);
+      const off = Math.random() * Math.max(0, buf.duration - durSec - 1);
+      s.start(t0, off);
+      nodes.push({ s, g });
+    }).catch(() => {});
+  });
+  return {
+    stop() {
+      alive = false;
+      nodes.forEach(({ s, g }) => {
+        try {
+          g.gain.linearRampToValueAtTime(0.0001, c.currentTime + 0.4);
+          setTimeout(() => { try { s.stop(); } catch (e) {} }, 500);
+        } catch (e) {}
+      });
+    }
+  };
+}
+
 /* ============ API ============ */
 export function sfx(n) {
   if (!AU.on) return;
