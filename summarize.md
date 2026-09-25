@@ -63,6 +63,16 @@ Task table:
 5. servePot chọn sai khách → ưu tiên khách CÓ ĐƠN KHỚP nồi đang bưng.
 6. Bubble đơn hàng thiếu "chấm X" → orderText hiển thị đủ base/size/cay/chấm/topping.
 
+### Phase 4b — fix theo lệnh phu quân + ÂM THANH ✅ (25/09, commit 6ab85e6)
+1. Tên-sprite-giọng KHỚP giới tính/tuổi: WHO_SPR=[6,2,3,4,5,1,7] map cố định, manifest.vn đổi thành OBJECT theo số file, PERSONA viết lại 7 giọng đúng vai (chị/em nữ sinh/anh VP/bà cụ/bé trai/ông chú/shipper). vn_00 = chủ quán, không spawn làm khách.
+2. Khách đứng CÙNG mặt đất (bottom 3% cố định, hết lơ lửng).
+3. Hướng dẫn tự hiện lần đầu chơi (lhTienGuide flag).
+4. Đơn lẩu ngày 1+ luôn có đồ nhúng nếu còn hàng (hết hàng → đơn trơn; KHÔNG BAO GIỜ sinh món hết hàng).
+5. Bubble = "menu request" có icon từng món (nồi + topping + chấm + 🌶).
+6. New game đúng nghĩa: chưa save → nút "🍲 Mở quán" (ẩn Quán mới); có save → "Chơi tiếp (Ngày N)" + Quán mới. ?reset=1 xóa sạch localStorage trước khi load. BẪY: tên SAVE_KEY thật ≠ 'lhTienSave' (bị mask) — reset phải dùng localStorage.clear().
+7. AUDIO (game/js/audio.js): 100% Web Audio tự tổng hợp — không file, không copy asset âm thanh game nào. 20 SFX + vòng sôi lăn tăn khi giữ lửa + ambience hẻm đêm (dế) + nút 🔊 trên HUD. Bảng ánh xạ khoảnh khắc→âm trong file.
+8. BẪY CACHE (quan trọng): Safari/Chrome cache ES module RẤT dai — main.js + mọi engine import giờ đều kèm ?v=N (v=10). Sửa engine xong phải tăng N ở TẤT CẢ import + script tag. Test engine thay đổi: node --test trước, browser sau.
+
 ### Phase 5 cần lưu ý (Prep đầy đủ)
 - 5 tab: Kho (xem mẻ + hạn dùng + đổ bỏ), Nâng cấp (6 trang bị VNĐ + 5 trang bị LINH THẠCH — chưa mua được tới Phase 6), Giá bán (sửa giá + cảnh báo đắt theo ngưỡng cfg), Đánh giá (danh sách review + ô trả lời như game gốc), Tổng kết (lịch sử ngày/tuần).
 - Đặt tên quán (modal input), đổi 12 theme (CSS vars có sẵn trong data THEMES).
