@@ -1,0 +1,9 @@
+node_modules/
+*.db
+logs/
+.DS_Store
+_research/original_game.html
+_research/script_*.js
+!_research/README.md
+outputs_tmp/
+qa-*.png
