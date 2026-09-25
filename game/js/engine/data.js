@@ -32,7 +32,10 @@ C('d_chao', 'Chao', '', '#e8c9a8', 7, 0, 5000, 0);
 C('d_sa_te', 'Sa tế', '', '#d4501e', 7, 0, 6000, 120000);
 C('d_sot_me', 'Sốt me', '', '#9c6b3c', 7, 0, 6000, 150000);
 C('d_mix', 'Nước chấm mix', 'Chấm mix', '#6b4a2a', 7, 0, 8000, 200000); // tương+dầu hào+bơ đậu phộng+dầu mè+hành tỏi đậu phộng
-C('d_tuong_tien', 'Tương tiên giới', '', '#9a5fd4', 7, 0, 0, 300000); // tính linh thạch, xử lý riêng
+C('d_hao_du', 'Tương hào du', 'Hào du', '#3a2a1a', 7, 0, 4000, 0);
+C('d_bo_dau', 'Sốt bơ đậu phộng', 'Bơ đậu', '#d8b06a', 7, 0, 6000, 100000);
+C('d_ot_toi', 'Ớt tỏi băm', 'Ớt tỏi', '#c1341f', 7, 0, 4000, 0);
+C('d_dau_me', 'Dầu mè', '', '#8a6a3a', 7, 0, 5000, 80000);
 
 /* --- TOPPING THƯỜNG --- */
 const T = mk('top', 'top');
@@ -78,6 +81,8 @@ SEC('x_linh_thu', 'Thịt linh thú', 'Linh thú', '#c98d28', 1, 0, 5, 800000); 
 SEC('x_bang_tam', 'Băng tằm', 'Băng tằm', '#a8d8e8', 2, 0, 4, 600000);                // sell = linh thạch
 SEC('x_nhan_sam', 'Nhân sâm ngàn năm', 'Nhân sâm', '#d8b06a', 3, 20000, 40000, 300000);   // dược liệu tiên, bán VNĐ giá cao
 SEC('x_dong_trung', 'Đông trùng hạ thảo tiên', 'Đông trùng', '#e08a2e', 3, 25000, 50000, 400000);
+SEC('x_tuong_tien', 'Tương tiên giới', 'Tương tiên', '#9a5fd4', 7, 0, 3, 300000);       // nước chấm bí mật, bán linh thạch
+SEC('x_mat_tuong', 'Mật tương hoàng kim', 'Mật tương', '#e0a03c', 7, 0, 4, 500000);     // nước chấm bí mật 2, bán linh thạch
 
 /* --- VẬT DỤNG --- */
 ITEMS.sup = { n: 'Nồi + muỗng + chén', s: 'Nồi chén', type: 'supply', g: 'sup', c: '#c0c0c8', life: 0, cost: 2500, unlock: 0 };

@@ -35,10 +35,10 @@ test('ITEMS: đủ 7 nồi lẩu theo brief', () => {
   assert.ok(ITEMS.tu_xuyen.unlock >= 400000);
 });
 
-test('ITEMS: thực đơn extra bí mật — 6 món, chỉ mở cho khách tu tiên', () => {
-  assert.equal(SECRET_KEYS.length, 6);
-  /* 4 món bán linh thạch (sell nhỏ) + 2 món bán VNĐ giá cao (nhân sâm, đông trùng tiên) */
-  assert.equal(XTOP_KEYS.length, 4);
+test('ITEMS: thực đơn extra bí mật — 8 món, chỉ mở cho khách tu tiên', () => {
+  assert.equal(SECRET_KEYS.length, 8);
+  /* 6 món bán linh thạch (sell nhỏ) + 2 món bán VNĐ giá cao (nhân sâm, đông trùng tiên) */
+  assert.equal(XTOP_KEYS.length, 6);
   XTOP_KEYS.forEach(k => assert.ok(ITEMS[k].sell <= 10, 'giá LS phải nhỏ (đơn vị linh thạch): ' + k));
   ['x_nhan_sam', 'x_dong_trung'].forEach(k => assert.ok(ITEMS[k].sell >= 20000, 'dược liệu tiên bán VNĐ giá cao: ' + k));
   assert.equal(DUOC_KEYS.length, 1);  /* nấm bụng dê — dược thiện khách thường đôi khi gọi */
@@ -434,7 +434,6 @@ test('quà: takeGift cộng tiền đúng số, bungN reset', () => {
 /* ============ 8. LOOP TÍCH HỢP ============ */
 function fullStock(S) {
   [...BASE_KEYS, ...TOP_KEYS, ...DIP_KEYS, ...DUOC_KEYS, ...SECRET_KEYS, 'sup'].forEach(k => { addStock(S, k, 999, cfg); S.unlocked[k] = true; });
-  S.unlocked.d_tuong_tien = true;
 }
 
 test('serve đúng món: tiền vào két, review được ghi, slot trống', () => {

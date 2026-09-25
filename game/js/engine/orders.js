@@ -40,7 +40,7 @@ export function genOrder(S, cfg, rng, lv = levelOf(S.day, cfg), opts = {}) {
   const bases = BASE_KEYS.filter(un);
   let so = null;
   const want = ks => { const k = rng.pick(ks); if (has(k)) return k; const av = ks.filter(has); if (av.length && rng.chance(.5)) return rng.pick(av); so = so || k; return k; };
-  const dipPool = DIP_KEYS.filter(un).filter(k => ITEMS[k].type === 'dip' && k !== 'd_tuong_tien').filter(k => addOk(S, k, cfg));
+  const dipPool = DIP_KEYS.filter(un).filter(k => addOk(S, k, cfg));
   const base = want(bases);
   let dip = dipPool.length && rng.chance(.6) ? want(dipPool) : null;
   if (dip && addSkip(S, dip, cfg, rng)) dip = null;
