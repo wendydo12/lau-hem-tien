@@ -345,17 +345,20 @@ test('pickBrat: 9 ngày đầu không có khách hâm', () => {
 });
 
 /* ============ 5. CANH LỬA ============ */
-test('pourResult: vạch xanh [0.62,0.92] — non/quá lửa/hoàn hảo', () => {
+test('pourResult: vạch xanh [0.55,0.93] + dung sai 0.04 — non/quá lửa/hoàn hảo', () => {
   const S = seededState();
-  assert.equal(pourResult(.5, S, cfg), 'weak');
+  assert.equal(pourResult(.5, S, cfg), 'weak');     // dưới 0.55 → non
+  assert.equal(pourResult(.55, S, cfg), 'perfect');
   assert.equal(pourResult(.7, S, cfg), 'perfect');
-  assert.equal(pourResult(.92, S, cfg), 'perfect');
-  assert.equal(pourResult(.95, S, cfg), 'spill');
+  assert.equal(pourResult(.93, S, cfg), 'perfect'); // mép trên vạch xanh
+  assert.equal(pourResult(.96, S, cfg), 'perfect'); // trong dung sai thả trễ
+  assert.equal(pourResult(.98, S, cfg), 'spill');   // quá dung sai → khét
+  assert.equal(pourResult(1.15, S, cfg), 'spill');  // để quá tự khét
   /* lò địa hỏa nới vạch ±5% */
   S.upg.phap_khi = true;
-  assert.equal(pourResult(.58, S, cfg), 'perfect');
-  assert.equal(pourResult(.96, S, cfg), 'perfect');
-  assert.equal(pourResult(.98, S, cfg), 'spill');
+  assert.equal(pourResult(.51, S, cfg), 'perfect'); // 0.55-0.05 = 0.50
+  assert.equal(pourResult(.99, S, cfg), 'perfect'); // 0.93+0.05+0.04 = 1.02 → kẹp 1.0
+  assert.equal(pourResult(1.05, S, cfg), 'spill');
 });
 
 /* ============ 6. REVIEWS ============ */

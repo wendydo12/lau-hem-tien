@@ -1,16 +1,16 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=10';
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=10';
-import { fresh, load, save, newPot } from './engine/state.js?v=10';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=10';
-import { fmt, rating, starStr, recRev, recCost, price } from './engine/economy.js?v=10';
-import { makeNameGen, levelOf, genOrder, matches } from './engine/orders.js?v=10';
-import { rollDay, mkBadPlan, evText } from './engine/events.js?v=10';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount } from './engine/loop.js?v=10';
-import { makeRNG } from './engine/rng.js?v=10';
-import { SPRITES } from './manifest.js?v=10';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn } from './audio.js?v=10';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=11';
+import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=11';
+import { fresh, load, save, newPot } from './engine/state.js?v=11';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=11';
+import { fmt, rating, starStr, recRev, recCost, price } from './engine/economy.js?v=11';
+import { makeNameGen, levelOf, genOrder, matches } from './engine/orders.js?v=11';
+import { rollDay, mkBadPlan, evText } from './engine/events.js?v=11';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount } from './engine/loop.js?v=11';
+import { makeRNG } from './engine/rng.js?v=11';
+import { SPRITES } from './manifest.js?v=11';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn } from './audio.js?v=11';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
@@ -442,7 +442,10 @@ function startFire() {
   const anim = () => {
     if (!pouring) return;
     const f = Math.min(1.15, (performance.now() - start) / dur);
-    fill.style.width = Math.min(100, f / 1.15 * 100) + '%';
+    /* BUGFIX 25/09 (phu quân báo bấm trúng xanh vẫn khét): trước đây thanh fill vẽ f/1.15
+     * nhưng chấm điểm bằng f thật → nửa trên vùng xanh nhìn thấy thực chất là vùng khét.
+     * Giờ vẽ 1:1 — thanh tới đâu giá trị tới đó, thấy xanh là xanh thật. */
+    fill.style.width = Math.min(100, f * 100) + '%';
     if (f >= 1.15) { finishFire(1.15); return; } // để quá = tự khét
     pouring.raf = requestAnimationFrame(anim);
   };

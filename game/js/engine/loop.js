@@ -31,6 +31,7 @@ const bigOrder = R => R.slots.some(c => c && !c.staffCooking && c.done.filter(x 
 export function pourResult(fill, S, cfg) {
   let [lo, hi] = cfg.pourPerfect;
   if (S.upg.phap_khi) { lo -= .05; hi += .05; }  /* lò địa hỏa mở rộng vạch xanh */
+  hi += (cfg.pourGrace || 0);                    /* dung sai ngón tay thả trễ một nhịp */
   lo = Math.max(0, lo); hi = Math.min(1, hi);
   if (fill > hi) return 'spill';      /* quá lửa — khét nồi */
   if (fill < lo) return 'weak';       /* non lửa */

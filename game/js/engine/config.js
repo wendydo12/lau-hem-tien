@@ -41,8 +41,9 @@ export const DEFAULT_CONFIG = {
   online: { minProfit: 15000000, fromDay: 60, minRating: 4.0 }, // điều kiện mở Tiên Hạc Truyền Tin
   levels: { l2: 6, l3: 30, l4: 60 },       // ngày bắt đầu mỗi cấp độ khó
   moodBlockDays: 60, moodBadPerBlock: 2,   // ngày "khách khó ở": 2 ngày/60 ngày
-  pourPerfect: [0.62, 0.92], // vạch xanh minigame canh lửa (fill 0..1)
-  pot: { fillMs: 1300 },     // thời gian giữ để fill 0→1
+  pourPerfect: [0.55, 0.93], // vạch xanh minigame canh lửa (fill 0..1) — nới rộng 25/09 cho dễ canh
+  pourGrace: 0.04,           // dung sai thả tay trễ (≈65ms) vẫn tính chuẩn
+  pot: { fillMs: 1600 },     // thời gian giữ để fill 0→1 (chậm lại cho dễ canh)
   cost: {}, life: {}         // giá nhập + hạn dùng từng nguyên liệu (fill từ ITEMS)
 };
 
