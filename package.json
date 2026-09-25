@@ -1,0 +1,11 @@
+{
+  "name": "lau-hem-tien",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Lẩu Hẻm Tiên — game quản lý quán lẩu pixel art (web). Cơ chế tham khảo thể loại; nội dung chữ + pixel art là sáng tác gốc.",
+  "scripts": {
+    "test": "node --test game/tests/*.test.js",
+    "serve": "python3 -m http.server 8793"
+  }
+}

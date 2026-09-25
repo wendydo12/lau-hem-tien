@@ -26,7 +26,8 @@ assets/{ui,chars,food,props}/ — PNG từ meowa
 - Tiền VNĐ lưu đơn vị đồng (integer), hiển thị fmt() theo k/triệu/tỷ như gốc.
 - Linh thạch: {ha, trung, thuong} integer; tỷ giá S.exchange rate đổi mỗi ngày trong rollDay.
 
-## Design tokens (từ Chef RPG ref — pin 677510337735684896)
+## Design tokens (art direction GỐC của dự án — tự thiết kế, không sao chép asset ai)
+Nguyên tắc ấm-áp-đồ-ăn là kiến thức thể loại chung; mọi giá trị + sprite bên dưới là thiết kế riêng:
 - Gỗ khung: #b8894c, bevel sáng #d2a862, tối #9a7038, viền vạn vật #5f4523
 - Giấy kem panel: #f3e5c2, kẻ ô #e2d1a7, trắng #fbf4e4
 - Nameplate amber #c98d28, chữ cream #f8ecd2, phẩm chất teal #74cfbf
