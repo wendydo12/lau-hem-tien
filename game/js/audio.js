@@ -115,49 +115,120 @@ const SFX = {
   tick() { tn(600, 0, .04, 'square', .035); },
 };
 
-/* ============ vòng sôi lăn tăn khi giữ lửa ============ */
+/* ============ vòng sôi lăn tăn khi giữ lửa + TIẾNG BẾP THẬT ============ */
+/* File thật từ tiengdong.com (CC/free SFX library — ghi nguồn trong credits-log):
+ * - snd/street_buzz.mp3   = ồn ào nhà hàng đường phố → ambience nền suốt giờ bán
+ * - snd/kitchen_clang.mp3 = xoong chảo kêu trong bếp → vòng lặp lúc nấu lẩu (canh lửa) */
+const SMP = {
+  street: '../../assets/snd/street_buzz.mp3',
+  kitchen: '../../assets/snd/kitchen_clang.mp3'
+};
+const SBUF = {};
+function loadSmp() {
+  const c = AU.ctx; if (!c) return;
+  Object.entries(SMP).forEach(([k, url]) => {
+    if (SBUF[k] || SBUF[k + '_loading']) return;
+    SBUF[k + '_loading'] = true;
+    fetch(url).then(r => r.ok ? r.arrayBuffer() : Promise.reject(0))
+      .then(b => new Promise((ok, no) => { const p = c.decodeAudioData(b, ok, no); if (p && p.then) p.then(ok, no); }))
+      .then(buf => { SBUF[k] = buf; if (k === 'street' && AU._wantStreet) startStreet(); if (k === 'kitchen' && AU._wantKitchen) startKitchen(); })
+      .catch(() => { SBUF[k] = null; });
+  });
+}
+let streetSrc = null, kitchenSrc = null;
+function startStreet() {
+  const c = AU.ctx; if (!c || streetSrc || !SBUF.street) return;
+  const s = c.createBufferSource(), g = c.createGain();
+  s.buffer = SBUF.street; s.loop = true;
+  g.gain.setValueAtTime(0, c.currentTime);
+  g.gain.linearRampToValueAtTime(.3, c.currentTime + 1.5);   // nền vừa phải, không át sfx
+  s.connect(g); g.connect(AU.fx);
+  s.start(0, Math.random() * 30);   // vào ngẫu nhiên cho đỡ lặp nhận ra
+  streetSrc = { s, g };
+}
+function stopStreet() {
+  if (!streetSrc) return;
+  try {
+    const { s, g } = streetSrc;
+    g.gain.linearRampToValueAtTime(.0001, AU.ctx.currentTime + .6);
+    setTimeout(() => { try { s.stop(); } catch (e) {} }, 700);
+  } catch (e) {}
+  streetSrc = null;
+}
+function startKitchen() {
+  const c = AU.ctx; if (!c || kitchenSrc || !SBUF.kitchen) return;
+  const s = c.createBufferSource(), g = c.createGain();
+  s.buffer = SBUF.kitchen; s.loop = true;
+  g.gain.setValueAtTime(0, c.currentTime);
+  g.gain.linearRampToValueAtTime(.42, c.currentTime + .25);
+  s.connect(g); g.connect(AU.fx);
+  s.start(0, Math.random() * 20);
+  kitchenSrc = { s, g };
+}
+function stopKitchen() {
+  if (!kitchenSrc) return;
+  try {
+    const { s, g } = kitchenSrc;
+    g.gain.linearRampToValueAtTime(.0001, AU.ctx.currentTime + .35);
+    setTimeout(() => { try { s.stop(); } catch (e) {} }, 450);
+  } catch (e) {}
+  kitchenSrc = null;
+}
+
 let bubbleTimer = null;
 function bubbleLoop(on) {
   if (!AU.on) return;
-  if (on && !bubbleTimer) {
-    au(); if (!AU.ctx) return;
-    /* nền sôi: nhiễu lowpass rất nhỏ + bọt nổ ngẫu nhiên */
-    const c = AU.ctx;
-    const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
-    s.buffer = AU.nb; s.loop = true;
-    f.type = 'lowpass'; f.frequency.value = 240;
-    g.gain.setValueAtTime(0, c.currentTime);
-    g.gain.linearRampToValueAtTime(.05, c.currentTime + .3);
-    s.connect(f); f.connect(g); g.connect(AU.fx);
-    s.start();
-    AU._boil = { s, g };
-    bubbleTimer = setInterval(() => {
-      if (!AU.ctx) return;
-      const n = 1 + Math.floor(Math.random() * 2);
-      for (let i = 0; i < n; i++) {
-        const at = Math.random() * .2;
-        tn(180 + Math.random() * 260, at, .06, 'sine', .025, 90);
+  au(); if (!AU.ctx) return;
+  loadSmp();
+  if (on) {
+    AU._wantKitchen = true;
+    startKitchen();   // tiếng xoong chảo bếp nhà hàng
+    if (!bubbleTimer) {
+      const c = AU.ctx;
+      /* nền sôi: nhiễu lowpass rất nhỏ + bọt nổ ngẫu nhiên */
+      const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+      s.buffer = AU.nb; s.loop = true;
+      f.type = 'lowpass'; f.frequency.value = 240;
+      g.gain.setValueAtTime(0, c.currentTime);
+      g.gain.linearRampToValueAtTime(.05, c.currentTime + .3);
+      s.connect(f); f.connect(g); g.connect(AU.fx);
+      s.start();
+      AU._boil = { s, g };
+      bubbleTimer = setInterval(() => {
+        if (!AU.ctx) return;
+        const n = 1 + Math.floor(Math.random() * 2);
+        for (let i = 0; i < n; i++) {
+          const at = Math.random() * .2;
+          tn(180 + Math.random() * 260, at, .06, 'sine', .025, 90);
+        }
+        if (Math.random() < .25) nz(Math.random() * .2, .05, 900 + Math.random() * 600, 2, .02);
+      }, 320);
+    }
+  } else {
+    AU._wantKitchen = false;
+    stopKitchen();
+    if (bubbleTimer) {
+      clearInterval(bubbleTimer); bubbleTimer = null;
+      if (AU._boil) {
+        try {
+          AU._boil.g.gain.linearRampToValueAtTime(.0001, AU.ctx.currentTime + .2);
+          const s = AU._boil.s; setTimeout(() => { try { s.stop(); } catch (e) {} }, 300);
+        } catch (e) {}
+        AU._boil = null;
       }
-      if (Math.random() < .25) nz(Math.random() * .2, .05, 900 + Math.random() * 600, 2, .02);
-    }, 320);
-  } else if (!on && bubbleTimer) {
-    clearInterval(bubbleTimer); bubbleTimer = null;
-    if (AU._boil) {
-      try {
-        AU._boil.g.gain.linearRampToValueAtTime(.0001, AU.ctx.currentTime + .2);
-        const s = AU._boil.s; setTimeout(() => { try { s.stop(); } catch (e) {} }, 300);
-      } catch (e) {}
-      AU._boil = null;
     }
   }
 }
 
-/* ============ ambience hẻm đêm: gió nhẹ + dế kêu ============ */
+/* ============ ambience hẻm đêm: TIẾNG ĐƯỜNG PHỐ THẬT + gió nhẹ + dế kêu ============ */
 let ambTimer = null;
 function ambience(on) {
   if (!AU.on || !AU.mus) { ambOff(); return; }
   if (on && !ambTimer) {
     au(); if (!AU.ctx) return;
+    loadSmp();
+    AU._wantStreet = true;
+    startStreet();   // tiếng ồn ào nhà hàng đường phố (loop, volume nền)
     const c = AU.ctx;
     /* nền phố đêm: nhiễu nâu rất nhỏ qua lowpass */
     const s = c.createBufferSource(), f = c.createBiquadFilter();
@@ -181,6 +252,8 @@ function ambience(on) {
   } else if (!on) ambOff();
 }
 function ambOff() {
+  AU._wantStreet = false;
+  stopStreet();
   if (ambTimer) { clearInterval(ambTimer); ambTimer = null; }
   if (AU._amb && AU.ctx) {
     try { AU.mg.gain.linearRampToValueAtTime(.0001, AU.ctx.currentTime + .5); const s = AU._amb; setTimeout(() => { try { s.stop(); } catch (e) {} }, 600); } catch (e) {}

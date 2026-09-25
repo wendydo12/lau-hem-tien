@@ -1,16 +1,16 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=11';
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=11';
-import { fresh, load, save, newPot } from './engine/state.js?v=11';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=11';
-import { fmt, rating, starStr, recRev, recCost, price } from './engine/economy.js?v=11';
-import { makeNameGen, levelOf, genOrder, matches } from './engine/orders.js?v=11';
-import { rollDay, mkBadPlan, evText } from './engine/events.js?v=11';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount } from './engine/loop.js?v=11';
-import { makeRNG } from './engine/rng.js?v=11';
-import { SPRITES } from './manifest.js?v=11';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn } from './audio.js?v=11';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=12';
+import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=12';
+import { fresh, load, save, newPot } from './engine/state.js?v=12';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=12';
+import { fmt, rating, starStr, recRev, recCost, price } from './engine/economy.js?v=12';
+import { makeNameGen, levelOf, genOrder, matches } from './engine/orders.js?v=12';
+import { rollDay, mkBadPlan, evText } from './engine/events.js?v=12';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount } from './engine/loop.js?v=12';
+import { makeRNG } from './engine/rng.js?v=12';
+import { SPRITES } from './manifest.js?v=12';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn } from './audio.js?v=12';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);

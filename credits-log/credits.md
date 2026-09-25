@@ -27,7 +27,17 @@ Tổng chi cả dự án tới nay: 270cr / 13 job. Còn lại: 945cr.
 | 25/09 | job_f7d1311b | general_character_64px | Khách tu tiên 64px bộ A (kiếm khách, tiên nữ, lão giả, ma tu, hồ ly, đệ tử, thể tu, nữ tu che mạng) | 20 | 885 | ✅ QA 9/10 — scale đồng bộ khách thường (QA so sánh trực tiếp PASS) |
 | 25/09 | job_bfbe27dd | general_character_64px | Khách tu tiên 64px bộ B (thương nhân, thần đồng, tán tu, kiếm tiên băng, tăng nhân, công tử ngọc, người hái thuốc, miêu yêu) | 20 | 865 | ✅ QA 9/10 |
 
-Tổng chi sau batch 3: 350cr / 17 job. Còn lại: 865cr.
+Tổng chi sau job cá: 290cr / 14 job. Còn lại: 925cr.
+
+## ÂM THANH (25/09 — theo link phu quân đưa)
+| File | Nguồn | Dùng cho |
+|---|---|---|
+| assets/snd/street_buzz.mp3 (248s, mono) | https://tiengdong.com/tieng-on-ao-o-nha-hang-duong-pho | Ambience nền đường phố suốt giờ bán (loop, vol 0.3) |
+| assets/snd/kitchen_clang.mp3 (90s, stereo) | https://tiengdong.com/tieng-xoong-chao-keu-trong-bep-nha-hang | Vòng lặp lúc canh lửa nấu lẩu (loop, vol 0.42) |
+
+tiengdong.com = thư viện sound effect miễn phí. Đã ghi nguồn tại đây + header audio.js. SFX còn lại vẫn 100% Web Audio tự tổng hợp.
+
+Tổng chi sau 3 job nước chấm+khách tiên: 350cr / 17 job. Còn lại: 865cr.
 
 ## LỆNH PHU QUÂN 25/09 (đợt sửa asset lần 2)
 1. Bún tươi: chỉ giữ bản mới (new3_02) — bản topping3_06 xóa khỏi gallery.
