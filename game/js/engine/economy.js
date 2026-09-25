@@ -1,6 +1,9 @@
 /* engine/economy.js — giá, chi phí, traffic, thuế, vay, cầm đồ linh thạch, sổ nợ. Port công thức gốc. */
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, XTOP_KEYS, UPG, DEF_SELL } from './data.js';
+import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, SECRET_KEYS, UPG, DEF_SELL, XTOP_KEYS } from './data.js';
 import { costOf } from './stock.js';
+
+/* món secret bán bằng linh thạch (sell = số LS hạ phẩm) */
+const isLSItem = k => ITEMS[k] && ITEMS[k].type === 'secret' && ITEMS[k].sell <= 10;
 
 /* ---------- định dạng tiền (như gốc: 1k = 1.000đ) ---------- */
 export const fmt = n => (Math.round(n / 100) / 10).toLocaleString('vi-VN', { maximumFractionDigits: 1 }) + 'k';
@@ -20,13 +23,13 @@ export function price(o, S) {
     + o.tops.reduce((a, t) => a + sv(S, t), 0)
     + (o.size === 'L' ? sv(S, 'L') : 0);
 }
-/* giá tính bằng linh thạch (đơn tu tiên): base+dip+top VNĐ quy LS theo tỷ giá + xtop tính LS trực tiếp */
+/* giá tính bằng linh thạch (đơn tu tiên): phần VNĐ quy LS theo tỷ giá + món secret bán LS tính thẳng */
 export function priceLS(o, S, cfg) {
   const rate = S.lsRate || cfg.ls.rate;
   const vnd = sv(S, o.base) + (o.dip && ITEMS[o.dip] ? sv(S, o.dip) : 0)
-    + o.tops.filter(t => ITEMS[t]?.type !== 'xtop').reduce((a, t) => a + sv(S, t), 0)
+    + o.tops.filter(t => !isLSItem(t)).reduce((a, t) => a + sv(S, t), 0)
     + (o.size === 'L' ? sv(S, 'L') : 0);
-  const ls = o.tops.filter(t => ITEMS[t]?.type === 'xtop').reduce((a, t) => a + (ITEMS[t].sell || 0), 0);
+  const ls = o.tops.filter(isLSItem).reduce((a, t) => a + (ITEMS[t].sell || 0), 0);
   return { vnd, ls, totalLS: Math.max(1, Math.round(vnd / rate)) + ls };
 }
 
@@ -52,7 +55,7 @@ export const addSkip = (S, k, cfg, rng) => sv(S, k) > cfg.addWarn && rng.next() 
 /* ---------- chi phí ---------- */
 export const unitCost = (o, cfg) => costOf(cfg, o.base)
   + (o.dip && ITEMS[o.dip] ? costOf(cfg, o.dip) : 0)
-  + o.tops.filter(t => ITEMS[t] && ITEMS[t].type !== 'xtop').reduce((a, t) => a + costOf(cfg, t), 0)
+  + o.tops.filter(t => ITEMS[t] && !isLSItem(t)).reduce((a, t) => a + costOf(cfg, t), 0)
   + costOf(cfg, 'sup');
 export const upgCount = S => UPG.filter(u => u.tier === 'equip' && S.upg[u.id]).length;
 export const xUpgCount = S => UPG.filter(u => u.tier === 'xian' && S.upg[u.id]).length;
@@ -88,7 +91,7 @@ export function recSale(S, o, amount, online = false) {
   r.sales[k].q++; r.sales[k].a += amount;
   [o.dip, ...o.tops].filter(Boolean).forEach(t => {
     if (!ITEMS[t]) return;
-    const p = ITEMS[t].type === 'xtop' ? 0 : sv(S, t);
+    const p = isLSItem(t) ? 0 : sv(S, t);
     r.ing[t] = (r.ing[t] || 0) + 1;
     if (p) { r.sales[t] = r.sales[t] || { q: 0, a: 0 }; r.sales[t].q++; r.sales[t].a += p; }
   });

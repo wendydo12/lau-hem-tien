@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeCFG, DEFAULT_CONFIG } from '../js/engine/config.js';
-import { ITEMS, BASE_KEYS, TOP_KEYS, DIP_KEYS, XTOP_KEYS, DEF_SELL, UPG } from '../js/engine/data.js';
+import { ITEMS, BASE_KEYS, TOP_KEYS, DIP_KEYS, DUOC_KEYS, SECRET_KEYS, XTOP_KEYS, DEF_SELL, UPG } from '../js/engine/data.js';
 import { fresh, loadFrom, newPot, sanitize } from '../js/engine/state.js';
 import { addStock, qty, take, expireStock } from '../js/engine/stock.js';
 import { price, unitCost, traffic, rating, takeLoan, payDayLoan, sellLS, buyLS, rollLSRate, addDebt, resolveDebts, cheatHit, dayTax, recRev, recCost, priceLS, pricyItems } from '../js/engine/economy.js';
@@ -35,9 +35,31 @@ test('ITEMS: đủ 7 nồi lẩu theo brief', () => {
   assert.ok(ITEMS.tu_xuyen.unlock >= 400000);
 });
 
-test('ITEMS: 4 topping tiên giới bán bằng linh thạch (sell = số LS)', () => {
+test('ITEMS: thực đơn extra bí mật — 6 món, chỉ mở cho khách tu tiên', () => {
+  assert.equal(SECRET_KEYS.length, 6);
+  /* 4 món bán linh thạch (sell nhỏ) + 2 món bán VNĐ giá cao (nhân sâm, đông trùng tiên) */
   assert.equal(XTOP_KEYS.length, 4);
   XTOP_KEYS.forEach(k => assert.ok(ITEMS[k].sell <= 10, 'giá LS phải nhỏ (đơn vị linh thạch): ' + k));
+  ['x_nhan_sam', 'x_dong_trung'].forEach(k => assert.ok(ITEMS[k].sell >= 20000, 'dược liệu tiên bán VNĐ giá cao: ' + k));
+  assert.equal(DUOC_KEYS.length, 1);  /* nấm bụng dê — dược thiện khách thường đôi khi gọi */
+});
+
+test('thực đơn bí mật: khách thường KHÔNG BAO GIỜ gọi món secret, khách tu tiên thì có', () => {
+  const S = seededState();
+  [...BASE_KEYS, ...TOP_KEYS, ...DIP_KEYS, ...DUOC_KEYS, ...SECRET_KEYS].forEach(k => { addStock(S, k, 50, cfg); S.unlocked[k] = true; });
+  const r = rng();
+  /* khách thường: 100 đơn không được chứa secret */
+  for (let i = 0; i < 100; i++) {
+    const o = genOrder(S, cfg, r, 3, { xian: false });
+    o.tops.forEach(t => assert.ok(!SECRET_KEYS.includes(t), 'khách thường lọt món secret: ' + t));
+  }
+  /* khách tu tiên: phải có lúc gọi secret */
+  let secretSeen = 0;
+  for (let i = 0; i < 300; i++) {
+    const o = genOrder(S, cfg, r, 3, { xian: true });
+    if (o.tops.some(t => SECRET_KEYS.includes(t))) secretSeen++;
+  }
+  assert.ok(secretSeen >= 10, 'khách tu tiên phải gọi món bí mật, thực tế ' + secretSeen);
 });
 
 test('UPG: 6 trang bị phàm + 5 trang bị tiên', () => {
@@ -92,7 +114,7 @@ test('price: tính đúng tổng các thành phần', () => {
 test('unitCost: chi phí 1 nồi = base + chấm + topping thường + nồi chén', () => {
   const S = seededState();
   const o = { base: 'nam', dip: 'd_chao', tops: ['t_bo', 'x_linh_chi'], size: 'N' };
-  /* xtop không tính tiền VNĐ */
+  /* món secret bán linh thạch không tính tiền VNĐ */
   assert.equal(unitCost(o, cfg), ITEMS.nam.cost + ITEMS.d_chao.cost + ITEMS.t_bo.cost + ITEMS.sup.cost);
 });
 
@@ -411,7 +433,7 @@ test('quà: takeGift cộng tiền đúng số, bungN reset', () => {
 
 /* ============ 8. LOOP TÍCH HỢP ============ */
 function fullStock(S) {
-  [...BASE_KEYS, ...TOP_KEYS, ...DIP_KEYS, 'sup', ...XTOP_KEYS].forEach(k => { addStock(S, k, 999, cfg); S.unlocked[k] = true; });
+  [...BASE_KEYS, ...TOP_KEYS, ...DIP_KEYS, ...DUOC_KEYS, ...SECRET_KEYS, 'sup'].forEach(k => { addStock(S, k, 999, cfg); S.unlocked[k] = true; });
   S.unlocked.d_tuong_tien = true;
 }
 

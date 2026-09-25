@@ -65,18 +65,19 @@ T('t_bun', 'Bún tươi', 'Bún', '#fbf8f0', 1, 2000, 4000, 0);
 T('t_udong', 'Mì udon', 'Udon', '#f4efe4', 3, 3000, 6000, 150000);
 T('t_trung', 'Trứng gà', 'Trứng', '#f7d56b', 3, 3000, 7000, 0);
 
-/* --- DƯỢC THIỆN (duoc — cao cấp, khách tu tiên rất thích) --- */
+/* --- DƯỢC THIỆN (duoc — cao cấp, khách thường đôi khi gọi) --- */
 const D = mk('duoc', 'duoc');
-D('du_nhan_sam', 'Nhân sâm', 'Nhân sâm', '#d8b06a', 3, 12000, 22000, 300000);
-D('du_dong_trung', 'Đông trùng hạ thảo', 'Đông trùng', '#e08a2e', 3, 15000, 28000, 400000);
 D('du_nam_bung_de', 'Nấm bụng dê', 'Bụng dê', '#8a6a4a', 2, 8000, 16000, 350000);
 
-/* --- TOPPING TIÊN GIỚI (sell = số linh thạch hạ phẩm) --- */
-const X = mk('xtop', 'xtop');
-X('x_linh_chi', 'Linh chi ngàn năm', 'Linh chi', '#8a3a2a', 3, 0, 2, 400000);
-X('x_huyet_sen', 'Huyết sen', 'Huyết sen', '#d64553', 2, 0, 3, 500000);
-X('x_linh_thu', 'Thịt linh thú', 'Linh thú', '#c98d28', 1, 0, 5, 800000);
-X('x_bang_tam', 'Băng tằm', 'Băng tằm', '#a8d8e8', 2, 0, 4, 600000);
+/* --- THỰC ĐƠN EXTRA BÍ MẬT (secret — CHỈ hiện slot khi có khách tu tiên đang chờ.
+ * Khách thường không bao giờ thấy/gọi được. Quy tắc của phu quân 25/09.) --- */
+const SEC = mk('secret', 'secret');
+SEC('x_linh_chi', 'Linh chi ngàn năm', 'Linh chi', '#8a3a2a', 3, 0, 2, 400000);      // sell = linh thạch hạ phẩm
+SEC('x_huyet_sen', 'Huyết sen', 'Huyết sen', '#d64553', 2, 0, 3, 500000);            // sell = linh thạch
+SEC('x_linh_thu', 'Thịt linh thú', 'Linh thú', '#c98d28', 1, 0, 5, 800000);          // sell = linh thạch
+SEC('x_bang_tam', 'Băng tằm', 'Băng tằm', '#a8d8e8', 2, 0, 4, 600000);                // sell = linh thạch
+SEC('x_nhan_sam', 'Nhân sâm ngàn năm', 'Nhân sâm', '#d8b06a', 3, 20000, 40000, 300000);   // dược liệu tiên, bán VNĐ giá cao
+SEC('x_dong_trung', 'Đông trùng hạ thảo tiên', 'Đông trùng', '#e08a2e', 3, 25000, 50000, 400000);
 
 /* --- VẬT DỤNG --- */
 ITEMS.sup = { n: 'Nồi + muỗng + chén', s: 'Nồi chén', type: 'supply', g: 'sup', c: '#c0c0c8', life: 0, cost: 2500, unlock: 0 };
@@ -85,11 +86,12 @@ export const BASE_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'base'
 export const DIP_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'dip');
 export const TOP_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'top');
 export const DUOC_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'duoc');
-export const XTOP_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'xtop');
+export const SECRET_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'secret');
+export const XTOP_KEYS = SECRET_KEYS.filter(k => ITEMS[k].sell <= 10);  // bán bằng linh thạch
 
 /* món "chậm" (sơ chế lâu) → đơn chứa chúng được khách chờ lâu hơn một chút */
 export const SLOW_KEYS = ['t_tom', 't_muc', 't_ngheu', 't_ca_dieu', 't_de'];
-export const slowN = o => o.tops.filter(t => ITEMS[t]?.g === 'xtop' || ITEMS[t]?.g === 'duoc' || SLOW_KEYS.includes(t)).length;
+export const slowN = o => o.tops.filter(t => ITEMS[t]?.type === 'secret' || ITEMS[t]?.g === 'duoc' || SLOW_KEYS.includes(t)).length;
 
 export const SPICY = ['Không cay', 'Cay vừa', 'Cay nhiều', 'Cay Tứ Xuyên'];
 export const SIZES = ['N', 'L'];

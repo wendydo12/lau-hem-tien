@@ -1,5 +1,5 @@
 /* engine/orders.js — sinh đơn hàng theo cấp độ, so khớp nồi, tính sao. Port công thức gốc. */
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, XTOP_KEYS, SPICY, SIZES, PERSONA, XPERSONA, NM_HO, NM_NU, NM_NAM, NM_BE, NM_TIEN, NM_TIEN_DANH, SLOW_KEYS, slowN } from './data.js';
+import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, SIZES, PERSONA, XPERSONA, NM_HO, NM_NU, NM_NAM, NM_BE, NM_TIEN, NM_TIEN_DANH, SLOW_KEYS, slowN } from './data.js';
 import { qty } from './stock.js';
 import { addOk, addSkip, lChance, priceIdx, orderPricey, overCap } from './economy.js';
 import { wpick } from './rng.js';
@@ -46,10 +46,12 @@ export function genOrder(S, cfg, rng, lv = levelOf(S.day, cfg), opts = {}) {
   if (dip && addSkip(S, dip, cfg, rng)) dip = null;
 
   const isXian = !!opts.xian;
-  /* pool topping: thường = top + duoc (duoc hiếm gọi hơn); tu tiên = thêm xtop */
+  /* pool topping: thường = top + duoc (duoc hiếm gọi hơn); secret CHỈ cho khách tu tiên (thực đơn extra bí mật) */
   let pool = [...TOP_KEYS, ...DUOC_KEYS.filter(k => isXian || rng.chance(.3))];
-  if (isXian) pool = [...pool, ...XTOP_KEYS.filter(un)];
-  pool = pool.filter(un).filter(k => ITEMS[k].type !== 'xtop' ? addOk(S, k, cfg) : true).sort(() => rng.next() - .5);
+  if (isXian) pool = [...pool, ...SECRET_KEYS];
+  pool = pool.filter(un)
+    .filter(k => ITEMS[k].type === 'secret' ? isXian : addOk(S, k, cfg))
+    .sort(() => rng.next() - .5);
   const r = rng.next();
   let n = lv === 1 ? ((S.day === 1 && !opts.firstDone) || r >= .2 ? 1 : 0)
     : lv === 2 ? (r < .2 ? 0 : 1)

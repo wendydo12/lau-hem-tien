@@ -22,6 +22,17 @@ Tổng chi: 210cr / 10 job. Còn lại: 1.005cr.
 
 Tổng chi cả dự án tới nay: 270cr / 13 job. Còn lại: 945cr.
 
+| 25/09 | job_7ba0bdcd | food | Cá điêu hồng CẮT LÁT (8 biến thể, chọn ô 1: 3 lát trên đĩa trắng) | 20 | 925 | ✅ QA chọn variant 1/8; 7 variant dư đã xóa |
+
+Tổng chi sau job cá: 290cr / 14 job. Còn lại: 925cr.
+
+## LỆNH PHU QUÂN 25/09 (đợt sửa asset lần 2)
+1. Bún tươi: chỉ giữ bản mới (new3_02) — bản topping3_06 xóa khỏi gallery.
+2. Cá điêu hồng: bỏ nguyên con, dùng bản 3 lát cắt trên đĩa (ca_dieu_lat.png).
+3. Kim châm bó (topping2_06): loại vì trùng kim châm thường.
+4. Linh chi đỏ: có 2 bản (topping_05 + topping2_07) → giữ topping_05, loại topping2_07.
+5. THỰC ĐƠN EXTRA BÍ MẬT: 6 món (linh chi, huyết sen, thịt linh thú, băng tằm, nhân sâm ngàn năm, đông trùng tiên) = type 'secret' trong engine — khách thường KHÔNG BAO GIỜ gọi được (test xác nhận 100 đơn thường không lọt món secret); UI sẽ chỉ mở slot bí mật khi có khách tu tiên đang chờ (Phase 4).
+
 ## SỬA NHÃN 25/09 (phu quân phát hiện khi xem gallery)
 - topping2_00..07 = muối ớt xanh, chao, sa tế đen, sốt me, udon, cải cúc, kim châm bó, linh chi đỏ
 - topping3_00..07 = mực, nghêu, cá viên xiên, tàu hũ ky, rau muống, mì gói, bún, trứng
