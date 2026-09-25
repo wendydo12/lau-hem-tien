@@ -1,17 +1,34 @@
 # Credits log — meowa.ai
-Mọi job pixel-gen ghi vào đây. Balance khởi điểm 25/09/2026: 1.215 (đã nạp thêm, trước đó 615).
+Mọi job pixel-gen ghi vào đây. Balance khởi điểm 25/09/2026: 1.215.
 
 | Ngày | Job ID | Template | Nội dung | Cost | Balance | Kết quả |
 |---|---|---|---|---|---|---|
-| 25/09 | job_360b5e07 | xlarge_3_4 | Cảnh quán lẩu hẻm đêm (bg chính, 378x498) | 25 | 1190 | ✅ QA 8/10 — dùng được; nit: glow alpha mượt (sửa bằng dither khi composite), thiếu bếp rời (nồi liền chân — chấp nhận) |
-| 25/09 | job_89525c13 | xlarge_4_3 | UI kit sheet (panel/button/banner/bars/coin/gem/star, 516x387) | 25 | 1165 | ⚠️ QA 7/10 — element đủ nhưng VI PHẠM no-text (meowa tự thêm chữ "MY ADVENTURE/ATTACK..."). Xử lý: chỉ crop các phần tử không chữ (frame, coin, gem, sao, progress bar) làm sprite; panel/button thật sẽ render bằng CSS theo token — không regenerate vội |
-| 25/09 | job_631402df | food (advanced bg) | 7 nồi lẩu + 1 biến thể hải sản (64x64 x8) | 20 | 1145 | ✅ QA 9/10 — cả 8 sprite phân biệt rõ, không chữ, không lỗi; sprite 8 (lẩu hải sản) giữ làm nồi đặc biệt mở khóa muộn |
+| 25/09 | job_360b5e07 | xlarge_3_4 | Cảnh quán lẩu hẻm đêm (bg chính, 378x498) | 25 | 1190 | ✅ QA 8/10 — dùng được |
+| 25/09 | job_89525c13 | xlarge_4_3 | UI kit sheet (516x387) | 25 | 1165 | ⚠️ QA 7/10 — meowa tự thêm chữ; crop phần không chữ, panel thật render CSS |
+| 25/09 | job_631402df | food | 8 nồi lẩu 64x64 (7 theo brief + 1 hải sản bonus) | 20 | 1145 | ✅ QA 9/10 — cả 8 phân biệt rõ, giữ sprite 8 làm nồi đặc biệt |
+| 25/09 | job_87ec2fb1 | general_character_64px | 8 khách Việt chibi 64x64 | 20 | 1125 | ✅ QA 9/10 — đủ 8 vai, không chữ, đồng bộ style |
+| 25/09 | job_b220176b | wuxia_character_5x5 | 15 khách tu tiên 32x32 (10 archetype + 5 biến thể pose) | 20 | 1105 | ✅ QA 8/10 — aura teal/violet đẹp, ma tu mắt đỏ; dư biến thể dùng làm khách thường đi bộ |
+| 25/09 | job_70f32468 | food | Topping sheet 1 (8 icon: bò cuộn, tôm, kim châm, sa tế, bò viên, 3 topping tiên giới glow) | 20 | 1085 | ✅ QA 7/10 — thiếu một số icon → bù bằng 2 job sau |
+| 25/09 | job_40689650 | object | Props sheet 1 (8: bàn nướng, đèn lồng, xửng hấp, mực khô, biển neon KHÔNG CHỮ...) | 20 | 1065 | ✅ QA 8/10 — biển neon blank đúng yêu cầu, giữ làm decor |
+| 25/09 | job_d8bd65b4 | food | Topping sheet bù 2 (8: mực, nghêu, cá viên xiên, hũ ky, rau muống, mì gói, bún, trứng) | 20 | 1045 | ✅ QA 9/10 |
+| 25/09 | job_c6206ac0 | food | Topping sheet bù 3 (8: 4 nước chấm + udon, cải cúc, kim châm, linh chi glow) | 20 | 1025 | ✅ QA 9/10 |
+| 25/09 | job_82bfd87a | object | Props bù (8: ghế nhựa đỏ/xanh, lẩu đồng, hạc trắng chở hàng, đỉnh đồng lửa tím, két tiền, đồng xu cổ, bùa giấy) | 20 | 1005 | ✅ QA 9/10 — hạc + đỉnh + bùa đúng chất tu tiên |
 
-Tổng chi batch 1: 70cr. Còn lại: 1.145cr.
+Tổng chi: 210cr / 10 job. Còn lại: 1.005cr.
 
 ## Art direction gốc của dự án (mọi prompt sau phải theo)
 "Cozy hi-bit pixel art, uniform 1px dark brown-black sticker outline, warm palette
 (cream #f3e5c2, caramel #b8894c, deep brown #5f4523) with teal #74cfbf + violet #9a5fd4
 magic-glow accents, flat 2-3 tone shading, crisp pixels no anti-aliasing, NO TEXT."
-- Cảnh: thêm "NO PEOPLE, NO TEXT"; chữ trên biển hiệu để trống, sau tự vẽ bằng bitmap font.
-- Icon nhỏ: 24px_icon/object_1; nhân vật: 48px characters/pixel_char; đồ tiên giới: thêm "soft teal-violet magical glow".
+- Bài học batch 2: prompt dạng "EXACTLY 8 separate icons in a 4x2 grid, ONE ICON PER CELL" cho sheet icon chuẩn hơn prompt liệt kê dài — tỷ lệ đúng brief tăng rõ (7/10 → 9/10).
+- Sheet character 5x5 wuxia trả 15 sprite dù brief 10 — target_count là số sheet, không phải số item; tính ngân sách theo đó.
+- Browser session default dễ wedge sau poll dài → dùng session riêng 'meowa2' cho mọi call meowa (bài học mới).
+
+## Asset inventory (map file → key trong game)
+- assets/scene_alley_night.png → bg màn bán
+- assets/food/pot_00..06 → 7 nồi (ca_chua/nam/suon/thai/suki/dong_trung/tu_xuyen); pot_07 (hải sản) → nồi đặc biệt mở khóa muộn
+- assets/chars/vn_00..07 → chủ quán (00), khách thường (01-07)
+- assets/chars/xian_00..14 → khách tu tiên + đại năng (STARS map f:0-7 vào xian_00..07; xian_08..14 khách tiên thường)
+- assets/food/topping_*, topping2_*, topping3_* → 24 icon: 17 topping thường + 4 xtop + 5 dip (sẽ map cụ thể trong assets/manifest.js phase 4)
+- assets/props/prop_*, prop2_* → decor + icon nâng cấp (biển neon, ghế, đèn lồng, hạc, đỉnh, bùa, xu...)
+- assets/ui/kit_main.png → crop: coin, gem, sao, progress bar (các phần tử KHÔNG chữ)
