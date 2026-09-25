@@ -1,16 +1,16 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=12';
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=12';
-import { fresh, load, save, newPot } from './engine/state.js?v=12';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=12';
-import { fmt, rating, starStr, recRev, recCost, price } from './engine/economy.js?v=12';
-import { makeNameGen, levelOf, genOrder, matches } from './engine/orders.js?v=12';
-import { rollDay, mkBadPlan, evText } from './engine/events.js?v=12';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount } from './engine/loop.js?v=12';
-import { makeRNG } from './engine/rng.js?v=12';
-import { SPRITES } from './manifest.js?v=12';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn } from './audio.js?v=12';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=13';
+import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=13';
+import { fresh, load, save, newPot } from './engine/state.js?v=13';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=13';
+import { fmt, rating, starStr, recRev, recCost, price } from './engine/economy.js?v=13';
+import { makeNameGen, levelOf, genOrder, matches } from './engine/orders.js?v=13';
+import { rollDay, mkBadPlan, evText } from './engine/events.js?v=13';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount } from './engine/loop.js?v=13';
+import { makeRNG } from './engine/rng.js?v=13';
+import { SPRITES } from './manifest.js?v=13';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn } from './audio.js?v=13';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
@@ -397,6 +397,25 @@ function renderPotVisual() {
     v.innerHTML = '';
     const im = img(A + SPRITES.pot[pot.base]);
     v.appendChild(im);
+    /* ---- COMPOSITE TOPPING TRONG NỒI (25/09 — phu quân: "bỏ topping nào lẩu phải hiện đúng topping đó, kiểu trà sữa") ----
+     * Không vẽ thêm asset: thả chính icon topping đã có vào vùng miệng nồi (elip x18-82% y18-58% của sprite),
+     * xếp dọc theo mặt nước, kèm animation rơi tõm vào nồi. Món tiên giới (secret) phát sáng tím. */
+    if (pot.tops.length) {
+      const layer = document.createElement('div');
+      layer.className = 'tops';
+      const n = pot.tops.length;
+      const big = pot.size === 'L';
+      pot.tops.forEach((t, i) => {
+        const el = img(A + spriteOf(t), ITEMS[t].n);
+        el.className = 't' + (ITEMS[t].type === 'secret' ? ' secret' : '') + (big ? ' big' : '');
+        const f = n === 1 ? 0.5 : i / (n - 1);
+        el.style.left = (26 + f * 48) + '%';
+        el.style.top = (30 + Math.sin(f * Math.PI) * 10) + '%';   // vòng theo mặt nước cho có chiều sâu
+        el.style.animationDelay = (i * 0.07) + 's';
+        layer.appendChild(el);
+      });
+      v.appendChild(layer);
+    }
   } else v.innerHTML = '<div class="empty-pot">🍲</div>';
   const chips = [];
   if (pot.size) chips.push(`<span class="chip">${pot.size === 'L' ? 'Lớn' : 'Nhỏ'}</span>`);
