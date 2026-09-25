@@ -1,0 +1,9 @@
+{
+  "name": "Lẩu Hẻm Tiên",
+  "short_name": "LẩuTiên",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1a1426",
+  "theme_color": "#2a1f3d",
+  "icons": []
+}

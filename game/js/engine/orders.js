@@ -34,35 +34,39 @@ export function makeNameGen(S, rng) {
   };
 }
 
-/* sinh 1 đơn (port genOrder gốc) */
+/* sinh 1 đơn (port genOrder gốc)
+ * LUẬT (sửa 25/09 sau playtest): đơn ngày 1-2 không topping; từ ngày 3+ topping phải còn hàng,
+ * khách KHÔNG bỏ về vì hết topping nữa (giống game gốc — chỉ base hết mới bỏ). */
 export function genOrder(S, cfg, rng, lv = levelOf(S.day, cfg), opts = {}) {
   const un = k => S.unlocked[k], has = k => qty(S, k) > 0;
   const bases = BASE_KEYS.filter(un);
   let so = null;
   const want = ks => { const k = rng.pick(ks); if (has(k)) return k; const av = ks.filter(has); if (av.length && rng.chance(.5)) return rng.pick(av); so = so || k; return k; };
-  const dipPool = DIP_KEYS.filter(un).filter(k => addOk(S, k, cfg));
+  const dipPool = lv >= 2 ? DIP_KEYS.filter(un).filter(k => addOk(S, k, cfg) && has(k)) : [];
   const base = want(bases);
-  let dip = dipPool.length && rng.chance(.6) ? want(dipPool) : null;
+  let dip = dipPool.length && rng.chance(.6) ? rng.pick(dipPool) : null;
   if (dip && addSkip(S, dip, cfg, rng)) dip = null;
 
   const isXian = !!opts.xian;
-  /* pool topping: thường = top + duoc (duoc hiếm gọi hơn); secret CHỈ cho khách tu tiên (thực đơn extra bí mật) */
+  /* pool topping: chỉ món CÒN HÀNG; thường = top + duoc (duoc hiếm gọi hơn); secret CHỈ cho khách tu tiên */
   let pool = [...TOP_KEYS, ...DUOC_KEYS.filter(k => isXian || rng.chance(.3))];
   if (isXian) pool = [...pool, ...SECRET_KEYS];
   pool = pool.filter(un)
     .filter(k => ITEMS[k].type === 'secret' ? isXian : addOk(S, k, cfg))
+    .filter(k => has(k) || lv < 2)      /* ngày 1-2: không cần hàng (đơn trơn) */
     .sort(() => rng.next() - .5);
   const r = rng.next();
-  let n = lv === 1 ? ((S.day === 1 && !opts.firstDone) || r >= .2 ? 1 : 0)
+  /* lv1 (ngày 1-5): chỉ nồi trơn không topping (như luật thể loại: ngày đầu đơn giản cho quen tay) */
+  let n = lv === 1 ? 0
     : lv === 2 ? (r < .2 ? 0 : 1)
     : wpick(rng, [0, 1, 2, 3, 4], [.1, .3, .3, .18, .12]);
   n = Math.min(n, pool.length);
   const pick = [];
-  for (const k0 of pool) {
+  for (const k of pool) {
     if (pick.length >= n) break;
-    let k = k0;
-    if (!has(k)) { const av = pool.filter(x => has(x) && !pick.includes(x)); if (av.length && rng.chance(.5)) k = av[0]; else { so = so || k; } }
-    if (pick.includes(k) || addSkip(S, k, cfg, rng)) continue;
+    if (pick.includes(k)) continue;
+    if (lv >= 2 && !has(k)) continue;
+    if (addSkip(S, k, cfg, rng)) continue;
     pick.push(k);
   }
   return {

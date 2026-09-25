@@ -233,7 +233,7 @@ test('levelOf: ngày 1-5 = L1, 6-29 = L2, 30-59 = L3, 60+ = L4', () => {
   assert.equal(levelOf(60, cfg), 4);
 });
 
-test('genOrder L1: chỉ nồi + 0-1 topping, không cay không chấm', () => {
+test('genOrder L1: ngày 1-5 chỉ nồi trơn, không topping không cay', () => {
   const S = seededState();
   BASE_KEYS.forEach(k => { addStock(S, k, 20, cfg); S.unlocked[k] = true; });
   TOP_KEYS.forEach(k => { addStock(S, k, 20, cfg); S.unlocked[k] = true; });
@@ -242,7 +242,7 @@ test('genOrder L1: chỉ nồi + 0-1 topping, không cay không chấm', () => {
     const o = genOrder(S, cfg, r, 1, { firstDone: true });
     assert.ok(BASE_KEYS.includes(o.base));
     assert.equal(o.spicy, null, 'L1 không có độ cay');
-    assert.ok(o.tops.length <= 1);
+    assert.equal(o.tops.length, 0, 'L1 không topping');
   }
 });
 

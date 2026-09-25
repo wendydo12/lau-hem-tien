@@ -36,8 +36,43 @@ Task table:
 - Ghi credits-log MỌI job.
 - Sau batch: git commit + gitnexus analyze + cập nhật file này + DỪNG chờ duyệt.
 
+## Phase 2+3 — Meowa assets ✅ (25/09, gộp báo cáo)
+- 17 job / 350cr, còn 865cr. Chi tiết + QA từng job: credits-log/credits.md.
+- Kho: 1 cảnh nền, 8 nồi lẩu, 8 khách Việt, 16 khách tu tiên (64px ĐỒNG BỘ scale khách thường — lệnh phu quân), 41 icon topping/chấm, 16 props, UI kit sheet.
+- 3 vòng sửa theo lệnh phu quân: cá điêu hồng 3 lát, bỏ trùng (bún/kim châm bó/linh chi), thực đơn extra bí mật 8 món type 'secret' (test xác nhận khách thường không bao giờ gọi), gộp 1 menu topping, khách tiên 64px.
+- Gallery: assets/gallery.html (mở bằng `open`).
+
+## Phase 4 — Frontend serve loop ✅ (25/09)
+| # | Task | Blockgate |
+|---|---|---|
+| 1 | manifest.js map sprite↔key engine | ✅ hết ảnh vỡ (QA broken=0) |
+| 2 | index.html + main.css design token (VT323, palette gỗ-kem-linh quang, [hidden] fix) | ✅ font Việt render đúng |
+| 3 | main.js: splash/prep/sell/summary router, HUD, modal, toast | ✅ chơi được全流程 trên browser |
+| 4 | Prep rút gọn: nhập hàng −/+ trả tiền trước, chặn mở quán khi thiếu lẩu/nồi chén | ✅ tiền trừ đúng 400k, nút disable đúng |
+| 5 | Sell: khách spawn theo giờ cao điểm, bubble đơn, thanh kiên nhẫn tụt, timeout bỏ về 1 sao | ✅ playtest 2 ngày, khách vào/đi/bỏ về đúng |
+| 6 | Minigame canh lửa 3 nhánh: perfect (nồi chín)/weak (non lửa mất nguyên liệu)/spill (khét) | ✅ test thật cả 3 nhánh trên browser |
+| 7 | Serve đúng (+tiền +tip +review 5★) / sai (đổ nồi, đạo tâm −30%) | ✅ +35k/+55k đúng giá, sai món phạt đúng |
+| 8 | Tổng kết ngày: doanh thu/típ/nhập/nhà+điện/lãi/két, sang ngày mới | ✅ kế toán khớp: 210−400−60=−250, két 150k |
+| 9 | QA visual: khách đứng TRƯỚC quầy, bubble không tràn, nút hành động luôn thấy, 8/10 | ✅ screenshot QA pass |
+
+### Bugs phát hiện qua playtest (không thấy được nếu chỉ đọc code) + đã sửa:
+1. `recSale` double-count topping → viết lại ghi doanh thu THEO TỪNG MÓN + đối soát tiền thực nhận (khách trả giá/bùng).
+2. genOrder để khách bỏ về khi hết topping → luật mới: ngày 1-5 đơn trơn, lv2+ topping phải còn hàng (giống gốc).
+3. Modal `[hidden]` không ẩn vì CSS display:flex → `[hidden]{display:none !important}`.
+4. Sprite path thiếu tiền tố assets/ → helper `spriteOf()` + hằng `A`.
+5. servePot chọn sai khách → ưu tiên khách CÓ ĐƠN KHỚP nồi đang bưng.
+6. Bubble đơn hàng thiếu "chấm X" → orderText hiển thị đủ base/size/cay/chấm/topping.
+
+### Phase 5 cần lưu ý (Prep đầy đủ)
+- 5 tab: Kho (xem mẻ + hạn dùng + đổ bỏ), Nâng cấp (6 trang bị VNĐ + 5 trang bị LINH THẠCH — chưa mua được tới Phase 6), Giá bán (sửa giá + cảnh báo đắt theo ngưỡng cfg), Đánh giá (danh sách review + ô trả lời như game gốc), Tổng kết (lịch sử ngày/tuần).
+- Đặt tên quán (modal input), đổi 12 theme (CSS vars có sẵn trong data THEMES).
+- Tiền hiển thị fmtD (tiền giấy VN: 400.000đ) — lệnh phu quân 25/09. Linh thạch quy đổi do engine quyết định (1💎≈50k, drift ±8%/ngày).
+- Engine đã có đủ hàm cho Phase 5: recRev/recCost, LOANS/takeLoan, rollLSRate, addDebt/resolveDebts, UPG/STAFF.
+- NHỚ: browser cache module JS rất dai — test thay đổi engine phải reload hard + đổi query string.
+
 ## Tech facts
-- Node 22.23.2, `node --test game/tests/*.test.js` (type: module trong package.json).
-- Engine thuần không DOM → chạy headless; UI sẽ import engine như ES modules trong browser (không cần bundler).
-- localStorage keys: lhTienSave + lhBak1/2/3.
+- Node 22.23.2, `node --test game/tests/*.test.js` (47/47 pass).
+- Server dev: `python3 -m http.server 8793` từ gốc repo (đang chạy background proc_585c573f99fe).
+- Game URL: http://localhost:8793/game/index.html — localStorage key lhTienSave.
+- Asset path từ game/: `../../assets/` (hằng A trong main.js).
 - gitnexus: chạy sau mỗi commit.

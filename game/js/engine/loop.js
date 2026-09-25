@@ -214,10 +214,11 @@ export function closeDay(ctx) {
   const { R, S, cfg, rng } = ctx;
   R.running = false;
 
-  /* hàng hết hạn đổ bỏ */
+  /* hàng hết hạn đổ bỏ (tiền đã trả lúc nhập — chỉ ghi nhận số lượng để báo cáo) */
   const expired = expireStock(S, cfg);
   expired.forEach(e => { S.cur.waste[e.k] = (S.cur.waste[e.k] || 0) + e.q; });
   const wasteV = expired.reduce((a, e) => a + e.v, 0);
+  S.cur.spoil.n += expired.reduce((a, e) => a + e.q, 0);
   S.cur.spoil.v += wasteV;
 
   /* chi phí cố định */

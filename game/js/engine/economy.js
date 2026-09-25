@@ -83,26 +83,41 @@ export function traffic(S, cfg, evMul = 1) {
   return rf * boost * evMul / Math.max(.85, Math.min(1, avgIdx) ** 2);
 }
 
-/* ---------- ghi nhận doanh thu ngày (recSale gốc) ---------- */
+/* ---------- ghi nhận doanh thu ngày ----------
+ * Ghi tiền THEO TỪNG MÓN (base + size + dip + từng topping) để tổng sales = đúng giá nồi,
+ * không double-count. r.ing đếm số phần nguyên liệu tiêu thụ (cho báo cáo chi phí). */
 export function recSale(S, o, amount, online = false) {
-  const k = o.base;
   const r = S.cur;
-  r.sales[k] = r.sales[k] || { q: 0, a: 0 };
-  r.sales[k].q++; r.sales[k].a += amount;
-  [o.dip, ...o.tops].filter(Boolean).forEach(t => {
+  const add = (k, v) => { r.sales[k] = r.sales[k] || { q: 0, a: 0 }; r.sales[k].q++; r.sales[k].a += v; };
+  add(o.base, sv(S, o.base));
+  if (o.size === 'L') add('L', sv(S, 'L'));
+  if (o.dip && ITEMS[o.dip]) add(o.dip, sv(S, o.dip));
+  o.tops.forEach(t => {
     if (!ITEMS[t]) return;
-    const p = isLSItem(t) ? 0 : sv(S, t);
     r.ing[t] = (r.ing[t] || 0) + 1;
-    if (p) { r.sales[t] = r.sales[t] || { q: 0, a: 0 }; r.sales[t].q++; r.sales[t].a += p; }
+    if (!isLSItem(t)) add(t, sv(S, t));   // món bí mật bán linh thạch — không ghi doanh thu VNĐ
   });
+  /* đối soát tiền THỰC nhận (khách trả giá/bùng) — chênh lệch so với giá niêm yết ghi vào base */
+  if (typeof amount === 'number' && o.base) {
+    const diff = amount - potListedTotal(o, S);
+    if (diff !== 0) r.sales[o.base].a += diff;
+  }
   if (online) { r.onl += amount; r.fee += Math.round(amount * 0.2); }
 }
+function potListedTotal(o, S) {
+  return sv(S, o.base) + (o.size === 'L' ? sv(S, 'L') : 0)
+    + (o.dip && ITEMS[o.dip] ? sv(S, o.dip) : 0)
+    + o.tops.reduce((a, t) => a + (ITEMS[t] && !isLSItem(t) ? sv(S, t) : 0), 0);
+}
 
-/* ---------- tổng kết: doanh thu / chi phí ---------- */
+/* ---------- tổng kết: doanh thu / chi phí ----------
+ * Mô hình: nhập hàng trả tiền TRƯỚC (S.cur.restock) — giống "Nấu & nhập" của thể loại.
+ * Có restock → COGS = restock (hàng hỏng/hết hạn đã nằm trong đó). Không có → fallback ing+waste. */
 export const recRev = r => Object.values(r.sales || {}).reduce((a, x) => a + (x.a || 0), 0) + (r.tips || 0) + (r.gift || 0);
 export function recCost(r, cfg) {
-  const ing = Object.entries(r.ing || {}).reduce((a, [k, q]) => a + q * costOf(cfg, k), 0);
-  return ing + (r.rent || 0) + (r.util || 0) + (r.waste?.v || 0) + (r.tax || 0) + (r.wage || 0) + (r.fee || 0);
+  const ingCost = Object.entries(r.ing || {}).reduce((a, [k, q]) => a + q * costOf(cfg, k), 0);
+  const cogs = r.restock != null ? r.restock : ingCost + (r.waste?.v || 0);
+  return cogs + (r.rent || 0) + (r.util || 0) + (r.tax || 0) + (r.wage || 0) + (r.fee || 0);
 }
 
 /* ---------- thuế hộ kinh doanh (giữ nguyên luật gốc: VAT 3% + PIT 1.5%, ngưỡng 1 tỷ/năm) ---------- */
