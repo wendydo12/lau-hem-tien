@@ -33,57 +33,59 @@ export const TONE_KEYS = ['polite', 'funny', 'savage'];
 /* ===== NGÂN HÀNG CÂU PHẢN HỒI MẪU (sáng tác gốc, lẩu hẻm Sài Gòn) =====
  * {n} = tên khách · {mon} = tên món · {sao} = số sao khách chấm */
 export const REPLY_BANK = {
+  /* 26/09 (lệnh phu quân): xưng "quán"/"mình" — tên chủ quán do người chơi đặt,
+   * KHÔNG cứng "Minh" trong mẫu. Gọi khách {n} (tên thật của khách, mặc định "bạn"). */
   polite: {
     pos: [
-      'Dạ quán cảm ơn anh/chị {n} nhiều ạ, lần sau ghé quán tặng thêm chén rau nha!',
-      'Đọc review của {n} mà Minh vui cả buổi. Cảm ơn đã thương quán hẻm nhỏ này.',
-      'Cảm ơn {n}! Nồi {mon} hôm đó là mẻ nước dùng Minh ưng nhất tuần đấy ạ.',
+      'Dạ quán cảm ơn {n} nhiều ạ, lần sau ghé quán tặng thêm chén rau nha!',
+      'Đọc review của {n} mà quán vui cả buổi. Cảm ơn đã thương quán hẻm nhỏ này.',
+      'Cảm ơn {n}! Nồi {mon} hôm đó là mẻ nước dùng quán ưng nhất tuần đấy ạ.',
       'Dạ cảm ơn {n} đã ghé. Quán sẽ giữ lửa đều như bữa nay cho lần sau!'
     ],
     mid: [
-      'Dạ quán ghi nhận góp ý của {n}. Mai Minh nêm lại tay, mời {n} ghé kiểm chứng ạ!',
+      'Dạ quán ghi nhận góp ý của {n}. Mai quán nêm lại tay, mời {n} ghé kiểm chứng ạ!',
       'Cảm ơn {n} đã nói thật. Quán nhỏ nên từng lời góp ý đều quý như vàng.',
-      'Dạ Minh xin lỗi vì nồi {mon} chưa tới. Lần sau {n} cứ dặn, Minh nấu riêng một phần!'
+      'Dạ quán xin lỗi vì nồi {mon} chưa tới. Lần sau {n} cứ dặn, mình nấu riêng một phần!'
     ],
     neg: [
-      'Dạ Minh thành thật xin lỗi {n}. Cho Minh một cơ hội nấu lại nồi khác tử tế hơn ạ.',
-      'Quán xin lỗi vì trải nghiệm chưa vui của {n}. Minh đã tự kiểm điểm tay nghề tối nay.',
-      'Dạ em tiếp thu ạ. {n} ghé lại lần nữa được không, Minh chuộc lỗi bằng nồi {mon} chuẩn vị!'
+      'Dạ quán thành thật xin lỗi {n}. Cho quán một cơ hội nấu lại nồi khác tử tế hơn ạ.',
+      'Quán xin lỗi vì trải nghiệm chưa vui của {n}. Mình đã tự kiểm điểm tay nghề tối nay.',
+      'Dạ mình tiếp thu ạ. {n} ghé lại lần nữa được không, quán chuộc lỗi bằng nồi {mon} chuẩn vị!'
     ]
   },
   funny: {
     pos: [
-      '{n} khen vậy mai Minh nấu bằng hai tay luôn!',
+      '{n} khen vậy mai mình nấu bằng hai tay luôn!',
       'Nồi {mon} hôm đó ngon vì khách dễ thương đó {n} ơi, bí quyết nằm ở chỗ ngồi ăn.',
-      'Review của {n} hay hơn cả bảng hiệu quán. Minh in ra dán trước cửa được hông?',
-      'Dạ cảm ơn {n}! Minh đã tự thưởng cho mình... một chén nước lẩu còn dư.'
+      'Review của {n} hay hơn cả bảng hiệu quán. Quán in ra dán trước cửa được hông?',
+      'Dạ cảm ơn {n}! Mình đã tự thưởng cho mình... một chén nước lẩu còn dư.'
     ],
     mid: [
-      '{n} chê nhẹ vậy là còn thương Minh lắm rồi. Chê mạnh là Minh khóc giữa hẻm luôn á.',
-      'Dạ để Minh "nâng cấp firmware" cho cái lưỡi, hôm sau {n} ghé test lại giùm nha!',
-      'Nồi {mon} hôm đó chắc tại Minh vừa nấu vừa nghĩ coi trưa mai ăn gì. Xin lỗi {n}!'
+      '{n} chê nhẹ vậy là còn thương quán lắm rồi. Chê mạnh là mình khóc giữa hẻm luôn á.',
+      'Dạ để mình "nâng cấp firmware" cho cái lưỡi, hôm sau {n} ghé test lại giùm nha!',
+      'Nồi {mon} hôm đó chắc tại mình vừa nấu vừa nghĩ coi trưa mai ăn gì. Xin lỗi {n}!'
     ],
     neg: [
-      'Trời ơi {n}, đọc review mà Minh muốn xách nồi chạy theo xin lỗi tận nhà!',
-      'Dạ lỗi tại Minh. Phạt Minh ăn lẩu nhạt một tuần cho thấm. {n} tha lỗi nha!',
-      '{n} ơi, Minh đã tự cúp lương chính mình rồi. Cho quán thêm một cơ hội nghen!'
+      'Trời ơi {n}, đọc review mà mình muốn xách nồi chạy theo xin lỗi tận nhà!',
+      'Dạ lỗi tại quán. Phạt mình ăn lẩu nhạt một tuần cho thấm. {n} tha lỗi nha!',
+      '{n} ơi, quán đã tự cúp lương chính chủ rồi. Cho quán thêm một cơ hội nghen!'
     ]
   },
   savage: {
     pos: [
       'Biết ngon thì dẫn cả xóm qua giùm, một mình {n} ăn hết spotlight rồi.',
-      'Dạ cảm ơn. Nhưng khen xong nhớ ghé lại, khen suông Minh không nhận nha {n}.',
-      'Nồi {mon} đó Minh nấu bằng đạo tâm, {n} ăn một miếng là hiểu liền hà. Khỏi khen nhiều.'
+      'Dạ cảm ơn. Nhưng khen xong nhớ ghé lại, khen suông quán không nhận nha {n}.',
+      'Nồi {mon} đó quán nấu bằng đạo tâm, {n} ăn một miếng là hiểu liền hà. Khỏi khen nhiều.'
     ],
     mid: [
-      '{n} chê vậy chứ mai cũng ghé lại thôi, Minh biết mà. Hẻm này nghiện lẩu nặng rồi.',
-      'Góp ý nhận rồi. Nhưng lần sau góp ý xong nhớ ăn hết dĩa rau giùm, Minh xót ruột.',
-      'Dạ Minh sẽ nấu ngon hơn... sau khi {n} khen Minh một câu cho có tinh thần đã.'
+      '{n} chê vậy chứ mai cũng ghé lại thôi, quán biết mà. Hẻm này nghiện lẩu nặng rồi.',
+      'Góp ý nhận rồi. Nhưng lần sau góp ý xong nhớ ăn hết dĩa rau giùm, quán xót ruột.',
+      'Dạ quán sẽ nấu ngon hơn... sau khi {n} khen quán một câu cho có tinh thần đã.'
     ],
     neg: [
       'Nồi {mon} mà chê thì chắc khẩu vị {n} cần đi "bảo hành" rồi đó.',
-      'Dạ 1 sao của {n} Minh treo trước quán cho vui. Khách sau thấy càng tò mò vô ăn.',
-      '{n} chê thì Minh buồn 5 phút thôi, xong đông khách hơn vì ai cũng muốn thử "quán bị chê". Cảm ơn {n}!'
+      'Dạ 1 sao của {n} quán treo trước cửa cho vui. Khách sau thấy càng tò mò vô ăn.',
+      '{n} chê thì quán buồn 5 phút thôi, xong đông khách hơn vì ai cũng muốn thử "quán bị chê". Cảm ơn {n}!'
     ]
   }
 };
@@ -95,7 +97,9 @@ export const bucketOf = s => s >= 4 ? 'pos' : s === 3 ? 'mid' : 'neg';
 export function genReply(rng, tone, s, name, mon) {
   const bank = REPLY_BANK[tone] || REPLY_BANK.polite;
   const arr = bank[bucketOf(s)];
-  return rng.pick(arr).replace(/\{n\}/g, (name || 'bạn').split(' ').slice(-1)[0])
+  /* 26/09 (lệnh phu quân): luôn xưng hô "bạn" — lịch sự, không gọi thẳng tên riêng khách.
+   * Chủ quán xưng "quán"/"mình" (tên chủ do người chơi đặt, không cứng trong mẫu). */
+  return rng.pick(arr).replace(/\{n\}/g, 'bạn')
     .replace(/\{mon\}/g, mon || 'lẩu').replace(/\{sao\}/g, s);
 }
 

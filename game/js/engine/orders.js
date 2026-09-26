@@ -91,6 +91,9 @@ export function genOrder(S, cfg, rng, lv = levelOf(S.day, cfg), opts = {}) {
   }
   return {
     base, dip, tops: pick, size: rng.chance(lChance(S, cfg)) ? 'L' : 'N', so,
+    /* BUGFIX 26/09 (review: "recipe lỗi, chọn đúng bị sai"): UI quầy chỉ hiện độ cay từ level 2 (ngày 6+),
+     * nhưng code cũ sinh đơn cay từ lv>=2 — ngày 1-5 khách gọi cay mà người chơi KHÔNG THỂ nêm → luôn "sai món" oan.
+     * Giờ: đơn chỉ gọi cay khi UI cho nêm cay. */
     spicy: lv >= 2 ? wpick(rng, SPICY, [.15, .3, .35, .2]) : null
   };
 }

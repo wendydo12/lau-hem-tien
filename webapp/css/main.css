@@ -146,6 +146,29 @@ body{
 
 /* ===== counter / trạm nấu ===== */
 #counter{flex:1;display:flex;gap:10px;padding:10px;overflow:hidden;background:var(--bg)}
+/* --- VÉ ĐƠN (26/09 — review "quá rối mắt, không biết chú ý vào đâu"): ---
+   1 dòng ruy-băng trên quầy = khách đang focus đặt gì + NÓI RÕ CÒN THIẾU GÌ.
+   Mục đã có = mờ, thiếu = đỏ, hết hàng = ghi chú. Mắt người chơi chỉ cần nhìn vé, không phải tự dò đơn. */
+.ticket{flex:1;min-height:64px;max-height:96px;overflow-y:auto;background:#fdf6e3;border:3px solid var(--ink);border-radius:10px;
+  box-shadow:inset 0 2px 0 #fff;padding:8px 12px;font-size:18px;line-height:1.45;color:var(--ink);
+  display:flex;flex-direction:column;gap:4px}
+.tk-head{font-size:14px;color:var(--ink-soft);font-weight:bold}
+.tk-head b{color:var(--ink);font-size:16px}
+.tk-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tk-item{display:inline-flex;align-items:center;gap:5px;background:var(--panel-white);border:2px solid var(--ink);border-radius:6px;padding:2px 8px;font-size:16px;font-weight:bold;white-space:nowrap}
+.tk-item img{width:20px;height:20px;image-rendering:pixelated}
+.tk-item.ok{opacity:.45;border-style:dashed}
+.tk-item.ok::after{content:'✓';font-size:14px}
+.tk-item.miss{border-color:var(--red);background:#ffe3e0;color:#7b1f1f;animation:tkPulse 1.1s ease-in-out infinite}
+.tk-item.miss::after{content:'← THÊM';font-size:13px;color:var(--red)}
+@keyframes tkPulse{0%,100%{box-shadow:0 0 0 0 rgba(200,60,50,.35)}50%{box-shadow:0 0 0 5px rgba(200,60,50,0)}}
+.tk-empty{opacity:.7;font-style:italic}
+.tk-qty{font-size:13px;color:var(--ink-soft)}
+/* --- prep: nhóm nguyên liệu gọn (26/09 — review "đoạn chọn nguyên liệu rất rối"):
+   các row nhập hàng xếp 2 cột, mỗi nhóm 1 label — giảm 1/2 chiều dọc, không còn dải phẳng 29 hàng --- */
+.restock-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.restock-group-label{font-size:15px;letter-spacing:2px;color:var(--ink-soft);font-weight:bold;border-bottom:2px solid var(--panel-line);margin:10px 0 4px}
+@media (max-width:720px){ .restock-grid{grid-template-columns:1fr} }
 #potArea{width:130px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:flex-start}
 #potArea .st-actions.col{flex-direction:column;width:100%;margin-top:4px}
 #potArea .st-actions.col .btn{width:100%;font-size:16px;padding:10px 4px}
@@ -273,6 +296,7 @@ body{
 #prepBody{flex:1;overflow-y:auto}
 .prep-note{font-size:18px;color:var(--ink-soft);text-align:center;padding:20px;line-height:1.5}
 .restock-row{display:flex;align-items:center;gap:8px;padding:6px;border-bottom:1px dashed var(--panel-line)}
+.restock-row.planned{background:rgba(224,160,60,.14);border-radius:6px}   /* 26/09: hàng đang nhập nhẹ nền để mắt không lạc */
 .restock-row img{width:36px;height:36px;image-rendering:pixelated}
 .restock-row .rn{flex:1;font-size:17px}
 .restock-row .rn small{color:var(--ink-soft);font-size:14px}

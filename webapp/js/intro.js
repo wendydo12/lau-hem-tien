@@ -10,8 +10,8 @@
  *
  * Tất cả câu chữ phụ đề: SÁNG TÁC GỐC của Uyển Nhi.
  */
-import { playIntroSfx, setBgm } from './audio.js?v=17';
-import { ownerSprite } from './creator.js?v=17';
+import { playIntroSfx, setBgm } from './audio.js?v=19';
+import { ownerSprite } from './creator.js?v=19';
 
 const B = '../../assets/intro-tao/v2/';   // nền cảnh v2 (meowa đồng bộ)
 const A = '../../assets/';

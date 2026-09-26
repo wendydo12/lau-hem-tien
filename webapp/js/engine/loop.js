@@ -95,7 +95,11 @@ export function spawn(ctx) {
     id: ++R.uid, who, xian, brat,
     face: xian ? rng.pick(XFACE) : rng.pick(FACES),
     name, say: rng.pick(pp.o), end: rng.pick(pp.e),
-    cups, done: cups.map(() => false), order: cups[0],
+    /* BUGFIX 26/09 (review "chọn đúng mà bị sai"): thay `order: cups[0]` (gắn chết) bằng getter
+     * `order` luôn trỏ cup ĐẦU TIÊN CHƯA XONG. Trước đây sau khi serve cup 1, bong bóng đơn +
+     * phạt sai món vẫn so với cup 1 đã xong → người chơi nấu đúng đơn cup 2 mà bị tính sai. */
+    cups, done: cups.map(() => false),
+    get order() { const j = this.cups.findIndex((x, k) => !this.done[k]); return j >= 0 ? this.cups[j] : this.cups[this.cups.length - 1]; },
     pat: max * (brat === 'hoi' ? .6 : 1), max, wrong: 0, paid: 0,
     born: Date.now()
   };

@@ -1,29 +1,32 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=17';
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=17';
-import { fresh, load, save, newPot } from './engine/state.js?v=17';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=17';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=17';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=17';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=17';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=17';
-import { makeRNG } from './engine/rng.js?v=17';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=17';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=17';
-import { RUIN_TIERS } from './engine/ruin.js?v=17';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=17';
-import { UPG } from './engine/data.js?v=17';
-import { SPRITES } from './manifest.js?v=17';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver } from './audio.js?v=17';
-import { playIntro, introSeen } from './intro.js?v=17';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=17';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=19';
+import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=19';
+import { fresh, load, save, newPot } from './engine/state.js?v=19';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=19';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=19';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=19';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=19';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=19';
+import { makeRNG } from './engine/rng.js?v=19';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=19';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=19';
+import { RUIN_TIERS } from './engine/ruin.js?v=19';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=19';
+import { UPG } from './engine/data.js?v=19';
+import { SPRITES } from './manifest.js?v=19';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver } from './audio.js?v=19';
+import { playIntro, introSeen } from './intro.js?v=19';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=19';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
 const A = '../../assets/';   // tiền tố đường dẫn asset từ game/
 let S, R, rng, ctx, names;
 let pot = newPot();
+/* debug/QA handle (26/09): phơi R/S/ctx ra console để test tự động được — không ảnh hưởng gameplay */
+const __lht = { get R() { return R; }, get S() { return S; }, get ctx() { return ctx; }, get pot() { return pot; }, set pot(v) { pot = v; }, renderLane, renderTicket, renderStations, spawn, serve, timeoutCustomer };
+window.__lht = __lht;
 let pouring = null;       // {start, raf}
 let dayTimer = null;
 let gameSec = 0;          // 11:00 -> 22:00 = cfg.dayMin phút thật
@@ -231,7 +234,7 @@ function askResumeMidDay() {
 function resumeSell() {
   restoreRuntime();
   R.running = true;
-  pot = newPot();
+  pot = newPot(); renderTicket();
   showScreen('sell');
   drawScene();
   renderStations();
@@ -358,10 +361,35 @@ function renderPrep() {
   /* ---- nút xem tường đánh giá (badge số review chưa trả lời) ---- */
   const un = unanswered(S);
   h += `<button class="btn ghost small rv-open" id="btnOpenReviews">📋 Đánh giá của khách${un ? ` <span class="rv-badge">${un}</span>` : ''}</button>`;
-  keys.forEach(k => {
+  /* ---- 26/09 (review "đoạn chọn nguyên liệu RẤT RỐI MẮT"): chia kho thành 3 nhóm có tiêu đề,
+   * 2 cột song song — mắt có điểm tựa: NỒI+CHÉN → NƯỚC CHẤM → ĐỒ NHÚNG. Hàng chưa mở khóa gom 1 nhóm riêng. */
+  const rowHtml = k => {
     const it = ITEMS[k];
-    if (!S.unlocked[k]) {
-      /* ---- CÔNG THỨC CHƯA MỞ KHÓA: trả phí 1 lần để học (fix bug 25/09: trước đây không có lối mở) ---- */
+    const cur = qty(S, k);
+    const inPlan = plan[k] || 0;
+    const life = it.life ? (it.life === 1 ? 'dùng trong ngày' : 'hạn ' + it.life + ' ngày') : 'không hạn';
+    return `<div class="restock-row${inPlan > 0 ? ' planned' : ''}">
+      <img src="${A + spriteOf(k)}" alt="">
+      <div class="rn">${it.n} <small>· ${fmtD(it.cost)}/phần · ${life} · kho ${cur}</small></div>
+      <button class="pill" data-dec="${k}">−</button>
+      <b style="min-width:28px;text-align:center">${inPlan}</b>
+      <button class="pill" data-inc="${k}">＋</button>
+    </div>`;
+  };
+  const grp = (label, ks) => {
+    const open = ks.filter(k => S.unlocked[k]);
+    if (!open.length) return '';
+    return `<div class="restock-group-label">${label}</div><div class="restock-grid">${open.map(rowHtml).join('')}</div>`;
+  };
+  h += grp('🍲 NỒI & NỒI CHÉN', [...BASE_KEYS, 'sup']);
+  h += grp('🥣 NƯỚC CHẤM', DIP_KEYS);
+  h += grp('🥩 ĐỒ NHÚNG LẨU', [...TOP_KEYS, ...DUOC_KEYS]);
+  /* công thức chưa mở — 1 khối riêng gọn (fix 25/09: trả phí để học) */
+  const locked = keys.filter(k => !S.unlocked[k]);
+  if (locked.length) {
+    h += `<div class="restock-group-label">🔒 CHƯA HỌC — tap để học công thức</div><div class="restock-grid">`;
+    locked.forEach(k => {
+      const it = ITEMS[k];
       const afford = S.money >= it.unlock;
       const verb = it.type === 'base' ? 'học công thức' : (it.type === 'dip' ? 'học cách pha' : 'tìm mối hàng');
       h += `<div class="restock-row locked">
@@ -369,18 +397,9 @@ function renderPrep() {
         <div class="rn">🔒 ${it.n} <small>· ${verb} ${fmtD(it.unlock)}</small></div>
         <button class="pill unlock-btn" data-unlock="${k}"${afford ? '' : ' disabled'}>${afford ? 'Trả ' + fmtD(it.unlock) : 'Thiếu ' + fmtD(it.unlock - S.money)}</button>
       </div>`;
-      return;
-    }
-    const cur = qty(S, k);
-    const inPlan = plan[k] || 0;
-    h += `<div class="restock-row">
-      <img src="${A + spriteOf(k)}" alt="">
-      <div class="rn">${it.n} <small>· ${fmtD(it.cost)}/phần · ${it.life ? (it.life === 1 ? 'dùng trong ngày' : 'hạn ' + it.life + ' ngày') : 'không hạn'} · kho ${cur}</small></div>
-      <button class="pill" data-dec="${k}">−</button>
-      <b style="min-width:28px;text-align:center">${inPlan}</b>
-      <button class="pill" data-inc="${k}">＋</button>
-    </div>`;
-  });
+    });
+    h += '</div>';
+  }
   $('prepBody').innerHTML = h;
   /* đổi tên quán (port UI gốc — bút chì cạnh tên) */
   const renameBtn = $('btnRenameShop');
@@ -607,29 +626,90 @@ function renderLane() {
       : c.xian ? SPRITES.xian[(c.id + 3) % 16]
       : SPRITES.vn[WHO_SPR[c.who % 7]];   /* sprite KHỚP tên/giới tính/tuổi (WHO_SPR map cố định) */
     el.innerHTML = `
-      <div class="bubble">${c.star != null ? '⭐ ' : ''}${c.xian ? '💎 ' : ''}${orderBubble(c.order)}</div>
+      <div class="bubble">${c.star != null ? '⭐ ' : ''}${c.xian ? '💎 ' : ''}${(c.order && c.order.base) ? orderBubble(c.order) : '✅'}</div>
       ${c.xian ? '<div class="pay-tag">💎</div>' : ''}
       <img src="${A + src}" alt="">
       <div class="name">${c.name}</div>
       <div class="pat${c.pat / c.max < .3 ? ' danger' : c.pat / c.max < .55 ? ' warn' : ''}"><i style="width:${Math.max(0, c.pat / c.max * 100)}%"></i></div>`;
-    el.onclick = e => { e.stopPropagation(); R.focus = c.id; renderLane(); showOrderDetail(c); };
+    el.onclick = e => { e.stopPropagation(); R.focus = c.id; renderLane(); renderTicket(); showOrderDetail(c); };
     lane.appendChild(el);
   });
+  /* 26/09: khách focus vừa rời (xong việc) → tự focus khách còn chờ để vé đơn luôn có nội dung.
+   * LƯU Ý (bugfix 2): KHÔNG gọi renderLane đệ quy — nếu còn 2+ khách chưa xong, renderLane →
+   * renderLane → ... → crash "Maximum call stack" làm chết cả màn bán. Chỉ đổi focus + renderTicket. */
+  if (!R.slots.some(x => x && R.focus === x.id)) {
+    const nxt = R.slots.find(x => x && !x.done.every(Boolean));
+    if (nxt && R.focus !== nxt.id) { R.focus = nxt.id; renderTicket(); }
+  }
+  renderTicket();
 }
 function orderText(o) {
-  if (!o) return '...';
-  const tops = o.tops.map(t => ITEMS[t].s).join(', ');
+  if (!o || !o.base) return '...';
+  const nameOf = k => { const it = ITEMS[k]; return it ? (it.s || k) : k; };
+  const tops = (o.tops || []).map(nameOf).join(', ');
   return `${iname(o.base)}${o.size === 'L' ? ' lớn' : ''}${o.spicy ? ' · ' + o.spicy.toLowerCase() : ''}${o.dip ? ' · chấm ' + ITEMS[o.dip].s.toLowerCase() : ''}${tops ? ' · ' + tops : ''}`;
 }
 /* bong bóng "menu request": icon từng món + nhãn, khách giơ ra cho chủ quán đọc */
 function orderBubble(o) {
   if (!o) return '...';
-  const parts = [`<span class="ob-i"><img src="${A + (SPRITES.pot[o.base] || '')}">${o.size === 'L' ? 'lớn' : ''}</span>`];
+  /* 26/09: KHÔNG in chữ "lớn" dưới icon — nhãn chính bên cạnh đã ghi "lớn" (fix "lớn lớn") */
+  const parts = [`<span class="ob-i"><img src="${A + (SPRITES.pot[o.base] || '')}"></span>`];
   o.tops.forEach(t => parts.push(`<span class="ob-i"><img src="${A + spriteOf(t)}"></span>`));
   if (o.dip) parts.push(`<span class="ob-i"><img src="${A + spriteOf(o.dip)}"></span>`);
   const txt = `${o.spicy ? '🌶 ' + o.spicy : ''}`;
-  return `<span class="ob-txt">${iname(o.base)}${o.size === 'L' ? ' lớn' : ''}${txt}</span><span class="ob-icons">${parts.join('')}</span>`;
+  const nm = iname(o.base);   /* 26/09: name base L đã mang chữ "lớn" — không lặp "lớn lớn" */
+  const sizeTxt = o.size === 'L' ? (nm.includes('lớn') ? '' : ' lớn') : '';
+  return `<span class="ob-txt">${nm}${sizeTxt}${txt}</span><span class="ob-icons">${parts.join('')}</span>`;
 }
+/* VÉ ĐƠN (26/09): hiển thị ĐƠN ĐANG CHỜ của khách focus + so với nồi đang nấu.
+ * Mỗi mục = chip: ✓ mờ nếu nồi đã đúng, đỏ "← THÊM" nếu thiếu, ghi chú nếu hết hàng.
+ * Người chơi chỉ cần nhìn vé → biết chính xác phải thêm gì, không phải dò đơn + tự nhớ. */
+function renderTicket() {
+  const t = $('ticket');
+  if (!t) return;
+  try {
+    const c = R ? R.slots.find(x => x && R.focus === x.id) : null;
+    if (!c) { t.innerHTML = '<span class="tk-empty">👆 Chạm khách để xem đơn của họ</span>'; return; }
+    const o = c.order;   // getter: cup đầu tiên chưa xong (đã fix engine 26/09)
+    if (!o || !o.base) { t.innerHTML = `<div class="tk-head">🎟️ <b>${c.name}</b> — sắp rời đi</div>`; return; }
+    /* helper an toàn (26/09): key lạ trong đơn (save cũ) KHÔNG được phép crash cả màn bán */
+    const nameOf = k => { const it = ITEMS[k]; return it ? (it.s || it.n || k) : k; };
+    const chips = [];
+    // base
+    const has = k => qty(S, k) > 0;
+    const potOkBase = pot.base === o.base;
+    chips.push(`<span class="tk-item${potOkBase ? ' ok' : ' miss'}"><img src="${A + (SPRITES.pot[o.base] || '')}"${SPRITES.pot[o.base] ? '' : ' hidden'}>${iname(o.base)}</span>`);
+    // size
+    if (o.size === 'L') chips.push(`<span class="tk-item${pot.size === 'L' ? ' ok' : ' miss'}">🍲 Nồi LỚN</span>`);
+    // cay
+    if (o.spicy) {
+      const spOk = pot.spicy === o.spicy;
+      chips.push(`<span class="tk-item${spOk ? ' ok' : ' miss'}">🌶 ${o.spicy}</span>`);
+    } else if (pot.spicy) {
+      chips.push(`<span class="tk-item miss">không cay — nồi đang nêm ${pot.spicy}! 🗑 đổ lại</span>`);
+    }
+    // chấm
+    if (o.dip) {
+      const dOk = pot.dip === o.dip;
+      chips.push(`<span class="tk-item${dOk ? ' ok' : ' miss'}"><img src="${A + (spriteOf(o.dip) || '')}"${spriteOf(o.dip) ? '' : ' hidden'}>${nameOf(o.dip)}</span>`);
+    }
+    // topping: mỗi món của đơn — thiếu thì đỏ
+    for (const k of o.tops) {
+      const ok = pot.tops.includes(k);
+      const out = !has(k);
+      const spr = spriteOf(k);
+      chips.push(`<span class="tk-item${ok ? ' ok' : ' miss'}"${out ? ' title="Hết hàng — nhập thêm ở màn chuẩn bị!"' : ''}><img src="${A + (spr || '')}"${spr ? '' : ' hidden'}>${nameOf(k)}${out ? ' · hết hàng' : ''}</span>`);
+    }
+    // cảnh báo thừa: món trong nồi KHÔNG nằm trong đơn → cảnh báo ngay (chống "nấu thừa mà không biết")
+    const extras = pot.tops.filter(k => !o.tops.includes(k));
+    if (extras.length) chips.push(`<span class="tk-item miss">⚠️ nồi thừa: ${extras.map(nameOf).join(', ')} — 🗑 đổ lại</span>`);
+    t.innerHTML = `<div class="tk-head">🎟️ Đơn của <b>${c.name}</b>${c.cups.length > 1 ? ` <span class="tk-qty">(nồi ${c.done.filter(x => x).length + 1}/${c.cups.length})</span>` : ''} — thiếu gì thì thêm đó:</div>
+    <div class="tk-row">${chips.join('')}</div>`;
+  } catch (e) {
+    t.innerHTML = '<span class="tk-empty">👆 Chạm khách để xem đơn của họ</span>';
+  }
+}
+
 function showOrderDetail(c) {
   let rows = c.cups.map((o, k) => `<div class="step${!c.done[k] && R.focus === c.id ? (k === c.cups.findIndex(x => !c.done[c.cups.indexOf(x)]) ? ' cur' : '') : ''}">${c.done[k] ? '✅' : '🍲'} Ly ${k + 1}: ${orderText(o)}${o.dip ? ' · chấm ' + ITEMS[o.dip].s.toLowerCase() : ''}</div>`).join('');
   modal(`<div class="big-ico">${c.xian ? '🔮' : '🗣️'}</div><h2>${c.name}</h2>
@@ -638,19 +718,52 @@ function showOrderDetail(c) {
   [['Nấu ngay', null, true]]);
 }
 
-/* ---- scene canvas: vẽ bg + hiệu ứng ---- */
+/* ---- scene canvas: vẽ bg + hiệu ứng ----
+ * 26/09 BUGFIX (review "ảnh quán bè ngang"): canvas trước đây có buffer CỐ ĐỊNH 756×996 (dọc)
+ * nhưng khung hiển thị trên điện thoại là ngang (390×~320) → CSS kéo giãn buffer lệch tỉ lệ,
+ * mọi chi tiết pixel (đèn lồng, biển neon, mặt tiền) bị dẹt/dãn ngang.
+ * Sửa: buffer luôn được scale theo KÍCH THƯỚC THỰC của khung (×dpr) → tỉ lệ buffer = tỉ lệ khung,
+ * CSS không còn co giãn lệch; ảnh cover-fit đều tay (uniform scale, cắt thừa) — không bao giờ méo. */
+function sizeScene() {
+  const cv = $('scene'), wrap = $('sceneWrap');
+  if (!cv || !wrap || wrap.clientWidth < 4) return false;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = Math.max(1, Math.round(wrap.clientWidth * dpr));
+  const h = Math.max(1, Math.round(wrap.clientHeight * dpr));
+  return (cv.width !== w || cv.height !== h);
+}
+function fitSceneBuffer() {
+  const cv = $('scene'), wrap = $('sceneWrap');
+  if (!cv || !wrap) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = Math.max(1, Math.round(wrap.clientWidth * dpr));
+  cv.height = Math.max(1, Math.round(wrap.clientHeight * dpr));
+}
 function drawScene() {
   const cv = $('scene'), c = cv.getContext('2d');
+  fitSceneBuffer();   // buffer = khung thật → CSS 100%/100% không còn méo tỉ lệ
   const bg = img(A + SPRITES.scene);
-  bg.onload = () => {
+  const paint = () => {
+    c.imageSmoothingEnabled = false;   // pixel art: nearest-neighbor, nét vuông
     c.clearRect(0, 0, cv.width, cv.height);
-    // cover-fit
+    if (!bg.width) return;
+    // cover-fit: scale đều, cắt phần thừa ở giữa (biển neon + quầy luôn nằm vùng giữa → an toàn)
     const r = Math.max(cv.width / bg.width, cv.height / bg.height);
     const w = bg.width * r, h = bg.height * r;
     c.drawImage(bg, (cv.width - w) / 2, (cv.height - h) / 2, w, h);
   };
-  if (bg.complete) bg.onload();
+  bg.onload = paint;
+  if (bg.complete) paint();
 }
+/* resize/xoay màn giữa ngày bán → fit lại buffer (đồng bộ web/android/ios — cùng 1 code web) */
+let _sceneRsz = null;
+window.addEventListener('resize', () => {
+  clearTimeout(_sceneRsz);
+  _sceneRsz = setTimeout(() => { if (S && R && R.running && !$('sell').hidden) drawScene(); }, 120);
+});
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => { if (S && R && R.running && !$('sell').hidden) drawScene(); }, 250);
+});
 
 /* ---- stations ---- */
 function renderStations() {
@@ -675,6 +788,7 @@ function renderStations() {
     + secrets.map(k => ingBtn(k, pot.tops.includes(k), false, true)).join('');
   bindIngs();
   renderPotVisual();
+  renderTicket();   // 26/09: vé đơn cập nhật theo nồi đang nấu
 }
 function ingBtn(k, sel, small = false, secret = false) {
   const q = qty(S, k);

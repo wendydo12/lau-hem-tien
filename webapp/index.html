@@ -44,7 +44,7 @@
         <button id="btnNew" class="btn ghost" hidden>Quán mới</button>
         <button id="btnGuide" class="btn ghost small">Hướng dẫn</button>
       </div>
-      <small class="ver">v0.1.0 — Phase 4</small>
+      <small class="ver">v0.1.2 — Phase 5</small>
     </section>
 
     <!-- Màn chuẩn bị (placeholder Phase 5) -->
@@ -61,6 +61,8 @@
         <div id="toastWrap"></div>
       </div>
       <div id="counter">
+        <!-- vé đơn: khách đang focus đặt gì — điểm tập trung mắt chính (fix review 26/09: "quá rối, không biết chú ý vào đâu") -->
+        <div id="ticket" class="ticket"></div>
         <!-- nồi đang nấu -->
         <div id="potArea">
           <div id="potVisual"></div>
@@ -121,6 +123,6 @@
     <div id="modal" class="modal" hidden><div class="modal-card" id="modalCard"></div></div>
     <div id="toast" class="toast" hidden></div>
   </div>
-    <script type="module" src="js/main.js?v=17"></script>
+    <script type="module" src="js/main.js?v=19"></script>
 </body>
 </html>
