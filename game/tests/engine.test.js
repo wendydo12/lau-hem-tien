@@ -22,14 +22,17 @@ function seededState(seed = 12345) {
 }
 
 /* ============ 1. DATA ============ */
-test('ITEMS: đủ 7 nồi lẩu theo brief', () => {
+test('ITEMS: đủ 9 nồi lẩu theo brief (7 gốc + 2 miền Tây)', () => {
   const pots = BASE_KEYS;
-  assert.equal(pots.length, 7);
-  ['ca_chua', 'nam', 'suon', 'thai', 'suki', 'dong_trung', 'tu_xuyen'].forEach(k => assert.ok(ITEMS[k], 'thiếu nồi ' + k));
+  assert.equal(pots.length, 9);
+  ['ca_chua', 'nam', 'suon', 'canh_chua', 'thai', 'mam', 'suki', 'dong_trung', 'tu_xuyen'].forEach(k => assert.ok(ITEMS[k], 'thiếu nồi ' + k));
   /* 3 nồi đầu miễn phí */
   assert.equal(ITEMS.ca_chua.unlock, 0);
   assert.equal(ITEMS.nam.unlock, 0);
   assert.equal(ITEMS.suon.unlock, 0);
+  /* 2 nồi miền Tây mở bằng tiền */
+  assert.ok(ITEMS.canh_chua.unlock >= 100000);
+  assert.ok(ITEMS.mam.unlock >= 300000);
   /* nồi tiên giới mở bằng tiền */
   assert.ok(ITEMS.dong_trung.unlock >= 600000);
   assert.ok(ITEMS.tu_xuyen.unlock >= 400000);

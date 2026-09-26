@@ -10,11 +10,12 @@ export const SPRITES = {
   },
   /* khách tu tiên (64x64 — đồng bộ scale) */
   xian: Array.from({length:16}, (_,i) => 'nhan-vat/xian_' + String(i).padStart(2,'0') + '.png'),
-  /* 8 nồi lẩu */
+  /* 9 nồi lẩu (25/09: + canh chua cá pot_08, lẩu mắm pot_09) */
   pot: {
     ca_chua: 'mon-an/pot_00.png', nam: 'mon-an/pot_01.png', suon: 'mon-an/pot_02.png',
     thai: 'mon-an/pot_03.png', suki: 'mon-an/pot_04.png', dong_trung: 'mon-an/pot_05.png',
-    tu_xuyen: 'mon-an/pot_06.png', hai_san: 'mon-an/pot_07.png'
+    tu_xuyen: 'mon-an/pot_06.png', hai_san: 'mon-an/pot_07.png',
+    canh_chua: 'mon-an/pot_08.png', mam: 'mon-an/pot_09.png'
   },
   /* topping + nước chấm + bí mật */
   item: {

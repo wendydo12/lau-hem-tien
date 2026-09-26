@@ -161,6 +161,7 @@ export function serve(ctx, i, pot) {
     R.today.lsEarned += ls;
     recSale(S, o, pl.vnd, false);
     c.paid += ls;
+    S.served++; S.cur.served = (S.cur.served || 0) + 1; R.today.served++;
     const left = c.done.filter(x => !x).length;
     if (!left) finishCustomer(ctx, i, c, true);
     return { ok: true, ls, left, c };
@@ -179,7 +180,7 @@ export function serve(ctx, i, pot) {
     }
     recSale(S, o, p, false);
     S.money += p; S.cur.rev = (S.cur.rev || 0) + p; R.today.rev += p;
-    S.totalRev += p; R.today.served++; S.served++;
+    S.totalRev += p; R.today.served++; S.served++; S.cur.served = (S.cur.served || 0) + 1;
     const left = c.done.filter(x => !x).length;
     if (!left) finishCustomer(ctx, i, c, false);
     return { ok: true, vnd: p, left, c };
@@ -270,6 +271,7 @@ export function closeDay(ctx) {
   S.totalProfit = S.history.reduce((a, r) => a + recRev(r) - recCost(r, cfg), 0);
   S.day++;
   S.cur = newRec(S.day);
+  S.midDay = false; S.midSnap = null;   // ngày đã đóng — xóa savepoint giữa ngày
   rollDay(S, cfg, rng);
   if (!S.badPlan || S.day > S.badPlan.start + 90) S.badPlan = mkBadPlan(S.day, rng);
   autoBak(S); save(S);

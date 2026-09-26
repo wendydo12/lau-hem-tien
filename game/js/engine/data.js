@@ -15,12 +15,14 @@ const mk = (type, g) => (k, n, sn, c, life, cost, sell, unlock) => {
   ITEMS[k] = { n, s: sn || n, type, g, c, life, cost, sell, unlock };
 };
 
-/* --- NỒI LẨU (base) — 7 nồi theo brief của phu quân --- */
+/* --- NỒI LẨU (base) — 9 nồi theo brief của phu quân (25/09 thêm 2 món miền Tây) --- */
 const P = mk('base', 'pot');
 P('ca_chua', 'Lẩu cà chua', 'Cà chua', '#e8542e', 3, 8000, 35000, 0);
 P('nam', 'Lẩu nấm', 'Nấm', '#c9a86a', 3, 9000, 40000, 0);
 P('suon', 'Lẩu sườn', 'Sườn', '#b5651d', 3, 12000, 50000, 0);
+P('canh_chua', 'Lẩu canh chua cá', 'Canh chua', '#e8a03c', 2, 11000, 45000, 100000);
 P('thai', 'Lẩu Thái', 'Thái', '#e8842e', 3, 10000, 45000, 150000);
+P('mam', 'Lẩu mắm', 'Mắm', '#6b4a2a', 2, 13000, 55000, 300000);
 P('suki', 'Lẩu sukiyaki', 'Sukiyaki', '#7a4a2a', 2, 15000, 65000, 250000);
 P('dong_trung', 'Lẩu đông trùng hạ thảo', 'Đông trùng', '#d4a017', 2, 25000, 95000, 600000);
 P('tu_xuyen', 'Lẩu Tứ Xuyên', 'Tứ Xuyên', '#c1121f', 3, 14000, 70000, 400000);

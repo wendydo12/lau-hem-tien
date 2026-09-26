@@ -103,4 +103,6 @@ export function addReview(S, st, why, online, c, extra, rng, R) {
   S.revTotal = Math.max(S.revTotal || 0, S.reviews.length - 1) + 1;
   if (S.reviews.length > 2500) S.reviews.length = 2500;
   if (R && R.today) R.today.stars.push(st);
+  /* thống kê ngày đang mở (stats.js đọc lại cho tab "Theo ngày" của hôm nay) */
+  if (S.cur) { S.cur.starSum = (S.cur.starSum || 0) + st; S.cur.starN = (S.cur.starN || 0) + 1; }
 }

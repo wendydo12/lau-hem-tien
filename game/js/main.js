@@ -1,22 +1,23 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=16';
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=16';
-import { fresh, load, save, newPot } from './engine/state.js?v=16';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=16';
-import { fmt, rating, starStr, recRev, recCost, price } from './engine/economy.js?v=16';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=16';
-import { rollDay, mkBadPlan, evText } from './engine/events.js?v=16';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=16';
-import { makeRNG } from './engine/rng.js?v=16';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=16';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=16';
-import { RUIN_TIERS } from './engine/ruin.js?v=16';
-import { UPG } from './engine/data.js?v=16';
-import { SPRITES } from './manifest.js?v=16';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver } from './audio.js?v=16';
-import { playIntro, introSeen } from './intro.js?v=16';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=16';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=17';
+import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=17';
+import { fresh, load, save, newPot } from './engine/state.js?v=17';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=17';
+import { fmt, rating, starStr, recRev, recCost, price } from './engine/economy.js?v=17';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=17';
+import { rollDay, mkBadPlan, evText } from './engine/events.js?v=17';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=17';
+import { makeRNG } from './engine/rng.js?v=17';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=17';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=17';
+import { RUIN_TIERS } from './engine/ruin.js?v=17';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=17';
+import { UPG } from './engine/data.js?v=17';
+import { SPRITES } from './manifest.js?v=17';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver } from './audio.js?v=17';
+import { playIntro, introSeen } from './intro.js?v=17';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=17';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
@@ -29,6 +30,7 @@ let gameSec = 0;          // 11:00 -> 22:00 = cfg.dayMin phút thật
 
 /* ============ util ============ */
 const fmtD = n => Math.round(n).toLocaleString('vi-VN') + 'đ';
+const fmtK = n => Math.round(n) >= 1000 ? (Math.round(n / 100) / 10) + 'k' : Math.round(n) + 'đ';
 const fmtLS = n => n.toLocaleString('vi-VN') + ' 💎';
 function toast(msg, cls = '', ms = 2200) {
   const t = document.createElement('div');
@@ -82,7 +84,7 @@ function boot() {
   rng = makeRNG(S.seed);
   /* mới vô game (chưa có save) → nút chính là "Mở quán" (new game);
    * có save rồi mới hiện "Chơi tiếp" + "Quán mới" (lệnh phu quân 25/09) */
-  const hasSave = !!r.loaded && (S.day > 1 || Object.keys(S.stock).some(k => (S.stock[k] || []).length));
+  const hasSave = !!r.loaded && (S.day > 1 || S.midDay || Object.keys(S.stock).some(k => (S.stock[k] || []).length));
   const btnPlay = $('btnPlay');
   btnPlay.textContent = hasSave ? 'Chơi tiếp (Ngày ' + S.day + ')' : '🍲 Mở quán';
   $('btnNew').hidden = !hasSave;   /* không có save thì không cần nút Quán mới */
@@ -127,6 +129,7 @@ function boot() {
   $('btnGuide').onclick = showGuide;
   $('btnPause').onclick = pauseDlg;
   $('btnCloseReviews').onclick = () => { showScreen(rvBack); if (rvBack === 'prep') renderPrep(); };
+  $('btnCloseStats').onclick = () => { showScreen(statsBack); if (statsBack === 'prep') renderPrep(); };
   $('btnAudio').onclick = () => {
     const on = toggleAudio();
     $('btnAudio').textContent = on ? '🔊' : '🔇';
@@ -192,8 +195,65 @@ const plan = {};   // {key: qty} nhập hàng
 function enterPrep() {
   /* QUÁ HẠN NỢ PHÒNG TRỌ (ngày 8 chưa trả đủ 2 triệu) → game over theo cốt truyện */
   if (roomDebtOverdue(S, cfg)) { gameOverDebt(); return; }
+  /* SAVEPOINT (lệnh phu quân 25/09): reload giữa ngày bán → hỏi chơi tiếp hay đóng sớm,
+   * tiền/kho/ngày giữ nguyên từ lần tự lưu gần nhất */
+  if (S.midDay && S.midSnap) { askResumeMidDay(); return; }
   showScreen('prep');
   renderPrep();
+}
+
+/* ---- SAVEPOINT giữa ngày: snapshot R.today + đồng hồ, reload là nối lại được ---- */
+function saveMid() {
+  if (!R || !R.running) return;
+  S.midDay = true;
+  S.midSnap = { today: R.today, gameSec, clockHh: 11 + gameSec / 3600 };
+  try { save(S); } catch (e) {}
+}
+function restoreRuntime() {
+  R = initRuntime(S, cfg, slotCount(S, cfg));
+  ctx = { R, S, cfg, rng, names: makeNameGen(S, rng) };
+  const snap = S.midSnap || {};
+  if (snap.today) Object.assign(R.today, snap.today);
+  gameSec = snap.gameSec || 0;
+  return R;
+}
+function askResumeMidDay() {
+  const snap = S.midSnap || {};
+  const served = (snap.today && snap.today.served) || 0;
+  modal(`<div class="big-ico">🏮</div><h2>Quán vẫn đang mở!</h2>
+  <p>Hôm qua bạn thoát giữa ngày ${S.day} — két, kho và khách đã bán (${served} nồi) vẫn được giữ nguyên.<br>
+  <small style="color:var(--ink-soft)">Savepoint tự lưu mỗi 15 giây — không mất công sức đâu.</small></p>`,
+  [['🏮 Tiếp tục bán ngày ' + S.day, () => resumeSell(), true],
+   ['🌙 Đóng cửa sớm (tổng kết)', () => { restoreRuntime(); R.running = true; endDay(); }, false]]);
+}
+function resumeSell() {
+  restoreRuntime();
+  R.running = true;
+  pot = newPot();
+  showScreen('sell');
+  drawScene();
+  renderStations();
+  renderLane();
+  updateHud();
+  setAmbience(true);
+  toast('🏮 Quán mở lại — bán tiếp ngày ' + S.day + ' nào!', 'good', 2600);
+  /* đồng hồ chạy tiếp từ chỗ cũ */
+  const dayMs = cfg.dayMin * 60 * 1000;
+  const elapsedMs = Math.min(dayMs - 1000, (gameSec / (11 * 3600)) * dayMs);
+  const started = performance.now() - elapsedMs;
+  let ticks = 0;
+  clearInterval(dayTimer);
+  dayTimer = setInterval(() => {
+    if (R.paused) return;
+    const el = performance.now() - started - (R.pauseMs || 0);
+    gameSec = Math.min(11 * 3600, el / dayMs * 11 * 3600);
+    const hh = 11 + Math.floor(gameSec / 3600), mm = Math.floor(gameSec % 3600 / 60);
+    $('hudClock').textContent = String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+    tickCustomers();
+    if (++ticks % 150 === 0) saveMid();
+    if (el >= dayMs) endDay();
+  }, 100);
+  scheduleSpawns(dayMs);
 }
 function gameOverDebt() {
   playGameOver();
@@ -233,8 +293,21 @@ function canOpen() {
 function renderPrep() {
   const ev = evText(S, cfg);
   const keys = [...BASE_KEYS, 'sup', ...TOP_KEYS, ...DIP_KEYS, ...DUOC_KEYS];
-  let h = `<div class="sum-title">Ngày ${S.day} — Chuẩn bị</div>
+  let h = `<div class="sum-title">Ngày ${S.day} — Chuẩn bị <button class="pencil" id="btnRenameShop" title="Đổi tên quán">✏️</button></div>
   <div class="sum-sub">${ev ? '📅 ' + ev : 'Một ngày bình thường trong hẻm'}</div>`;
+  /* ---- MENU HÔM NAY (port UI gốc): bảng giá các nồi đang mở + món bán chạy tuần ---- */
+  const menuBases = BASE_KEYS.filter(k => S.unlocked[k]);
+  if (menuBases.length) {
+    const [wf, wt] = [Math.max(1, S.day - 7), S.day - 1];
+    const bl = bestLine(S, wf, wt);
+    h += `<div class="menu-board">
+      <div class="mb-head">🧾 Menu hôm nay — ${S.shopName || 'Lẩu Hẻm Tiên'}</div>
+      <div class="mb-grid">${menuBases.map(k =>
+        `<span class="mb-item"><img src="${A + (SPRITES.pot[k] || '')}" alt="">${iname(k)} <b>${fmtK(S.sell[k])}</b></span>`).join('')}</div>
+      ${bl ? `<div class="mb-best">🔥 Bán chạy 7 ngày qua: ${bl}</div>` : ''}
+      <button class="pill small" id="btnStats">📊 Thống kê ngày/tuần/tháng</button>
+    </div>`;
+  }
   h += `<div style="font-size:17px;color:var(--ink-soft);margin-bottom:8px">Tiền: <b>${fmtD(S.money)}</b>${S.ls > 0 ? ' · 💎 ' + S.ls : ''} — chọn số phần muốn nhập (trả tiền ngay, có hạn dùng):</div>`;
   /* ---- BANNER NỢ PHÒNG TRỌ (cốt truyện intro) ---- */
   const rd = roomDebt(S, cfg);
@@ -280,8 +353,18 @@ function renderPrep() {
   const un = unanswered(S);
   h += `<button class="btn ghost small rv-open" id="btnOpenReviews">📋 Đánh giá của khách${un ? ` <span class="rv-badge">${un}</span>` : ''}</button>`;
   keys.forEach(k => {
-    if (!S.unlocked[k]) return;
     const it = ITEMS[k];
+    if (!S.unlocked[k]) {
+      /* ---- CÔNG THỨC CHƯA MỞ KHÓA: trả phí 1 lần để học (fix bug 25/09: trước đây không có lối mở) ---- */
+      const afford = S.money >= it.unlock;
+      const verb = it.type === 'base' ? 'học công thức' : (it.type === 'dip' ? 'học cách pha' : 'tìm mối hàng');
+      h += `<div class="restock-row locked">
+        <img src="${A + spriteOf(k)}" alt="" style="filter:grayscale(1) brightness(.55)">
+        <div class="rn">🔒 ${it.n} <small>· ${verb} ${fmtD(it.unlock)}</small></div>
+        <button class="pill unlock-btn" data-unlock="${k}"${afford ? '' : ' disabled'}>${afford ? 'Trả ' + fmtD(it.unlock) : 'Thiếu ' + fmtD(it.unlock - S.money)}</button>
+      </div>`;
+      return;
+    }
     const cur = qty(S, k);
     const inPlan = plan[k] || 0;
     h += `<div class="restock-row">
@@ -293,6 +376,16 @@ function renderPrep() {
     </div>`;
   });
   $('prepBody').innerHTML = h;
+  /* đổi tên quán (port UI gốc — bút chì cạnh tên) */
+  const renameBtn = $('btnRenameShop');
+  if (renameBtn) renameBtn.onclick = () => {
+    openShopNaming(document.body, { name: S.creatorName || 'Chủ quán' }).then(nm => {
+      if (nm) { S.shopName = nm; save(S); updateHud(); renderPrep(); sfx('coin'); toast('Bảng hiệu mới đã treo: ' + nm, 'good', 2600); }
+    });
+  };
+  /* màn thống kê */
+  const stBtn = $('btnStats');
+  if (stBtn) stBtn.onclick = () => openStats('prep');
   /* mở tường đánh giá */
   const rvBtn = $('btnOpenReviews');
   if (rvBtn) rvBtn.onclick = () => openReviews('prep');
@@ -304,6 +397,20 @@ function renderPrep() {
   };
   $('prepBody').querySelectorAll('[data-inc]').forEach(b => b.onclick = () => { const k = b.dataset.inc; const step = k === 'sup' ? 10 : 5; if (S.money >= planCost() + step * costOf(cfg, k)) { plan[k] = (plan[k] || 0) + step; sfx('tick'); renderPrep(); } else toast('Không đủ tiền nhập thêm', 'bad'); });
   $('prepBody').querySelectorAll('[data-dec]').forEach(b => b.onclick = () => { const k = b.dataset.dec; const step = k === 'sup' ? 10 : 5; if ((plan[k] || 0) > 0) sfx('tick'); plan[k] = Math.max(0, (plan[k] || 0) - step); if (!plan[k]) delete plan[k]; renderPrep(); });
+  /* học công thức mới — trả phí 1 lần (fix 25/09) */
+  $('prepBody').querySelectorAll('[data-unlock]').forEach(b => b.onclick = () => {
+    const k = b.dataset.unlock;
+    const it = ITEMS[k];
+    if (!it || S.unlocked[k]) return;
+    if (S.money < it.unlock) { toast('Chưa đủ tiền học công thức ' + it.n, 'bad'); return; }
+    S.money -= it.unlock;
+    S.unlocked[k] = true;
+    save(S);
+    sfx('lvup');
+    toast('🎉 Học được công thức ' + it.n + '! Món đã lên menu quán', 'good', 3200);
+    renderPrep();
+    updateHud();
+  });
   const btn = $('btnOpen');
   btn.textContent = canOpen() ? `Nấu & nhập · ${fmtD(planCost())} — Mở cửa ngày ${S.day}` : 'Cần nhập ít nhất 1 loại lẩu + nồi chén';
   btn.disabled = !canOpen();
@@ -322,11 +429,11 @@ function openShop() {
 
 /* ============ SELL ============ */
 function showScreen(name) {
-  ['splash', 'prep', 'sell', 'summary', 'reviews'].forEach(s => $(s).hidden = s !== name);
+  ['splash', 'prep', 'sell', 'summary', 'reviews', 'stats'].forEach(s => $(s).hidden = s !== name);
   $('hud').hidden = name === 'splash';
   /* BGM theo màn hình: bán hàng = không khí tiệm ăn, còn lại = lofi chill, splash = tắt */
   if (name === 'sell') setBgm('shop');
-  else if (name === 'prep' || name === 'summary' || name === 'reviews') setBgm('prep');
+  else if (name === 'prep' || name === 'summary' || name === 'reviews' || name === 'stats') setBgm('prep');
   else stopBgm();
 }
 /* ---- modal biến cố (tách ra để lễ thức tỉnh nối chuỗi được) ---- */
@@ -386,6 +493,7 @@ function startSell() {
   R.running = true;
   pot = newPot();
   gameSec = 0;
+  S.midDay = true;   // SAVEPOINT: đang giữa ngày bán — reload sẽ được đóng ngày sớm, giữ tiền/kho
   showScreen('sell');
   drawScene();
   renderStations();
@@ -394,6 +502,8 @@ function startSell() {
   setAmbience(true);   // hẻm đêm: gió + dế rả rích
   // biến cố đầu ngày (bad/gift/debt) + GATE pha tu tiên thức tỉnh
   const st = startDay(ctx);
+  save(S);             // SAVEPOINT: biến cố đầu ngày (trừ tiền tai họa...) phải nằm trong save NGAY,
+                       // reload giữa ngày không bị cộng/trừ lại lần hai
   setTimeout(() => {
     if (st.xianAwaken) { xianAwakenScene(() => { if (st.bad) showBad(st.bad); else if (st.gift) showGift(st.gift); }); }
     else if (st.bad) { showBad(st.bad); }
@@ -403,6 +513,7 @@ function startSell() {
   const TICK = 100;
   const dayMs = cfg.dayMin * 60 * 1000;
   const started = performance.now();
+  let ticks = 0;
   clearInterval(dayTimer);
   dayTimer = setInterval(() => {
     if (R.paused) return;
@@ -411,6 +522,8 @@ function startSell() {
     const hh = 11 + Math.floor(gameSec / 3600), mm = Math.floor(gameSec % 3600 / 60);
     $('hudClock').textContent = String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
     tickCustomers();
+    /* SAVEPOINT mỗi 15 giây (mobile hay bị kill app không kịp beforeunload) */
+    if (++ticks % 150 === 0) saveMid();
     if (el >= dayMs) endDay();
   }, TICK);
   scheduleSpawns(dayMs);
@@ -568,23 +681,36 @@ function ingBtn(k, sel, small = false, secret = false) {
   </div>`;
 }
 function bindIngs() {
+  /* FIX 25/09 (lệnh phu quân): nguyên liệu/gia vị ĐÃ bỏ vào nồi thì KHÔNG rút ra được.
+   * Bỏ nhầm → phải 🗑 Đổ bỏ cả nồi rồi chọn lại (mất thời gian, khách vẫn đang chờ).
+   * Chỉ cỡ nồi là đổi lại được (cái nồi chưa bỏ gì vào). */
+  const LOCK = 'Đã bỏ vào nồi rồi — muốn đổi thì 🗑 Đổ bỏ cả nồi!';
   document.querySelectorAll('.ing').forEach(el => el.onclick = () => {
     const k = el.dataset.k;
     const it = ITEMS[k];
     if (qty(S, k) <= 0) { toast(it.n + ' hết hàng rồi!', 'bad'); return; }
-    if (it.type === 'base') { pot.base = pot.base === k ? null : k; pot.size = pot.size || 'N'; sfx('pot'); }
-    else if (it.type === 'dip') pot.dip = pot.dip === k ? null : k;
+    if (it.type === 'base') {
+      if (pot.base) { toast(LOCK, 'bad'); sfx('weak'); return; }
+      pot.base = k; pot.size = pot.size || 'N'; sfx('pot');
+    }
+    else if (it.type === 'dip') {
+      if (pot.dip) { toast('Chén nước chấm đã rót rồi — đổ nồi mới đổi được!', 'bad'); sfx('weak'); return; }
+      pot.dip = k; sfx('plop');
+    }
     else if (it.type === 'top' || it.type === 'duoc' || it.type === 'secret') {
+      if (pot.tops.includes(k)) { toast(LOCK, 'bad'); sfx('weak'); return; }
       /* trần món nhúng = maxTops dùng chung với engine (ramp theo ngày) */
       const maxT = maxTops(S.day, cfg);
-      if (pot.tops.includes(k)) pot.tops = pot.tops.filter(t => t !== k);
-      else if (pot.tops.length >= maxT) toast('Ngày này tối đa ' + maxT + ' món nhúng (ngày sau mở thêm)', 'bad');
+      if (pot.tops.length >= maxT) toast('Ngày này tối đa ' + maxT + ' món nhúng (ngày sau mở thêm)', 'bad');
       else { pot.tops.push(k); sfx('plop'); }
     }
     renderStations();
   });
   document.querySelectorAll('[data-size]').forEach(b => b.onclick = () => { pot.size = b.dataset.size; renderStations(); });
-  document.querySelectorAll('[data-spicy]').forEach(b => b.onclick = () => { pot.spicy = pot.spicy === b.dataset.spicy ? null : b.dataset.spicy; renderStations(); });
+  document.querySelectorAll('[data-spicy]').forEach(b => b.onclick = () => {
+    if (pot.spicy && pot.spicy !== b.dataset.spicy) { toast('Đã nêm cay rồi — không rút lại được, đổ nồi đi!', 'bad'); sfx('weak'); return; }
+    pot.spicy = b.dataset.spicy; renderStations();
+  });
 }
 function renderPotVisual() {
   const v = $('potVisual');
@@ -765,6 +891,7 @@ function endDay() {
   if (!R || !R.running) return;
   clearInterval(dayTimer);
   R.running = false;
+  S.midDay = false;   // hết giữa ngày — savepoint không cần nữa
   setBoil(false);
   setAmbience(false);
   sfx('end_day');
@@ -900,6 +1027,75 @@ function gameOverBankrupt() {
     updateHud();
     playIntro(document.body, { onDone: () => { enterPrep(); firstGuide(); } });
   }, true]]);
+}
+
+/* ============ MÀN THỐNG KÊ (port UI gốc: Theo ngày/Tuần/Tháng — lệnh phu quân 25/09) ============ */
+let statsBack = 'prep';
+let statsTab = 'day';
+let statsDay = 1;
+function openStats(back) {
+  statsBack = back || 'prep';
+  statsDay = Math.max(1, S.day - 1);
+  renderStats();
+  showScreen('stats');
+}
+function renderStats() {
+  const lastClosed = Math.max(1, S.day - 1);
+  let body = '';
+  /* tab */
+  body += `<div class="sum-title">📊 Thống kê</div>
+  <div class="st-tabs">
+    ${[['day', 'Theo ngày'], ['week', 'Theo tuần'], ['month', 'Theo tháng']].map(([k, n]) =>
+      `<button class="st-tab${statsTab === k ? ' sel' : ''}" data-tab="${k}">${n}</button>`).join('')}
+  </div>`;
+  if (statsTab === 'day') {
+    statsDay = Math.min(statsDay, lastClosed);
+    body += `<div class="st-nav">
+      <button class="pill" id="stPrev"${statsDay <= 1 ? ' disabled' : ''}>◀</button>
+      <b>Ngày ${statsDay}</b>${statsDay === lastClosed && S.midDay ? ' <small>(hôm nay)</small>' : ''}
+      <button class="pill" id="stNext"${statsDay >= lastClosed ? ' disabled' : ''}>▶</button>
+    </div>`;
+    const d = dayStats(S, statsDay, cfg);
+    if (!d) body += '<div class="rv-empty">Ngày này chưa bán gì (hoặc quán chưa mở).</div>';
+    else {
+      body += `<div class="st-cards">
+        <div class="st-card"><b>${d.served}</b><span>nồi bán</span></div>
+        <div class="st-card"><b>${d.lost}</b><span>khách bỏ về</span></div>
+        <div class="st-card"><b>${d.rating != null ? d.rating.toFixed(1).replace('.', ',') + '★' : '—'}</b><span>đánh giá</span></div>
+      </div>
+      <div class="sum-line"><span>Doanh thu</span><span class="pos">+${fmtD(d.rev)}</span></div>
+      ${d.tips ? `<div class="sum-line"><span>Tiền típ</span><span class="pos">+${fmtD(d.tips)}</span></div>` : ''}
+      ${d.lsEarned ? `<div class="sum-line"><span>Linh thạch</span><span class="pos">+${fmtLS(d.lsEarned)}</span></div>` : ''}
+      <div class="sum-line"><span>Chi phí</span><span class="neg">−${fmtD(d.cost)}</span></div>
+      <div class="sum-line total ${d.profit >= 0 ? 'profit' : ''}"><span>Lãi</span><span class="${d.profit >= 0 ? 'pos' : 'neg'}">${d.profit >= 0 ? '+' : ''}${fmtD(d.profit)}</span></div>
+      ${d.bestMon ? `<div class="mb-best">🔥 Bán chạy: ${iname(d.bestMon)} (${d.bestQ} nồi)</div>` : ''}`;
+    }
+  } else {
+    const [from, to] = statsTab === 'week' ? [Math.max(1, S.day - 7), lastClosed] : [Math.max(1, S.day - 30), lastClosed];
+    const rg = to >= from ? rangeStats(S, from, to, cfg) : null;
+    body += `<div class="st-nav"><b>${from === to ? 'Ngày ' + from : 'Ngày ' + from + ' → ' + to}</b></div>`;
+    if (!rg) body += '<div class="rv-empty">Chưa đủ dữ liệu — bán thêm vài ngày đã!</div>';
+    else {
+      const bl = bestLine(S, from, to);
+      body += `<div class="st-cards">
+        <div class="st-card"><b>${rg.served}</b><span>nồi bán</span></div>
+        <div class="st-card"><b>${rg.lost}</b><span>khách bỏ về</span></div>
+        <div class="st-card"><b>${rg.rating != null ? rg.rating.toFixed(1).replace('.', ',') + '★' : '—'}</b><span>đánh giá</span></div>
+      </div>
+      <div class="sum-line"><span>Doanh thu ${rg.days} ngày</span><span class="pos">+${fmtD(rg.rev)}</span></div>
+      ${rg.tips ? `<div class="sum-line"><span>Tiền típ</span><span class="pos">+${fmtD(rg.tips)}</span></div>` : ''}
+      ${rg.lsEarned ? `<div class="sum-line"><span>Linh thạch</span><span class="pos">+${fmtLS(rg.lsEarned)}</span></div>` : ''}
+      <div class="sum-line"><span>Chi phí</span><span class="neg">−${fmtD(rg.cost)}</span></div>
+      <div class="sum-line total ${rg.profit >= 0 ? 'profit' : ''}"><span>Lãi</span><span class="${rg.profit >= 0 ? 'pos' : 'neg'}">${rg.profit >= 0 ? '+' : ''}${fmtD(rg.profit)}</span></div>
+      ${bl ? `<div class="mb-best">🔥 Bán chạy: ${bl}</div>` : ''}`;
+    }
+  }
+  $('statsBody').innerHTML = body;
+  /* bind */
+  document.querySelectorAll('.st-tab').forEach(b => b.onclick = () => { statsTab = b.dataset.tab; sfx('tick'); renderStats(); });
+  const pv = $('stPrev'), nx = $('stNext');
+  if (pv) pv.onclick = () => { if (statsDay > 1) { statsDay--; sfx('tick'); renderStats(); } };
+  if (nx) nx.onclick = () => { if (statsDay < lastClosed) { statsDay++; sfx('tick'); renderStats(); } };
 }
 
 /* ============ TƯỜNG ĐÁNH GIÁ + PHẢN HỒI 3 TÔNG GIỌNG (tính năng đặc biệt) ============ */

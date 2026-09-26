@@ -115,3 +115,12 @@ Bài học: xlarge_3_4 perfect-pixel LUÔN cắt nội thất thành fragment tr
 | assets/snd/bgm_alley.mp3 | Pixabay "Moonlit Whispers" — kaazoom | Pixabay Content License | lễ thức tỉnh pha tu tiên (đêm mưa sao băng) |
 | assets/snd/game_over.mp3 | tiengdong.com "Âm thanh thất bại trong trò chơi" | free SFX (như 2 file street/kitchen đã dùng) | game over nợ phòng + phá sản |
 Ghi chú: phu quân gửi 2 track Spotify Mitsukiyo (ようこそトロイメへ / ユメの喫茶店) làm gu tham khảo — Spotify CÓ BẢN QUYỀN, không embed được; thiếp phân tích audio features (tempo/rms/centroid/chroma) rồi chọn 3 track Pixabay gần vibe nhất (Asian Lofi khoảng cách 1.16, Dining 1.48 — thang 0-4). Đã tải file gốc từ CDN Pixabay + fade in/out + chuẩn hóa 112kbps.
+
+## Phase 5b — 2 nồi lẩu miền Tây (25/09)
+| Ngày | Job | Template | Chi | Số dư | Kết quả |
+|------|-----|----------|-----|-------|---------|
+| 25/09 | job_496a5879 | xlarge_4_3 | 25cr | 120 | ✅ pot_08 Lẩu canh chua cá (nước vàng cam, khúc cá, dứa, cà chua, đậu bắp, giá, dọc mùng) |
+| 25/09 | job_6378c680 | xlarge_4_3 | 25cr | 95 | ✅ pot_09 Lẩu mắm (nước nâu sẫm, cá, tôm, cà tím, rau muống, khổ qua) |
+
+Xử lý hậu kỳ: process_pots.py — flood-fill bỏ nền trắng → transparent, trim + pad vuông, scale 64x64 NEAREST đồng bộ bộ pot.
+Icon app: vẽ PIL thuần (assets/icon/compose_icon.py) — 0 credit meowa.

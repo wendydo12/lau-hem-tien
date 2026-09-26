@@ -5,7 +5,7 @@
  *
  * Toàn bộ UI + tên gợi ý quán: SÁNG TÁC GỐC của Uyển Nhi.
  */
-import { SPRITES } from './manifest.js?v=16';
+import { SPRITES } from './manifest.js?v=17';
 
 const A = '../../assets/';
 const PKEY = String.fromCharCode(108, 104, 84, 105, 101, 110) + 'Creator';   // ghép từ mã ký tự để tránh bộ lọc che literal
