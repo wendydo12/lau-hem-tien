@@ -328,6 +328,77 @@ export function playIntroSfx(name, vol = 0.5, durSec = 8) {
   };
 }
 
+/* ============ BGM — nhạc nền xuyên suốt game (Pixabay Content License, free thương mại, không cần ghi công — vẫn ghi nguồn credits-log) ============
+ * bgm_prep.mp3  = "Asian Lofi" (ZephiraMusic)            → màn chuẩn bị / tổng kết: lofi Á đông chill, gần vibe Mitsukiyo phu quân chọn
+ * bgm_shop.mp3  = "Chinese Dining Atmosphere" (SounovaMusic) → giờ bán hàng: không khí tiệm ăn Á đông ấm cúng
+ * bgm_alley.mp3 = "Moonlit Whispers" (kaazoom)           → hẻm đêm / lễ thức tỉnh: nhạc cụ truyền thống tĩnh lặng
+ * game_over.mp3 = "Âm thanh thất bại trong trò chơi" (tiengdong.com) → game over
+ * Loop liền mạch bằng cách phát lại từ đầu khi hết + crossfade 1.2s khi đổi track. */
+const BGM_FILES = {
+  prep:  '../../assets/snd/bgm_prep.mp3',
+  shop:  '../../assets/snd/bgm_shop.mp3',
+  alley: '../../assets/snd/bgm_alley.mp3'
+};
+const BGM_VOL = { prep: .22, shop: .26, alley: .20 };
+const BBUF = {};
+let bgmCur = null;           // {key, src, gain}
+function loadBgmBuf(key) {
+  const c = AU.ctx; if (!c) return Promise.reject(0);
+  if (BBUF[key]) return Promise.resolve(BBUF[key]);
+  if (BBUF[key + '_l']) return BBUF[key + '_l'];
+  const p = fetch(BGM_FILES[key]).then(r => r.ok ? r.arrayBuffer() : Promise.reject(0))
+    .then(b => new Promise((ok, no) => { const q = c.decodeAudioData(b, ok, no); if (q && q.then) q.then(ok, no); }))
+    .then(buf => { BBUF[key] = buf; delete BBUF[key + '_l']; return buf; });
+  BBUF[key + '_l'] = p;
+  return p;
+}
+function fadeOutBgm(cur) {
+  if (!cur) return;
+  try {
+    cur.gain.gain.linearRampToValueAtTime(.0001, AU.ctx.currentTime + 1.2);
+    const s = cur.src; setTimeout(() => { try { s.stop(); } catch (e) {} }, 1400);
+  } catch (e) {}
+}
+export function setBgm(key) {
+  if (!AU.on || !AU.mus || !key) return stopBgm();
+  const c = au(); if (!c) return;
+  if (bgmCur && bgmCur.key === key) return;   // đang phát đúng track
+  loadBgmBuf(key).then(buf => {
+    if (bgmCur && bgmCur.key === key) return; // đã đổi ý giữa chừng
+    fadeOutBgm(bgmCur); bgmCur = null;
+    const s = c.createBufferSource(), g = c.createGain();
+    s.buffer = buf; s.loop = true;
+    g.gain.setValueAtTime(.0001, c.currentTime);
+    g.gain.linearRampToValueAtTime(BGM_VOL[key] || .22, c.currentTime + 1.2);
+    s.connect(g); g.connect(AU.master);      // đi thẳng master (không qua fx) để setAmbience tắt tiếng phố không tắt luôn nhạc
+    s.start(0);
+    bgmCur = { key, src: s, gain: g };
+  }).catch(() => {});
+}
+export function stopBgm() {
+  if (!bgmCur) return;
+  fadeOutBgm(bgmCur);
+  bgmCur = null;
+}
+/* sound game over: phát 1 lần (không loop) + tắt nhạc nền */
+let goBuf = null;
+export function playGameOver() {
+  stopBgm();
+  if (!AU.on) return;
+  const c = au(); if (!c) return;
+  const fire = buf => {
+    const s = c.createBufferSource(), g = c.createGain();
+    s.buffer = buf; g.gain.value = .9;
+    s.connect(g); g.connect(AU.master);
+    s.start(0);
+  };
+  if (goBuf) { fire(goBuf); return; }
+  fetch('../../assets/snd/game_over.mp3').then(r => r.ok ? r.arrayBuffer() : Promise.reject(0))
+    .then(b => new Promise((ok, no) => { const q = c.decodeAudioData(b, ok, no); if (q && q.then) q.then(ok, no); }))
+    .then(buf => { goBuf = buf; fire(buf); })
+    .catch(() => { try { SFX.wrong(); } catch (e) {} });   // fallback synth nếu thiếu file
+}
+
 /* ============ API ============ */
 export function sfx(n) {
   if (!AU.on) return;
@@ -338,7 +409,7 @@ export function setBoil(on) { bubbleLoop(on); }
 export function setAmbience(on) { ambience(on); }
 export function toggleAudio() {
   AU.on = !AU.on;
-  if (!AU.on) { setBoil(false); ambOff(); }
+  if (!AU.on) { setBoil(false); ambOff(); stopBgm(); }
   saveAu();
   return AU.on;
 }

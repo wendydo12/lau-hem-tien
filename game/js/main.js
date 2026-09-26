@@ -14,7 +14,7 @@ import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from
 import { RUIN_TIERS } from './engine/ruin.js?v=16';
 import { UPG } from './engine/data.js?v=16';
 import { SPRITES } from './manifest.js?v=16';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn } from './audio.js?v=16';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver } from './audio.js?v=16';
 import { playIntro, introSeen } from './intro.js?v=16';
 import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=16';
 
@@ -196,6 +196,7 @@ function enterPrep() {
   renderPrep();
 }
 function gameOverDebt() {
+  playGameOver();
   showScreen('splash');
   modal(`<div class="big-ico">🏚️</div><h2>Hết hạn tiền phòng...</h2>
   <p>Đã ${S.day - 1} ngày kể từ khi Minh nghỉ việc, nhưng không gom đủ 2 triệu trả tiền phòng trọ.<br>
@@ -323,6 +324,10 @@ function openShop() {
 function showScreen(name) {
   ['splash', 'prep', 'sell', 'summary', 'reviews'].forEach(s => $(s).hidden = s !== name);
   $('hud').hidden = name === 'splash';
+  /* BGM theo màn hình: bán hàng = không khí tiệm ăn, còn lại = lofi chill, splash = tắt */
+  if (name === 'sell') setBgm('shop');
+  else if (name === 'prep' || name === 'summary' || name === 'reviews') setBgm('prep');
+  else stopBgm();
 }
 /* ---- modal biến cố (tách ra để lễ thức tỉnh nối chuỗi được) ---- */
 function showBad(bad) {
@@ -339,6 +344,7 @@ function showGift(gift) {
  * tu sĩ trọng thương được cứu bằng nồi lẩu, tặng linh thạch + vẽ tụ linh trận. */
 function xianAwakenScene(onDone) {
   sfx('xian');
+  setBgm('alley');   // nhạc truyền thống tĩnh lặng cho đêm mưa sao băng
   const lines = [
     ['🌌', 'Đêm ấy trời Sài Gòn bỗng có mưa sao băng...'],
     ['💫', 'Một vệt sáng xé ngang con hẻm — có người rơi xuống cuối ngõ, áo bào rách nát, hơi thở yếu ớt.'],
@@ -876,6 +882,7 @@ function showBreakthrough(nr, onDone) {
 function gameOverBankrupt() {
   const j = journeyStats(S);
   const Rl = REALMS[j.realm] || REALMS[0];
+  playGameOver();
   showScreen('splash');
   modal(`<div class="big-ico">🏚️</div><h2>Quán đóng cửa...</h2>
   <p>Âm tiền ${j.days} ngày trời, chủ nợ dán cáo thị trước quán. Minh tháo bảng hiệu, xếp nồi niêu vào thùng...</p>

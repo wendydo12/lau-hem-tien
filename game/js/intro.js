@@ -10,7 +10,7 @@
  *
  * Tất cả câu chữ phụ đề: SÁNG TÁC GỐC của Uyển Nhi.
  */
-import { playIntroSfx } from './audio.js?v=16';
+import { playIntroSfx, setBgm } from './audio.js?v=16';
 import { ownerSprite } from './creator.js?v=16';
 
 const B = '../../assets/intro/v2/';   // nền cảnh v2 (meowa đồng bộ)
@@ -191,6 +191,9 @@ export async function playIntro(container, opts = {}) {
 
   for (let i = 0; i < scenes.length; i++) {
     if (aborted) break;
+    /* BGM theo mạch cảm xúc intro: cảnh 1-4 (văn phòng/mưa/đếm tiền) = lofi trầm,
+     * cảnh 5-6 (ra hẻm, quán sáng đèn) = không khí tiệm ăn ấm dần lên */
+    setBgm(i < 4 ? 'prep' : 'shop');
     await playScene(root, scenes[i], i, scenes.length, creator);
   }
   document.removeEventListener('keydown', onKey);

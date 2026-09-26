@@ -106,3 +106,12 @@ QA bộ 6 cảnh final: **8.5/10**.
 
 Tổng tối 25/09: 310cr. **Balance: 515 → 145cr.**
 Bài học: xlarge_3_4 perfect-pixel LUÔN cắt nội thất thành fragment trong suốt (kể cả remove_bg none) → nền phải PIL vẽ đặc + dán fragment; ngoài trời ra ảnh đặc OK. Ghi vào skill meowa-pixel-gen.
+
+## 25/09 (đêm) — BGM xuyên suốt + sound game over (0cr — nguồn free license)
+| File | Nguồn | License | Dùng ở đâu |
+|---|---|---|---|
+| assets/snd/bgm_prep.mp3 | Pixabay "Asian Lofi" — ZephiraMusic | Pixabay Content License (free thương mại, không cần ghi công) | intro cảnh 1-4, màn chuẩn bị/tổng kết/review |
+| assets/snd/bgm_shop.mp3 | Pixabay "Chinese Dining Atmosphere" — SounovaMusic | Pixabay Content License | giờ bán hàng + intro cảnh 5-6 |
+| assets/snd/bgm_alley.mp3 | Pixabay "Moonlit Whispers" — kaazoom | Pixabay Content License | lễ thức tỉnh pha tu tiên (đêm mưa sao băng) |
+| assets/snd/game_over.mp3 | tiengdong.com "Âm thanh thất bại trong trò chơi" | free SFX (như 2 file street/kitchen đã dùng) | game over nợ phòng + phá sản |
+Ghi chú: phu quân gửi 2 track Spotify Mitsukiyo (ようこそトロイメへ / ユメの喫茶店) làm gu tham khảo — Spotify CÓ BẢN QUYỀN, không embed được; thiếp phân tích audio features (tempo/rms/centroid/chroma) rồi chọn 3 track Pixabay gần vibe nhất (Asian Lofi khoảng cách 1.16, Dining 1.48 — thang 0-4). Đã tải file gốc từ CDN Pixabay + fade in/out + chuẩn hóa 112kbps.
