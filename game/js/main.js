@@ -4,9 +4,9 @@ import { makeCFG, GAME_VERSION } from './engine/config.js?v=17';
 import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=17';
 import { fresh, load, save, newPot } from './engine/state.js?v=17';
 import { addStock, qty, take, costOf } from './engine/stock.js?v=17';
-import { fmt, rating, starStr, recRev, recCost, price } from './engine/economy.js?v=17';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=17';
 import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=17';
-import { rollDay, mkBadPlan, evText } from './engine/events.js?v=17';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=17';
 import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=17';
 import { makeRNG } from './engine/rng.js?v=17';
 import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=17';
@@ -156,13 +156,15 @@ function firstGuide() {
 function showGuide() {
   modal(`<div class="big-ico">📖</div><h2>Cách chơi</h2>
   <p style="text-align:left">
-  1. <b>Chuẩn bị:</b> nhập nguyên liệu (trả tiền trước, có hạn dùng — để lâu là đổ bỏ).<br>
+  1. <b>Chuẩn bị:</b> nhập nguyên liệu (trả tiền trước, có hạn dùng — để lâu là đổ bỏ). Dòng <b>👥 ~X khách</b> báo hôm nay khoảng bao nhiêu người tới — cứ thế mà trữ.<br>
   2. <b>Mở cửa:</b> khách vào hẻm, gọi món trong bong bóng. Thanh màu trên đầu là kiên nhẫn — cạn là họ bỏ về và cho 1 sao.<br>
   3. <b>Nấu:</b> chạm khách để xem đơn → chọn nồi → cỡ → độ cay → nước chấm → đồ nhúng → bấm <b>Canh lửa nấu</b>.<br>
   4. <b>Canh lửa:</b> giữ nút, thanh lửa chạy — <b>thả tay đúng vùng CHUẨN xanh lá</b>. Non lửa phải nấu lại, quá lửa khét nồi mất nguyên liệu!<br>
-  5. <b>Bưng:</b> bấm "Bưng cho khách" đang chọn. Sai món = đổ bỏ.<br>
+  5. <b>Bưng:</b> bấm "Bưng cho khách" đang chọn. Sai món = đổ bỏ. Thiếu gia vị vào nồi là phải đổ cả nồi — cẩn thận từng lần chạm nhé.<br>
   6. <b>Khách tu tiên</b> (viền tím phát sáng): trả linh thạch 💎, và khi họ ngồi xuống thì 🔮 <b>thực đơn bí mật</b> mở ra ở quầy.<br>
-  7. 22:00 đóng cửa → tổng kết → sang ngày mới.</p>`, [['Đã hiểu', null, true]]);
+  7. Học công thức mới ở màn chuẩn bị: món 🔒 bấm nút trả tiền 1 lần là lên menu.<br>
+  8. 22:00 đóng cửa → tổng kết → sang ngày mới.</p>
+  <p style="font-size:13px;color:var(--ink-soft)">Lưu giữa ngàn vàng: nghe sự kiện hôm nay (dòng 📅 đầu ngày) để trữ hàng đúng món — khách gọi gấp đôi thì trữ gấp đôi!</p>`, [['Đã hiểu', null, true]]);
 }
 
 function pauseDlg() {
@@ -300,10 +302,14 @@ function renderPrep() {
   if (menuBases.length) {
     const [wf, wt] = [Math.max(1, S.day - 7), S.day - 1];
     const bl = bestLine(S, wf, wt);
+    /* dự báo khách hôm nay (tính từ công thức traffic + evMul — giống game gốc hiện "~41") */
+    const est = Math.round(traffic(S, cfg, evMul(S)) * 14);   // hệ số 14 ≈ số khách/ngày ở rating trung bình
+    const trendTxt = evIs(S, 'trend') && S.ev.k && ITEMS[S.ev.k] ? ` · 📈 ${iname(S.ev.k)} gọi gấp đôi` : '';
     h += `<div class="menu-board">
       <div class="mb-head">🧾 Menu hôm nay — ${S.shopName || 'Lẩu Hẻm Tiên'}</div>
       <div class="mb-grid">${menuBases.map(k =>
         `<span class="mb-item"><img src="${A + (SPRITES.pot[k] || '')}" alt="">${iname(k)} <b>${fmtK(S.sell[k])}</b></span>`).join('')}</div>
+      <div class="mb-forecast">👥 Khoảng <b>~${est}</b> khách hôm nay${trendTxt}</div>
       ${bl ? `<div class="mb-best">🔥 Bán chạy 7 ngày qua: ${bl}</div>` : ''}
       <button class="pill small" id="btnStats">📊 Thống kê ngày/tuần/tháng</button>
     </div>`;

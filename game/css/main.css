@@ -488,3 +488,19 @@ body{
 .restock-row.locked .rn small { color: #9a7b5a; }
 .unlock-btn { background: linear-gradient(180deg, #c99a4a, #a87a30); color: #fff7e8; border: 1px solid #7a5a20; font-weight: 700; white-space: nowrap; }
 .unlock-btn:disabled { filter: grayscale(.6) brightness(.8); cursor: not-allowed; }
+
+/* ===== dự báo khách hôm nay (mobile-first: chữ to, 1 dòng gọn) ===== */
+.mb-forecast {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  padding: 8px 10px; margin-top: 8px;
+  background: #fff3d6; border: 1px dashed #c9a04a; border-radius: 10px;
+  font-size: 16px; color: #5a4326; line-height: 1.4;
+}
+.mb-forecast b { color: #b4521e; font-size: 18px; }
+
+/* ===== mobile: tap target >= 44px, chữ không bị co ===== */
+@media (max-width: 720px) {
+  .mb-forecast { font-size: 17px; padding: 10px 12px; }
+  .mb-forecast b { font-size: 20px; }
+  .pill.small, .rv-open { min-height: 44px; }
+}
