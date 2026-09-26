@@ -117,11 +117,11 @@ const SFX = {
 
 /* ============ vòng sôi lăn tăn khi giữ lửa + TIẾNG BẾP THẬT ============ */
 /* File thật từ tiengdong.com (CC/free SFX library — ghi nguồn trong credits-log):
- * - snd/street_buzz.mp3   = ồn ào nhà hàng đường phố → ambience nền suốt giờ bán
- * - snd/kitchen_clang.mp3 = xoong chảo kêu trong bếp → vòng lặp lúc nấu lẩu (canh lửa) */
+ * - am-thanh/street_buzz.mp3   = ồn ào nhà hàng đường phố → ambience nền suốt giờ bán
+ * - am-thanh/kitchen_clang.mp3 = xoong chảo kêu trong bếp → vòng lặp lúc nấu lẩu (canh lửa) */
 const SMP = {
-  street: '../../assets/snd/street_buzz.mp3',
-  kitchen: '../../assets/snd/kitchen_clang.mp3'
+  street: '../../assets/am-thanh/street_buzz.mp3',
+  kitchen: '../../assets/am-thanh/kitchen_clang.mp3'
 };
 const SBUF = {};
 function loadSmp() {
@@ -269,11 +269,11 @@ function ambOff() {
  * count_money.mp3     = tiếng tay đếm tiền             → cảnh 4 (đếm vốn phòng trọ)
  * street_buzz.mp3 + kitchen_clang.mp3                  → cảnh 6 (quán lẩu sáng đèn) */
 const INTRO_SND = {
-  office_keyboard: '../../assets/snd/office_keyboard.mp3',
-  rain_attic:      '../../assets/snd/rain_attic.mp3',
-  thunder_rain:    '../../assets/snd/thunder_rain.mp3',
-  motorbike_alley: '../../assets/snd/motorbike_alley.mp3',
-  count_money:     '../../assets/snd/count_money.mp3',
+  office_keyboard: '../../assets/am-thanh/office_keyboard.mp3',
+  rain_attic:      '../../assets/am-thanh/rain_attic.mp3',
+  thunder_rain:    '../../assets/am-thanh/thunder_rain.mp3',
+  motorbike_alley: '../../assets/am-thanh/motorbike_alley.mp3',
+  count_money:     '../../assets/am-thanh/count_money.mp3',
 };
 const INTRO_MAP = {
   office:         ['office_keyboard'],
@@ -298,7 +298,7 @@ function loadIntroBuf(url) {
 export function playIntroSfx(name, vol = 0.5, durSec = 8) {
   if (!AU.on) return { stop() {} };
   const c = au(); if (!c) return { stop() {} };
-  const urls = (INTRO_MAP[name] || []).map(k => INTRO_SND[k] || ('../../assets/snd/' + k + '.mp3'));
+  const urls = (INTRO_MAP[name] || []).map(k => INTRO_SND[k] || ('../../assets/am-thanh/' + k + '.mp3'));
   const nodes = [];
   let alive = true;
   urls.forEach((url, i) => {
@@ -335,9 +335,9 @@ export function playIntroSfx(name, vol = 0.5, durSec = 8) {
  * game_over.mp3 = "Âm thanh thất bại trong trò chơi" (tiengdong.com) → game over
  * Loop liền mạch bằng cách phát lại từ đầu khi hết + crossfade 1.2s khi đổi track. */
 const BGM_FILES = {
-  prep:  '../../assets/snd/bgm_prep.mp3',
-  shop:  '../../assets/snd/bgm_shop.mp3',
-  alley: '../../assets/snd/bgm_alley.mp3'
+  prep:  '../../assets/am-thanh/bgm_prep.mp3',
+  shop:  '../../assets/am-thanh/bgm_shop.mp3',
+  alley: '../../assets/am-thanh/bgm_alley.mp3'
 };
 const BGM_VOL = { prep: .22, shop: .26, alley: .20 };
 const BBUF = {};
@@ -393,7 +393,7 @@ export function playGameOver() {
     s.start(0);
   };
   if (goBuf) { fire(goBuf); return; }
-  fetch('../../assets/snd/game_over.mp3').then(r => r.ok ? r.arrayBuffer() : Promise.reject(0))
+  fetch('../../assets/am-thanh/game_over.mp3').then(r => r.ok ? r.arrayBuffer() : Promise.reject(0))
     .then(b => new Promise((ok, no) => { const q = c.decodeAudioData(b, ok, no); if (q && q.then) q.then(ok, no); }))
     .then(buf => { goBuf = buf; fire(buf); })
     .catch(() => { try { SFX.wrong(); } catch (e) {} });   // fallback synth nếu thiếu file

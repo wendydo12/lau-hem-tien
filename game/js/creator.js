@@ -14,16 +14,16 @@ const PKEY = String.fromCharCode(108, 104, 84, 105, 101, 110) + 'Creator';   // 
  * Nếu chưa có sheet mới, fallback về sprite vn_00 cũ để game không gãy. */
 export const LOOKS = {
   m: [
-    { id: 0, n: 'Áo thun trắng', d: 'Gọn gàng, năng động', src: 'chars/creator_m0.png' },
-    { id: 1, n: 'Sơ mi xanh', d: 'Tử tế, chỉn chu', src: 'chars/creator_m1.png' },
-    { id: 2, n: 'Áo bà ba nâu', d: 'Đậm chất miền Tây', src: 'chars/creator_m2.png' },
-    { id: 3, n: 'Áo flannel đỏ', d: 'Bụi bặm, cá tính', src: 'chars/creator_m3.png' }
+    { id: 0, n: 'Áo thun trắng', d: 'Gọn gàng, năng động', src: 'nhan-vat/creator_m0.png' },
+    { id: 1, n: 'Sơ mi xanh', d: 'Tử tế, chỉn chu', src: 'nhan-vat/creator_m1.png' },
+    { id: 2, n: 'Áo bà ba nâu', d: 'Đậm chất miền Tây', src: 'nhan-vat/creator_m2.png' },
+    { id: 3, n: 'Áo flannel đỏ', d: 'Bụi bặm, cá tính', src: 'nhan-vat/creator_m3.png' }
   ],
   f: [
-    { id: 0, n: 'Tóc dài áo trắng', d: 'Dịu dàng, giản dị', src: 'chars/creator_f0.png' },
-    { id: 1, n: 'Tóc buộc sơ mi xanh', d: 'Nhanh nhẹn, tươi tắn', src: 'chars/creator_f1.png' },
-    { id: 2, n: 'Áo bà ba khăn rằn', d: 'Gái miền Tây chính hiệu', src: 'chars/creator_f2.png' },
-    { id: 3, n: 'Tóc tém hoodie', d: 'Cá tính, hiện đại', src: 'chars/creator_f3.png' }
+    { id: 0, n: 'Tóc dài áo trắng', d: 'Dịu dàng, giản dị', src: 'nhan-vat/creator_f0.png' },
+    { id: 1, n: 'Tóc buộc sơ mi xanh', d: 'Nhanh nhẹn, tươi tắn', src: 'nhan-vat/creator_f1.png' },
+    { id: 2, n: 'Áo bà ba khăn rằn', d: 'Gái miền Tây chính hiệu', src: 'nhan-vat/creator_f2.png' },
+    { id: 3, n: 'Tóc tém hoodie', d: 'Cá tính, hiện đại', src: 'nhan-vat/creator_f3.png' }
   ]
 };
 

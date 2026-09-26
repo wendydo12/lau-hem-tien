@@ -13,7 +13,7 @@
 import { playIntroSfx, setBgm } from './audio.js?v=16';
 import { ownerSprite } from './creator.js?v=16';
 
-const B = '../../assets/intro/v2/';   // nền cảnh v2 (meowa đồng bộ)
+const B = '../../assets/intro-tao/v2/';   // nền cảnh v2 (meowa đồng bộ)
 const A = '../../assets/';
 const KEY = ['lhTien', 'Intro'].join('');   // nối chuỗi để tránh bộ lọc che secret ghi đè literal
 
@@ -68,7 +68,7 @@ export function makeScenes(creator) {
 const poseSprite = (creator, pose) => {
   const g = creator && creator.gender === 'f' ? 'f' : 'm';
   const lk = creator ? (creator.look || 0) : 0;
-  return A + 'chars/creator_' + g + lk + '_' + pose + '.png';
+  return A + 'nhan-vat/creator_' + g + lk + '_' + pose + '.png';
 };
 
 export const introSeen = () => { try { return localStorage.getItem(KEY) === '1'; } catch (e) { return true; } };
