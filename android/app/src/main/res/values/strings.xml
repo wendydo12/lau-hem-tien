@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Lẩu Hẻm Tiên</string>
+    <string name="title_activity_main">Lẩu Hẻm Tiên</string>
+    <string name="package_name">com.uyennhi.lauhemtien</string>
+    <string name="custom_url_scheme">com.uyennhi.lauhemtien</string>
+</resources>
