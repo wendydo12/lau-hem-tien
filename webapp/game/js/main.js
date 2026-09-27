@@ -1,27 +1,27 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=26';
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=26';
-import { fresh, load, save, newPot } from './engine/state.js?v=26';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=26';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=26';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=26';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=26';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=26';
-import { makeRNG } from './engine/rng.js?v=26';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=26';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=26';
-import { RUIN_TIERS } from './engine/ruin.js?v=26';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=26';
-import { UPG } from './engine/data.js?v=26';
-import { SPRITES } from './manifest.js?v=26';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=26';
-import { playIntro, introSeen } from './intro.js?v=26';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=26';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=27';
+import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=27';
+import { fresh, load, save, newPot } from './engine/state.js?v=27';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=27';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=27';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=27';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=27';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=27';
+import { makeRNG } from './engine/rng.js?v=27';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=27';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=27';
+import { RUIN_TIERS } from './engine/ruin.js?v=27';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=27';
+import { UPG } from './engine/data.js?v=27';
+import { SPRITES } from './manifest.js?v=27';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=27';
+import { playIntro, introSeen } from './intro.js?v=27';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=27';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
-import { A } from './assets.js?v=26';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { A } from './assets.js?v=27';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
 let S, R, rng, ctx, names;
 let pot = newPot();
 /* debug/QA handle (26/09): phơi R/S/ctx ra console để test tự động được — không ảnh hưởng gameplay */
@@ -790,6 +790,10 @@ function drawScene() {
       sky = 'rgb(' + d[0] + ',' + d[1] + ',' + d[2] + ')';
     } catch (e) {}
     c.fillStyle = sky; c.fillRect(0, 0, cv.width, cv.height);
+    try {
+      const band = document.getElementById('sceneBand');
+      if (band) band.style.background = sky;   // band fill = màu trời trong ảnh → liền mạch, không "rạch"
+    } catch (e) {}
     const r = Math.min(cv.width / bg.width, cv.height / bg.height);
     const w = bg.width * r, h = bg.height * r;
     c.drawImage(bg, (cv.width - w) / 2, (cv.height - h) / 2, w, h);

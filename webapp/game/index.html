@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/main.css?v=26">
+<link rel="stylesheet" href="css/main.css?v=27">
 </head>
 <body>
   <div id="app">
@@ -44,7 +44,7 @@
         <button id="btnNew" class="btn ghost" hidden>Quán mới</button>
         <button id="btnGuide" class="btn ghost small">Hướng dẫn</button>
       </div>
-      <small class="ver">v0.1.3 — Phase 5</small>
+      <small class="ver"></small>
     </section>
 
     <!-- Màn chuẩn bị (placeholder Phase 5) -->
@@ -55,15 +55,23 @@
 
     <!-- Màn bán -->
     <section id="sell" class="screen" hidden>
-      <div id="sceneWrap">
-        <canvas id="scene" width="756" height="996"></canvas>
-        <div id="lane"></div>
-        <div id="toastWrap"></div>
+      <div id="sceneBand">
+        <div id="sceneWrap">
+          <canvas id="scene" width="756" height="996"></canvas>
+          <div id="lane"></div>
+          <div id="toastWrap"></div>
+        </div>
       </div>
       <div id="counter">
-        <!-- nồi đang nấu -->
+        <!-- TRÁI: THÊM ĐỒ — món CÒN THIẾU trên đơn khách focus (chạm 1 cái = bỏ vào nồi) -->
+        <div id="need" class="station">
+          <div class="st-label">🧺 <span id="needName">Thêm đồ</span></div>
+          <div id="stNeed"></div>
+        </div>
+        <!-- GIỮA: NỒI + vé đơn 1 hàng (tên khách + thiếu gì) + nút -->
         <div id="potArea">
           <div id="potVisual"></div>
+          <div id="ticket" class="ticket"></div>
           <div id="potChips"></div>
           <div id="fireBar" class="fire-bar" hidden>
             <div class="fire-fill"><div id="fireFill"></div></div>
@@ -120,6 +128,6 @@
     <div id="modal" class="modal" hidden><div class="modal-card" id="modalCard"></div></div>
     <div id="toast" class="toast" hidden></div>
   </div>
-    <script type="module" src="js/main.js?v=26"></script>
+    <script type="module" src="js/main.js?v=27"></script>
 </body>
 </html>
