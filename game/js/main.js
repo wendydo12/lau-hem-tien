@@ -1,27 +1,27 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=23';
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=23';
-import { fresh, load, save, newPot } from './engine/state.js?v=23';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=23';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=23';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=23';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=23';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=23';
-import { makeRNG } from './engine/rng.js?v=23';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=23';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=23';
-import { RUIN_TIERS } from './engine/ruin.js?v=23';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=23';
-import { UPG } from './engine/data.js?v=23';
-import { SPRITES } from './manifest.js?v=23';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver } from './audio.js?v=23';
-import { playIntro, introSeen } from './intro.js?v=23';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=23';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=24';
+import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=24';
+import { fresh, load, save, newPot } from './engine/state.js?v=24';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=24';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=24';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=24';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=24';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=24';
+import { makeRNG } from './engine/rng.js?v=24';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=24';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=24';
+import { RUIN_TIERS } from './engine/ruin.js?v=24';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=24';
+import { UPG } from './engine/data.js?v=24';
+import { SPRITES } from './manifest.js?v=24';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=24';
+import { playIntro, introSeen } from './intro.js?v=24';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=24';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
-import { A } from './assets.js?v=23';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { A } from './assets.js?v=24';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
 let S, R, rng, ctx, names;
 let pot = newPot();
 /* debug/QA handle (26/09): phơi R/S/ctx ra console để test tự động được — không ảnh hưởng gameplay */
@@ -234,7 +234,7 @@ function askResumeMidDay() {
 function resumeSell() {
   restoreRuntime();
   R.running = true;
-  pot = newPot(); renderTicket();
+  pot = newPot(); renderTicket(); renderNeed();
   showScreen('sell');
   drawScene();
   renderStations();
@@ -454,6 +454,7 @@ function openShop() {
 
 /* ============ SELL ============ */
 function showScreen(name) {
+  { const v = $('#splash .ver'); if (v) v.textContent = 'v' + GAME_VERSION + ' — Phase 5'; }
   ['splash', 'prep', 'sell', 'summary', 'reviews', 'stats'].forEach(s => $(s).hidden = s !== name);
   $('hud').hidden = name === 'splash';
   /* BGM theo màn hình: bán hàng = không khí tiệm ăn, còn lại = lofi chill, splash = tắt */
@@ -631,7 +632,7 @@ function renderLane() {
       <img src="${A + src}" alt="">
       <div class="name">${c.name}</div>
       <div class="pat${c.pat / c.max < .3 ? ' danger' : c.pat / c.max < .55 ? ' warn' : ''}"><i style="width:${Math.max(0, c.pat / c.max * 100)}%"></i></div>`;
-    el.onclick = e => { e.stopPropagation(); R.focus = c.id; renderLane(); renderTicket(); showOrderDetail(c); };
+    el.onclick = e => { e.stopPropagation(); R.focus = c.id; renderLane(); renderTicket(); renderNeed(); showOrderDetail(c); };
     lane.appendChild(el);
   });
   /* 26/09: khách focus vừa rời (xong việc) → tự focus khách còn chờ để vé đơn luôn có nội dung.
@@ -639,9 +640,9 @@ function renderLane() {
    * renderLane → ... → crash "Maximum call stack" làm chết cả màn bán. Chỉ đổi focus + renderTicket. */
   if (!R.slots.some(x => x && R.focus === x.id)) {
     const nxt = R.slots.find(x => x && !x.done.every(Boolean));
-    if (nxt && R.focus !== nxt.id) { R.focus = nxt.id; renderTicket(); }
+    if (nxt && R.focus !== nxt.id) { R.focus = nxt.id; renderTicket(); renderNeed(); }
   }
-  renderTicket();
+  renderTicket(); renderNeed();
 }
 function orderText(o) {
   if (!o || !o.base) return '...';
@@ -661,6 +662,37 @@ function orderBubble(o) {
   const sizeTxt = o.size === 'L' ? (nm.includes('lớn') ? '' : ' lớn') : '';
   return `<span class="ob-txt">${nm}${sizeTxt}${txt}</span><span class="ob-icons">${parts.join('')}</span>`;
 }
+/* THÊM ĐỒ (27/09 — lệnh phu quân): cột TRÁI = chính những món CÒN THIẾU trên đơn khách đang focus.
+ * Chạm 1 cái = bỏ vào nồi (dùng chính logic .ing sẵn có — hết hàng/nồi đầy thì toast nhắc).
+ * Đầy đủ rồi thì hiện "✓ Nồi khớp — canh lửa thôi". Không phải tự dò đơn + tự nhớ nữa. */
+function renderNeed() {
+  const el = $('stNeed'); if (!el) return;
+  try {
+    const c = R ? R.slots.find(x => x && R.focus === x.id) : null;
+    const nm = $('needName');
+    if (!c || !c.order || !c.order.base) {
+      if (nm) nm.textContent = 'Thêm đồ';
+      el.innerHTML = '<small class="need-hint">👆 Chạm khách để xem cần thêm gì</small>';
+      return;
+    }
+    if (nm) nm.textContent = c.name;
+    const o = c.order;
+    const bits = [];
+    if (pot.base !== o.base) bits.push(ingBtn(o.base, false));
+    if (o.size === 'L' && pot.size !== 'L') bits.push(`<button class="pill need-miss" data-size="L">🍲 Nồi LỚN</button>`);
+    if (o.spicy && pot.spicy !== o.spicy) bits.push(`<button class="pill need-miss" data-spicy="${o.spicy}">🌶 ${o.spicy}</button>`);
+    if (pot.spicy && !o.spicy) bits.push('<span class="need-warn">⚠️ Nồi đang nêm ${0} — đơn này KHÔNG cay, 🗑 đổ lại!</span>'.replace('${0}', pot.spicy));
+    if (o.dip && pot.dip !== o.dip) bits.push(ingBtn(o.dip, true, true));
+    for (const k of o.tops) if (!pot.tops.includes(k)) bits.push(ingBtn(k, false));
+    if (pot.tops.length) {
+      const extra = pot.tops.filter(k => !o.tops.includes(k));
+      if (extra.length) bits.push(`<span class="need-warn">⚠️ Nồi thừa: ${extra.map(k => iname(k)).join(', ')} — 🗑 đổ lại!</span>`);
+    }
+    el.innerHTML = bits.length ? bits.join('') : '<small class="need-hint">✓ Nồi khớp ly này — nhấn 🔥 canh lửa!</small>';
+    bindIngs();   // gắn handler cho cả .ing mới (an toàn: bind idempotent)
+  } catch (e) { el.innerHTML = ''; }
+}
+
 /* VÉ ĐƠN (26/09): hiển thị ĐƠN ĐANG CHỜ của khách focus + so với nồi đang nấu.
  * Mỗi mục = chip: ✓ mờ nếu nồi đã đúng, đỏ "← THÊM" nếu thiếu, ghi chú nếu hết hàng.
  * Người chơi chỉ cần nhìn vé → biết chính xác phải thêm gì, không phải dò đơn + tự nhớ. */
@@ -788,7 +820,7 @@ function renderStations() {
     + secrets.map(k => ingBtn(k, pot.tops.includes(k), false, true)).join('');
   bindIngs();
   renderPotVisual();
-  renderTicket();   // 26/09: vé đơn cập nhật theo nồi đang nấu
+  renderTicket(); renderNeed();   // 26/09: vé đơn cập nhật theo nồi đang nấu
 }
 function ingBtn(k, sel, small = false, secret = false) {
   const q = qty(S, k);

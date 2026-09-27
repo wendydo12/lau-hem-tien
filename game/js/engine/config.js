@@ -1,5 +1,5 @@
 /* engine/config.js — CFG mặc định của chủ game (người chơi không sửa được). Port cơ chế Tiệm Trà Nhỏ v3.11, cân lại cho lẩu. */
-export const GAME_VERSION = '0.1.3';
+export const GAME_VERSION = '0.1.5';
 
 export const DEFAULT_CONFIG = {
   cfgVer: 1,

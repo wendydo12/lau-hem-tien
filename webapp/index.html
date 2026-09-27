@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/main.css?v=23">
+<link rel="stylesheet" href="css/main.css?v=24">
 </head>
 <body>
   <div id="app">
@@ -61,9 +61,15 @@
         <div id="toastWrap"></div>
       </div>
       <div id="counter">
-        <!-- nồi đang nấu -->
+        <!-- TRÁI: THÊM ĐỒ — món CÒN THIẾU trên đơn khách đang focus (chạm 1 cái = bỏ vào nồi) -->
+        <div id="need" class="station">
+          <div class="st-label">🧺 <span id="needName">Thêm đồ</span></div>
+          <div id="stNeed"></div>
+        </div>
+        <!-- GIỮA: NỒI + vé đơn 1 hàng + nút -->
         <div id="potArea">
           <div id="potVisual"></div>
+          <div id="ticket" class="ticket"></div>
           <div id="potChips"></div>
           <div id="fireBar" class="fire-bar" hidden>
             <div class="fire-fill"><div id="fireFill"></div></div>
@@ -121,6 +127,6 @@
     <div id="modal" class="modal" hidden><div class="modal-card" id="modalCard"></div></div>
     <div id="toast" class="toast" hidden></div>
   </div>
-    <script type="module" src="js/main.js?v=23"></script>
+    <script type="module" src="js/main.js?v=24"></script>
 </body>
 </html>

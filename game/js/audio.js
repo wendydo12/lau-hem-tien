@@ -3,7 +3,7 @@
  * tiền giấy, linh thạch tinh thể, và dế đêm ngoài hẻm.
  * Mọi waveform/tần số/envelope dưới đây là tự thiết kế cho dự án này. */
 
-import { A, absAsset } from './assets.js?v=23';   // 26/09: 1 nguồn sự thật
+import { A, absAsset } from './assets.js?v=24';   // 26/09: 1 nguồn sự thật
 const AU = { ctx: null, on: true, mus: true, started: false };
 try {
   const a = JSON.parse(localStorage.getItem('lhTAudio'));
@@ -27,7 +27,13 @@ function au() {
     const d = AU.nb.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
   }
-  if (AU.ctx.state === 'suspended' && !document.hidden) AU.ctx.resume();
+  if (AU.ctx.state === 'suspended' && !document.hidden) {
+    AU.ctx.resume().then(() => {   // 27/09: iOS/Safari có thể suspend lại context — BGM bị nuốt → tự khởi lại
+      if (AU._wantBgm) setBgm(AU._wantBgm.key);
+      if (AU._wantStreet) startStreet();
+      if (AU._wantKitchen) startKitchen();
+    }).catch(() => {});
+  }
   return AU.ctx;
 }
 /* unlock audio bằng gesture thật đầu tiên */
@@ -361,11 +367,13 @@ function fadeOutBgm(cur) {
   } catch (e) {}
 }
 export function setBgm(key) {
-  if (!AU.on || !AU.mus || !key) return stopBgm();
+  if (!AU.on || !AU.mus || !key) { AU._wantBgm = null; return stopBgm(); }
+  AU._wantBgm = { key };   // 27/09: ghi nhớ — context chưa unlock/đang suspend thì phát lại sau
   const c = au(); if (!c) return;
   if (bgmCur && bgmCur.key === key) return;   // đang phát đúng track
   loadBgmBuf(key).then(buf => {
     if (bgmCur && bgmCur.key === key) return; // đã đổi ý giữa chừng
+    if (AU._wantBgm && AU._wantBgm.key !== key) return;   // đã đổi track khác
     fadeOutBgm(bgmCur); bgmCur = null;
     const s = c.createBufferSource(), g = c.createGain();
     s.buffer = buf; s.loop = true;
@@ -374,7 +382,13 @@ export function setBgm(key) {
     s.connect(g); g.connect(AU.master);      // đi thẳng master (không qua fx) để setAmbience tắt tiếng phố không tắt luôn nhạc
     s.start(0);
     bgmCur = { key, src: s, gain: g };
-  }).catch(() => {});
+    AU._bgmErr = null;
+  }).catch(() => { AU._bgmErr = key; });   // 27/09: không im lặng — UI thấy được + retry
+}
+export const bgmError = () => AU._bgmErr || null;
+export function retryBgm() {   // 27/09: nút "nhạc im" trong menu tạm dừng → phát lại
+  if (bgmCur) return;
+  if (AU._wantBgm) setBgm(AU._wantBgm.key);
 }
 export function stopBgm() {
   if (!bgmCur) return;
