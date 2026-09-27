@@ -149,12 +149,12 @@ body{
 /* --- VÉ ĐƠN (26/09 — review "quá rối mắt, không biết chú ý vào đâu"): ---
    1 dòng ruy-băng trên quầy = khách đang focus đặt gì + NÓI RÕ CÒN THIẾU GÌ.
    Mục đã có = mờ, thiếu = đỏ, hết hàng = ghi chú. Mắt người chơi chỉ cần nhìn vé, không phải tự dò đơn. */
-.ticket{flex:1;min-height:64px;max-height:96px;overflow-y:auto;background:#fdf6e3;border:3px solid var(--ink);border-radius:10px;
-  box-shadow:inset 0 2px 0 #fff;padding:8px 12px;font-size:18px;line-height:1.45;color:var(--ink);
-  display:flex;flex-direction:column;gap:4px}
-.tk-head{font-size:14px;color:var(--ink-soft);font-weight:bold}
+.ticket{flex:1;height:48px;overflow:hidden;background:#fdf6e3;border:3px solid var(--ink);border-radius:10px;
+  box-shadow:inset 0 2px 0 #fff;padding:4px 10px;font-size:15px;line-height:1.3;color:var(--ink);
+  display:flex;flex-direction:row;align-items:center;gap:8px}   /* 27/09: dải mỏng NGANG phía trên — không ép hàng nồi+stations thành 3 cột (chàng thích layout cũ 2 cột) */
+.tk-head{flex:0 0 auto;max-width:38%;font-size:14px;color:var(--ink-soft);font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tk-head b{color:var(--ink);font-size:16px}
-.tk-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tk-row{flex:1;display:flex;flex-wrap:nowrap;gap:6px;align-items:center;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
 .tk-item{display:inline-flex;align-items:center;gap:5px;background:var(--panel-white);border:2px solid var(--ink);border-radius:6px;padding:2px 8px;font-size:16px;font-weight:bold;white-space:nowrap}
 .tk-item img{width:20px;height:20px;image-rendering:pixelated}
 .tk-item.ok{opacity:.45;border-style:dashed}
