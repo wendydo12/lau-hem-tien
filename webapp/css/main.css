@@ -151,10 +151,10 @@ body{
    1 dòng ruy-băng trên quầy = khách đang focus đặt gì + NÓI RÕ CÒN THIẾU GÌ.
    Mục đã có = mờ, thiếu = đỏ, hết hàng = ghi chú. Mắt người chơi chỉ cần nhìn vé, không phải tự dò đơn. */
    /* 27/09: vé 1 hàng GIỮA cột nồi — ghi tên khách + thiếu gì, scroll ngang */
-.ticket{width:100%;max-height:64px;overflow-x:auto;overflow-y:hidden;background:#fdf6e3;border:3px solid var(--ink);border-radius:10px;
+.ticket{width:100%;max-height:88px;overflow-x:auto;overflow-y:hidden;background:#fdf6e3;border:3px solid var(--ink);border-radius:10px;
   box-shadow:inset 0 2px 0 #fff;padding:4px 8px;font-size:14px;line-height:1.2;color:var(--ink);
   display:flex;flex-direction:column;gap:3px;scrollbar-width:none}
-.tk-head{flex:0 0 auto;font-size:14px;color:var(--ink-soft);font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-head{flex:0 0 auto;font-size:13px;line-height:1.25;color:var(--ink-soft);font-weight:bold;white-space:normal;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .tk-head b{color:var(--ink);font-size:16px}
 .tk-row{flex:1;display:flex;flex-wrap:nowrap;gap:6px;align-items:center;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
 .tk-item{display:inline-flex;align-items:center;gap:5px;background:var(--panel-white);border:2px solid var(--ink);border-radius:6px;padding:2px 8px;font-size:16px;font-weight:bold;white-space:nowrap}
