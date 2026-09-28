@@ -136,8 +136,8 @@ body{
 @keyframes shake{0%,100%{transform:translateX(-50%)}25%{transform:translateX(calc(-50% - 4px))}75%{transform:translateX(calc(-50% + 4px))}}
 .cust .bubble{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
   background:var(--panel-white);border:2px solid var(--ink);border-radius:8px;
-  padding:4px 8px;font-size:15px;color:var(--ink);white-space:nowrap;max-width:200px;
-  overflow:hidden;text-overflow:ellipsis;box-shadow:var(--shadow);margin-bottom:4px}
+  padding:5px 9px;font-size:16px;color:var(--ink);white-space:nowrap;max-width:210px;
+  overflow:hidden;text-overflow:ellipsis;box-shadow:var(--shadow);margin-bottom:4px
 .cust .bubble::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
   border:6px solid transparent;border-top-color:var(--ink)}
 .cust.xian .bubble{background:#2a1f3d;color:var(--teal);border-color:var(--violet);box-shadow:0 0 10px var(--glow)}
@@ -174,7 +174,7 @@ body{
 #stNeed{flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:stretch;gap:6px;padding-right:2px;scrollbar-width:thin}
 #stNeed .ing{width:100%}
 #stNeed .pill{text-align:center}
-#potArea { width:34%;flex-shrink:0;max-width:158px;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:flex-start }
+#potArea { width:34%;flex-shrink:0;max-width:170px;   /* 27/09: 2 cột v0.1.6 */display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:flex-start }
 #potArea .st-actions.col{flex-direction:column;width:100%;margin-top:4px}
 #potArea .st-actions.col .btn{width:100%;font-size:16px;padding:10px 4px}
 #potVisual{width:110px;height:110px;background:var(--wood-lo);border:3px solid var(--ink);border-radius:8px;
@@ -275,9 +275,9 @@ body{
 #stations { flex:1;display:flex;flex-direction:column;gap:8px;overflow-y:auto;padding-right:2px }
 /* nút hành động LUÔN thấy: dính đáy khu trạm */
 #counter{flex:1;display:flex;gap:10px;padding:10px;overflow:hidden;background:var(--bg)}
-.cust .bubble{max-width:190px;min-width:110px;font-size:14px;white-space:normal;line-height:1.15;padding:5px 9px}
+.cust .bubble{max-width:210px;min-width:100px;font-size:16px;white-space:normal;line-height:1.2;padding:5px 9px}
 /* menu request trong bubble: chữ + hàng icon món */
-.ob-txt{display:block;font-weight:bold;white-space:nowrap}
+.ob-txt{display:block;font-weight:bold;white-space:nowrap;font-size:16px}
 .ob-icons{display:flex;gap:2px;flex-wrap:nowrap;margin-top:2px;align-items:center}
 .ob-i{position:relative;display:inline-block;flex-shrink:0}
 .ob-i img{width:22px;height:22px;image-rendering:pixelated;display:block}

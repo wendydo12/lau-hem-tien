@@ -1,27 +1,27 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=28';
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=28';
-import { fresh, load, save, newPot } from './engine/state.js?v=28';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=28';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=28';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=28';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=28';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=28';
-import { makeRNG } from './engine/rng.js?v=28';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=28';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=28';
-import { RUIN_TIERS } from './engine/ruin.js?v=28';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=28';
-import { UPG } from './engine/data.js?v=28';
-import { SPRITES } from './manifest.js?v=28';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=28';
-import { playIntro, introSeen } from './intro.js?v=28';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=28';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=29';
+import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=29';
+import { fresh, load, save, newPot } from './engine/state.js?v=29';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=29';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=29';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=29';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=29';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=29';
+import { makeRNG } from './engine/rng.js?v=29';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=29';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=29';
+import { RUIN_TIERS } from './engine/ruin.js?v=29';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=29';
+import { UPG } from './engine/data.js?v=29';
+import { SPRITES } from './manifest.js?v=29';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=29';
+import { playIntro, introSeen } from './intro.js?v=29';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=29';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
-import { A } from './assets.js?v=28';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { A } from './assets.js?v=29';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
 let S, R, rng, ctx, names;
 let pot = newPot();
 /* debug/QA handle (26/09): phơi R/S/ctx ra console để test tự động được — không ảnh hưởng gameplay */
@@ -620,7 +620,7 @@ function renderLane() {
     el.dataset.slot = i;
     /* vị trí: hàng dưới (gần người xem, TRƯỚC quầy) — CHÂN CHẠM ĐẤT: cùng baseline, so le nhẹ
      * theo slot; bubble nằm trên đầu nên không cần đẩy bottom lên cao (fix khách lơ lửng 25/09) */
-    const left = [22, 50, 76, 38][i % 4];
+    const left = [28, 50, 72, 38][i % 4];   /* 27/09: mép trái/phải vào trong 6% — bubble "LẨU CÀ" KHÔNG mất chữ L (lệnh phu quân) */
     el.style.left = left + '%';
     el.style.bottom = '3%';
     const src = c.star != null ? SPRITES.xian[c.star % 16]
