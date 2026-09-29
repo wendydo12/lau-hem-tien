@@ -1,27 +1,27 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=29';
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=29';
-import { fresh, load, save, newPot } from './engine/state.js?v=29';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=29';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=29';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=29';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=29';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=29';
-import { makeRNG } from './engine/rng.js?v=29';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=29';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=29';
-import { RUIN_TIERS } from './engine/ruin.js?v=29';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=29';
-import { UPG } from './engine/data.js?v=29';
-import { SPRITES } from './manifest.js?v=29';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=29';
-import { playIntro, introSeen } from './intro.js?v=29';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=29';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=30';
+import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=30';
+import { fresh, load, save, newPot } from './engine/state.js?v=30';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=30';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=30';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=30';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=30';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=30';
+import { makeRNG } from './engine/rng.js?v=30';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=30';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=30';
+import { RUIN_TIERS } from './engine/ruin.js?v=30';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=30';
+import { UPG } from './engine/data.js?v=30';
+import { SPRITES } from './manifest.js?v=30';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=30';
+import { playIntro, introSeen } from './intro.js?v=30';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=30';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
-import { A } from './assets.js?v=29';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { A } from './assets.js?v=30';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
 let S, R, rng, ctx, names;
 let pot = newPot();
 /* debug/QA handle (26/09): phơi R/S/ctx ra console để test tự động được — không ảnh hưởng gameplay */

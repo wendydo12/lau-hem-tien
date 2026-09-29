@@ -137,7 +137,7 @@ body{
 .cust .bubble{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
   background:var(--panel-white);border:2px solid var(--ink);border-radius:8px;
   padding:5px 9px;font-size:16px;color:var(--ink);white-space:nowrap;max-width:210px;
-  overflow:hidden;text-overflow:ellipsis;box-shadow:var(--shadow);margin-bottom:4px
+  overflow:hidden;text-overflow:ellipsis;box-shadow:var(--shadow);margin-bottom:4px}
 .cust .bubble::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
   border:6px solid transparent;border-top-color:var(--ink)}
 .cust.xian .bubble{background:#2a1f3d;color:var(--teal);border-color:var(--violet);box-shadow:0 0 10px var(--glow)}
@@ -275,7 +275,7 @@ body{
 #stations { flex:1;display:flex;flex-direction:column;gap:8px;overflow-y:auto;padding-right:2px }
 /* nút hành động LUÔN thấy: dính đáy khu trạm */
 #counter{flex:1;display:flex;gap:10px;padding:10px;overflow:hidden;background:var(--bg)}
-.cust .bubble{max-width:210px;min-width:100px;font-size:16px;white-space:normal;line-height:1.2;padding:5px 9px}
+.cust .bubble{max-width:min(210px,44vw);min-width:100px;font-size:16px;white-space:normal;line-height:1.2;padding:5px 9px}
 /* menu request trong bubble: chữ + hàng icon món */
 .ob-txt{display:block;font-weight:bold;white-space:nowrap;font-size:16px}
 .ob-icons{display:flex;gap:2px;flex-wrap:nowrap;margin-top:2px;align-items:center}
