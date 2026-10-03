@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="t">
+  <title id="t">Lẩu Hẻm Tiên — mascot icon final</title>
+  <rect width="512" height="512" rx="115" fill="#FF5A47"/>
+
+  <!-- hơi nước: mây hạ sát vành + 2 wisp nối — bốc TỪ nồi -->
+  <g fill="#FFF4E6">
+    <circle cx="214" cy="182" r="25"/>
+    <circle cx="256" cy="152" r="33"/>
+    <circle cx="300" cy="182" r="25"/>
+    <rect x="206" y="178" width="102" height="30" rx="15"/>
+    <!-- wisp nối giữa mây và vành -->
+    <circle cx="226" cy="218" r="10"/>
+    <circle cx="290" cy="224" r="7"/>
+  </g>
+
+  <!-- 2 tai quai donut (lỗ 13) -->
+  <g fill="#FFF4E6">
+    <circle cx="88" cy="262" r="30"/>
+    <circle cx="424" cy="262" r="30"/>
+  </g>
+  <g fill="#FF5A47">
+    <circle cx="88" cy="262" r="13"/>
+    <circle cx="424" cy="262" r="13"/>
+  </g>
+
+  <!-- vành nồi -->
+  <rect x="96" y="228" width="320" height="46" rx="23" fill="#FFF4E6"/>
+
+  <!-- thân nồi -->
+  <path d="M126 274 L138 372 Q142 404 178 404 L334 404 Q370 404 374 372 L386 274 Z" fill="#FFF4E6"/>
+
+  <!-- 3 chân -->
+  <g fill="#FFF4E6">
+    <rect x="168" y="398" width="30" height="34" rx="15"/>
+    <rect x="241" y="398" width="30" height="34" rx="15"/>
+    <rect x="314" y="398" width="30" height="34" rx="15"/>
+  </g>
+
+  <!-- dải mây khắc bụng -->
+  <path d="M186 372 q14 -14 28 0 q14 14 28 0 q14 -14 28 0 q14 14 28 0 q14 -14 28 0"
+        stroke="#FF5A47" stroke-width="10" stroke-linecap="round" fill="none" opacity="0.85"/>
+
+  <!-- MẶT: mắt +12%, miệng rộng +15% -->
+  <g fill="#2A1B18">
+    <circle cx="210" cy="316" r="16"/>
+    <circle cx="302" cy="316" r="16"/>
+  </g>
+  <g fill="#FFFFFF">
+    <circle cx="205" cy="311" r="5.2"/>
+    <circle cx="297" cy="311" r="5.2"/>
+  </g>
+  <path d="M232 338 q24 16 48 0" stroke="#2A1B18" stroke-width="10" stroke-linecap="round" fill="none"/>
+  <g fill="#FFB199">
+    <ellipse cx="176" cy="336" rx="15" ry="9"/>
+    <ellipse cx="336" cy="336" rx="15" ry="9"/>
+  </g>
+</svg>
