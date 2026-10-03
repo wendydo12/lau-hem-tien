@@ -116,7 +116,13 @@ body{
 #sceneBand{position:relative;width:100%;flex:0 0 auto;height:38%;max-height:46%;overflow:hidden;display:flex;justify-content:center;align-items:flex-start;background:var(--skyband,#0d0f26)}
 #sceneWrap{position:relative;width:auto;height:100%;max-width:100%;aspect-ratio:378/498;overflow:hidden}
 #scene{width:100%;height:100%;display:block;image-rendering:pixelated}
-#lane{position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none}
+#lane{position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none;
+  /* 03/10 (lệnh phu quân "nhân vật nhỏ xíu hơn cái ghế"): ghế được VẼ TRONG ẢNH NỀN
+     nên nó phóng theo scene, còn .cust bị kẹp max-width:80px -> nhân vật ĐỨNG IM 49.6px
+     trong khi ghế nở ra 92x120px (đo bằng CDP ở viewport 390x844: ghế cao gấp 2.57 lần).
+     Fix: biến #lane thành container để ảnh nhân vật tính theo % chiều RỘNG nền (cqw),
+     độc lập với .cust box -> giữ nguyên layout bubble/name/thanh kiên nhẫn và vùng click. */
+  container-type:inline-size}
 #toastWrap{position:absolute;left:8px;right:8px;bottom:8px;display:flex;flex-direction:column;gap:4px;pointer-events:none}
 
 /* khách trên scene */
@@ -124,6 +130,30 @@ body{
   pointer-events:auto;cursor:pointer;transition:left .5s ease-out;transform:translateX(-50%)}
 .cust img{width:62%;height:62%;max-width:60px;max-height:60px;image-rendering:pixelated;
   filter:drop-shadow(0 3px 0 rgba(0,0,0,.3))}
+/* 03/10: ảnh nhân vật TỈ LỆ THEO NỀN, không kẹp px cứng nữa.
+   BỆNH: ghế được VẼ TRONG ẢNH NỀN nên phóng theo scene (92x120px trên iPhone),
+   còn .cust bị kẹp max-width:80px -> img đứng im 49.6px => ghế CAO GẤP 2.57 lần người.
+   35.5cqw = 35.5% chiều rộng #lane. Con số này ĐO + TÍNH RA, không đoán:
+     đo bằng CDP viewport 390x844: ghế 92.2x119.7px, scene 611.5x805.6px
+     sprite 64x64 nhưng nội dung chỉ 25x60 -> thấy được 93.75% khung theo chiều cao
+     muốn nhân vật cao 1.70x ghế = 203.5px (mức vision QA chọn trong 3 bản 1.43/1.70/1.95;
+       1.95x bị chê là che mất ghế + đỉnh đầu chỉ cách mép quầy 2%)
+     img = 203.5 / 0.9375 = 217px; 217 / 611.5 = 35.5cqw
+     kiểm: đỉnh đầu ở 67% chiều cao scene, mép quầy ở 66% -> còn biên an toàn
+   Trình duyệt cũ không hỗ trợ cqw thì khối này bị bỏ qua -> vẫn dùng 62%/60px cũ.
+   Khối @supports chỉ ghi đè .cust img (luật gốc ở dòng trên, cùng specificity nên thắng).
+   Tên + thanh kiên nhẫn (.cust .name / .cust .pat) KHÔNG đụng tới -> giữ cỡ gốc. */
+@supports (width:1cqw){
+  /* Ảnh nhân vật to ra nhưng HỘP CLICK GIỮ NGUYÊN 80px như bản gốc.
+     Lý do (đo bằng CDP, đây là bug nếu làm sai): 4 slot ở left 28/50/72/38%,
+     slot 28% và 38% chỉ cách nhau 10% = 61px. Nếu mở max-width cho .cust nở theo
+     ảnh (122px) thì HAI HỘP CLICK CHỒNG NHAU 49px -> bấm khách này ra khách khác.
+     Giải pháp: .cust vẫn kẹp 80px, ảnh tràn ra ngoài hộp (overflow visible),
+     và ảnh KHÔNG nhận click -> click chỉ rơi vào hộp 80px, y như gameplay cũ.
+     Hộp 80px khớp phần thấy được của nhân vật (85px) nên bấm vẫn trúng người.
+     Tên + thanh kiên nhẫn GIỮ cỡ gốc (13px / 56px) vì hộp .cust vẫn 80px — không nới. */
+  .cust img{width:35.5cqw;height:35.5cqw;max-width:none;max-height:none;pointer-events:none}
+}
 .cust.xian img{filter:drop-shadow(0 0 6px var(--glow)) drop-shadow(0 3px 0 rgba(0,0,0,.3))}
 .cust.active img{outline:3px solid var(--gold);outline-offset:2px;border-radius:8px}
 .cust.active.xian img{outline-color:var(--teal)}
