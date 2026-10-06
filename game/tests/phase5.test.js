@@ -157,7 +157,7 @@ test('replies: 3 tông giọng đủ metadata', () => {
 test('replies: genReply theo đúng bucket sao, có thế tên/món', () => {
   const r = rng();
   for (let i = 0; i < 30; i++) {
-    const t = genReply(r, 'savage', 1, 'Chị An Nhiên', 'lẩu cà chua');
+    const t = genReply(r, 'savage', 1, 'Chị Ánh Tuyết', 'lẩu cà chua');
     assert.ok(t.length > 5);
     assert.ok(!t.includes('{n}') && !t.includes('{mon}'));
   }

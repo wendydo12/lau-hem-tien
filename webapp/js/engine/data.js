@@ -531,7 +531,7 @@ export const LONG = {
     ["Lâu lâu mới dám ghé.", "Mong quán cân lại giá.", "Nhẹ hơn chút là ghé liền."],
   ],
   cheap: [
-    ["Tính ra quá hời cho một nồi đầy đặn.", "Vốn định tìm chỗ rẻ mà ngon, ai ngờ gặp {shop}."],
+    ["Tính ra quá hời cho một nồi đầy đặn.", "Vốn định tìm chỗ rẻ mà ngon, ai ngờ lại đụng trúng {shop}."],
     ["Nồi {mon} lớn mà tiền nhẹ hơn nhiều chỗ, topping đầy.", "Sinh viên như mình tuần nào ăn cũng kham nổi."],
     ["Ủng hộ quán dài lâu.", "Kéo cả lớp tới ăn liền.", "Hời quá, năm sao tròn."],
   ],
