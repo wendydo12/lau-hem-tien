@@ -333,6 +333,15 @@ body{
 @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 #toastWrap .toast{position:relative;left:auto;bottom:auto;transform:none;animation:toastIn .2s ease-out;margin:0}
 
+/* --- DẢI NHẮC THIẾU HÀNG (06/10): khách bỏ về vì thiếu món → một dải nhỏ, không dội thông báo --- */
+.so-warn{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:88;pointer-events:none;
+  background:rgba(60,22,26,.95);border:2px solid var(--rose);color:#ffd8e0;border-radius:14px;
+  padding:5px 14px;font-size:15px;max-width:92%;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.5);
+  animation:soPulse 1.6s ease-in-out infinite}
+.so-warn[hidden]{display:none}
+.so-warn b{color:#fff}
+@keyframes soPulse{0%,100%{opacity:.94}50%{opacity:1}}
+
 /* money fly */
 .money-fly{position:absolute;font-size:20px;color:var(--gold);font-weight:bold;pointer-events:none;
   text-shadow:0 2px 3px rgba(0,0,0,.6);animation:flyUp 1s ease-out forwards;z-index:30}

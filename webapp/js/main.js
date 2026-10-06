@@ -1,31 +1,31 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=31';
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR } from './engine/data.js?v=31';
-import { fresh, load, save, newPot } from './engine/state.js?v=31';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=31';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=31';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=31';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=31';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=31';
-import { makeRNG } from './engine/rng.js?v=31';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=31';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=31';
-import { RUIN_TIERS } from './engine/ruin.js?v=31';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=31';
-import { UPG } from './engine/data.js?v=31';
-import { SPRITES } from './manifest.js?v=31';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=31';
-import { playIntro, introSeen } from './intro.js?v=31';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=31';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=33';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR } from './engine/data.js?v=33';
+import { fresh, load, save, newPot } from './engine/state.js?v=33';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=33';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=33';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=33';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=33';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=33';
+import { makeRNG } from './engine/rng.js?v=33';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=33';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=33';
+import { RUIN_TIERS } from './engine/ruin.js?v=33';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=33';
+import { UPG } from './engine/data.js?v=33';
+import { SPRITES } from './manifest.js?v=33';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=33';
+import { playIntro, introSeen } from './intro.js?v=33';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=33';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
-import { A } from './assets.js?v=31';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { A } from './assets.js?v=33';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
 let S, R, rng, ctx, names;
 let pot = newPot();
 /* debug/QA handle (26/09): phơi R/S/ctx ra console để test tự động được — không ảnh hưởng gameplay */
-const __lht = { get R() { return R; }, get S() { return S; }, get ctx() { return ctx; }, get pot() { return pot; }, set pot(v) { pot = v; }, renderLane, renderTicket, renderStations, spawn, serve, timeoutCustomer };
+const __lht = { get R() { return R; }, get S() { return S; }, get ctx() { return ctx; }, get pot() { return pot; }, set pot(v) { pot = v; }, renderLane, renderTicket, renderStations, spawn, serve, timeoutCustomer, canCook, autoCloseCheck, endDay };
 window.__lht = __lht;
 let pouring = null;       // {start, raf}
 let dayTimer = null;
@@ -548,11 +548,59 @@ function startSell() {
     const hh = 11 + Math.floor(gameSec / 3600), mm = Math.floor(gameSec % 3600 / 60);
     $('hudClock').textContent = String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
     tickCustomers();
+    autoCloseCheck();
     /* SAVEPOINT mỗi 15 giây (mobile hay bị kill app không kịp beforeunload) */
     if (++ticks % 150 === 0) saveMid();
     if (el >= dayMs) endDay();
   }, TICK);
   scheduleSpawns(dayMs);
+}
+
+/* ---------- HẾT NGUYÊN LIỆU & TỰ ĐÓNG CỬA (lệnh phu quân 06/10) ----------
+ * Chuyện thật ngoài quán: hết sạch nguyên liệu thì khách ghé cũng chỉ để bỏ về.
+ * Trước đây mỗi lượt mời khách lại bắn thêm một thông báo "Hết …" nên màn hình nhặng xị.
+ * Nay: hết nguyên liệu → thôi mời khách, báo đúng một lần; mọi chỗ ngồi trống thì đếm
+ * ngược vài giây rồi TỰ ĐÓNG CỬA tổng kết. Nút "🌙 Đóng cửa hôm nay" trong menu tạm
+ * dừng vẫn giữ nguyên để chàng chủ động đóng bất cứ lúc nào. */
+
+/* quán còn nấu được nồi nào không? cần bộ nồi chén + ít nhất một món chính đang mở và còn hàng */
+function canCook() {
+  if (qty(S, 'sup') <= 0) return false;
+  return POT_KEYS.some(k => S.unlocked[k] && qty(S, k) > 0);
+}
+function noteNoStock() {
+  if (R.noStock) return;
+  R.noStock = true;
+  soWarnOn(null);
+  toast('🚫 Hết nguyên liệu — khách có ghé cũng không còn gì để gọi', 'bad', 3200);
+}
+/* dải nhắc thiếu hàng: khách gọi món quán không có → bỏ về. Chỉ nhắc MỘT dải nhỏ trên màn bán
+ * (tự tắt khi có khách ngồi xuống nấu được), thay vì bắn thông báo liên tục gây nhặng xị. */
+function soWarnOn(item) {
+  let el = document.getElementById('soWarn');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'soWarn'; el.className = 'so-warn';
+    document.body.appendChild(el);
+  }
+  el.innerHTML = '⚠️ Thiếu <b>' + (item ? iname(item).toLowerCase() : 'nguyên liệu') + '</b> — khách ghé rồi bỏ về. Nhập thêm ở màn chuẩn bị nhé!';
+  el.hidden = false;
+}
+function soWarnOff() { const el = document.getElementById('soWarn'); if (el) el.hidden = true; }
+function autoCloseCheck() {
+  if (!R || !R.running || R.paused) { if (R) R.emptySince = null; return; }
+  const conKhach = R.slots.some(c => c);
+  if (conKhach || canCook()) { R.emptySince = null; return; }
+  if (!R.emptySince) {
+    R.emptySince = performance.now();
+    noteNoStock();   /* báo lý do trước, rồi mới báo đếm ngược cho dễ hiểu */
+    toast('🌙 Khách đã về hết — quán tự đóng cửa sau ' + (cfg.autoCloseSec ?? 6) + ' giây', '', 2800);
+    return;
+  }
+  if (performance.now() - R.emptySince >= (cfg.autoCloseSec ?? 6) * 1000) {
+    toast('🌙 Đóng cửa, tổng kết hôm nay', 'good', 1800);
+    endDay();
+  }
 }
 
 /* giờ cao điểm: 12-13h, 18-21h game-time (như mặc định khách tới theo giờ) */
@@ -566,15 +614,34 @@ function spawnRate() {
 function scheduleSpawns() {
   const trySpawn = () => {
     if (!R || !R.running || R.paused) { setTimeout(trySpawn, 500); return; }
+    /* hết nguyên liệu → thôi mời khách (khách ghé cũng chỉ bỏ về) */
+    if (!canCook()) { noteNoStock(); setTimeout(trySpawn, 1200); return; }
+    R.noStock = false;
     const res = spawn(ctx);
     if (res) {
       if (res.kind === 'ok' || res.kind === 'star') {
+        soWarnOff();   /* đã có khách ngồi được → tắt dải nhắc thiếu hàng */
         renderLane();
         if (res.kind === 'star') { sfx('xian'); toast('⭐ ' + res.c.name + ' — đại năng vi hành!', 'good', 3500); secretOpenCheck(); }
         else if (res.c.xian) { sfx('xian'); toast('🔮 ' + res.c.name + ' đáp xuống từ khe không gian...', '', 3000); secretOpenCheck(); }
         else { sfx('bell'); if (res.c.brat) toast('⚠️ ' + res.c.name + ' có vẻ khó ở...', 'bad', 2000); }
-      } else if (res.kind === 'soldout') toast('🚫 Hết ' + iname(res.item).toLowerCase() + ', khách bỏ về', 'bad');
-      else if (res.kind === 'pricy') toast('Khách xem menu chê đắt, bỏ đi', 'bad');
+      } else if (res.kind === 'soldout') {
+        /* khách gọi món quán không có → dải nhắc nhỏ; chỉ bắn thông báo 1 lần mỗi 20 giây */
+        soWarnOn(res.item);
+        const now = performance.now();
+        if (!R._soLast || now - R._soLast > 20000) {
+          R._soLast = now;
+          toast('🚫 Khách bỏ về vì quán thiếu món — xem dải nhắc trên màn', 'bad', 2600);
+        }
+      }
+      else if (res.kind === 'pricy') {
+        /* khách chê đắt cũng bỏ về cả loạt — nhắc thưa thôi, kẻo rối màn */
+        const nowP = performance.now();
+        if (!R._prLast || nowP - R._prLast > 20000) {
+          R._prLast = nowP;
+          toast('💸 Khách xem menu chê đắt, bỏ đi — thử hạ giá hoặc bớt món nhúng', 'bad', 2600);
+        }
+      }
     }
     setTimeout(trySpawn, spawnRate() * 1000 * (0.7 + rng.next() * 0.6));
   };
@@ -1060,6 +1127,7 @@ function endDay() {
   if (!R || !R.running) return;
   clearInterval(dayTimer);
   R.running = false;
+  soWarnOff();       /* đóng cửa rồi thì cất dải nhắc thiếu hàng */
   S.midDay = false;   // hết giữa ngày — savepoint không cần nữa
   setBoil(false);
   setAmbience(false);

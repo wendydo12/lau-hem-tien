@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeCFG, DEFAULT_CONFIG } from '../js/engine/config.js';
-import { ITEMS, BASE_KEYS, TOP_KEYS, DIP_KEYS, DUOC_KEYS, SECRET_KEYS, XTOP_KEYS, DEF_SELL, UPG } from '../js/engine/data.js';
+import { ITEMS, POT_KEYS, TOP_KEYS, DIP_KEYS, DUOC_KEYS, SECRET_KEYS, XTOP_KEYS, BASE_PRICE, UPG } from '../js/engine/data.js';
 import { fresh, loadFrom, newPot, sanitize } from '../js/engine/state.js';
 import { addStock, qty, take, expireStock } from '../js/engine/stock.js';
 import { price, unitCost, traffic, rating, takeLoan, payDayLoan, sellLS, buyLS, rollLSRate, addDebt, resolveDebts, cheatHit, dayTax, recRev, recCost, priceLS, pricyItems } from '../js/engine/economy.js';
@@ -23,7 +23,7 @@ function seededState(seed = 12345) {
 
 /* ============ 1. DATA ============ */
 test('ITEMS: đủ 9 nồi lẩu theo brief (7 gốc + 2 miền Tây)', () => {
-  const pots = BASE_KEYS;
+  const pots = POT_KEYS;
   assert.equal(pots.length, 9);
   ['ca_chua', 'nam', 'suon', 'canh_chua', 'thai', 'mam', 'suki', 'dong_trung', 'tu_xuyen'].forEach(k => assert.ok(ITEMS[k], 'thiếu nồi ' + k));
   /* 3 nồi đầu miễn phí */
@@ -49,7 +49,7 @@ test('ITEMS: thực đơn extra bí mật — 8 món, chỉ mở cho khách tu t
 
 test('thực đơn bí mật: khách thường KHÔNG BAO GIỜ gọi món secret, khách tu tiên thì có', () => {
   const S = seededState();
-  [...BASE_KEYS, ...TOP_KEYS, ...DIP_KEYS, ...DUOC_KEYS, ...SECRET_KEYS].forEach(k => { addStock(S, k, 50, cfg); S.unlocked[k] = true; });
+  [...POT_KEYS, ...TOP_KEYS, ...DIP_KEYS, ...DUOC_KEYS, ...SECRET_KEYS].forEach(k => { addStock(S, k, 50, cfg); S.unlocked[k] = true; });
   const r = rng();
   /* khách thường: 100 đơn không được chứa secret */
   for (let i = 0; i < 100; i++) {
@@ -108,10 +108,10 @@ test('kho: hàng không hạn (supply) không bao giờ exp', () => {
 test('price: tính đúng tổng các thành phần', () => {
   const S = seededState();
   const o = { base: 'suon', dip: 'd_sa_te', tops: ['t_tom'], size: 'L', spicy: null };
-  const expect = DEF_SELL.suon + DEF_SELL.d_sa_te + DEF_SELL.t_tom + DEF_SELL.L;
+  const expect = BASE_PRICE.suon + BASE_PRICE.d_sa_te + BASE_PRICE.t_tom + BASE_PRICE.L;
   assert.equal(price(o, S), expect);
   const o2 = { ...o, size: 'N' };
-  assert.equal(price(o2, S), expect - DEF_SELL.L);
+  assert.equal(price(o2, S), expect - BASE_PRICE.L);
 });
 
 test('unitCost: chi phí 1 nồi = base + chấm + topping thường + nồi chén', () => {
@@ -130,13 +130,13 @@ test('traffic: rating cao → hệ số khách cao; giá rẻ (index<1) hút th�
   /* giá rẻ hơn mặc định → traffic cao hơn (avgIdx < 1) */
   const S3 = seededState();
   S3.reviews = Array.from({ length: 10 }, () => ({ s: 5 }));
-  BASE_KEYS.forEach(k => S3.sell[k] = Math.round(DEF_SELL[k] * 0.8));
+  POT_KEYS.forEach(k => S3.sell[k] = Math.round(BASE_PRICE[k] * 0.8));
   assert.ok(traffic(S3, cfg) > traffic(S1, cfg));
 });
 
 test('giá đắt: bị phát hiện qua pricyItems → khách bỏ đi từ spawn (không phải traffic)', () => {
   const S = seededState();
-  BASE_KEYS.forEach(k => S.unlocked[k] = true);
+  POT_KEYS.forEach(k => S.unlocked[k] = true);
   S.sell.ca_chua = cfg.potCap + 1;  /* đắt quá ngưỡng */
   assert.ok(pricyItems(S, cfg).includes('ca_chua'));
 });
@@ -238,31 +238,31 @@ test('levelOf: ngày 1-5 = L1, 6-29 = L2, 30-59 = L3, 60+ = L4', () => {
 
 test('genOrder L1: ngày 1-5 có 0-1 món nhúng (chỉ món còn hàng), không cay', () => {
   const S = seededState();
-  BASE_KEYS.forEach(k => { addStock(S, k, 20, cfg); S.unlocked[k] = true; });
+  POT_KEYS.forEach(k => { addStock(S, k, 20, cfg); S.unlocked[k] = true; });
   TOP_KEYS.forEach(k => { addStock(S, k, 20, cfg); S.unlocked[k] = true; });
   const r = rng();
   for (let i = 0; i < 30; i++) {
     const o = genOrder(S, cfg, r, 1, { firstDone: true });
-    assert.ok(BASE_KEYS.includes(o.base));
+    assert.ok(POT_KEYS.includes(o.base));
     assert.equal(o.spicy, null, 'L1 không có độ cay');
     assert.ok(o.tops.length <= 1);
   }
   /* hết sạch topping → đơn trơn, không bao giờ sinh món hết hàng */
   const S2 = seededState();
-  BASE_KEYS.forEach(k => { addStock(S2, k, 20, cfg); S2.unlocked[k] = true; });
+  POT_KEYS.forEach(k => { addStock(S2, k, 20, cfg); S2.unlocked[k] = true; });
   TOP_KEYS.forEach(k => S2.unlocked[k] = true);
   const r2 = rng();
   for (let i = 0; i < 20; i++) {
     const o = genOrder(S2, cfg, r2, 1, { firstDone: true });
     assert.equal(o.tops.length, 0);
-    assert.ok(!o.so || BASE_KEYS.includes(o.so));
+    assert.ok(!o.so || POT_KEYS.includes(o.so));
   }
 });
 
 test('genOrder L2+: có độ cay, đơn nhiều topping', () => {
   const S = seededState();
   S.day = 40;
-  [...BASE_KEYS, ...TOP_KEYS, ...DIP_KEYS].forEach(k => { addStock(S, k, 30, cfg); S.unlocked[k] = true; });
+  [...POT_KEYS, ...TOP_KEYS, ...DIP_KEYS].forEach(k => { addStock(S, k, 30, cfg); S.unlocked[k] = true; });
   const r = rng();
   let spicySeen = 0, multiSeen = 0;
   for (let i = 0; i < 60; i++) {
@@ -278,7 +278,7 @@ test('genOrder: món hết hàng → 50% đổi món, 50% báo soldout', () => {
   const S = seededState();
   S.unlocked.ca_chua = true; /* chỉ cà chua còn, các nồi khác hết */
   addStock(S, 'ca_chua', 10, cfg);
-  BASE_KEYS.filter(k => k !== 'ca_chua').forEach(k => S.unlocked[k] = true);
+  POT_KEYS.filter(k => k !== 'ca_chua').forEach(k => S.unlocked[k] = true);
   const r = rng();
   let so = 0;
   for (let i = 0; i < 40; i++) {
@@ -449,7 +449,7 @@ test('quà: takeGift cộng tiền đúng số, bungN reset', () => {
 
 /* ============ 8. LOOP TÍCH HỢP ============ */
 function fullStock(S) {
-  [...BASE_KEYS, ...TOP_KEYS, ...DIP_KEYS, ...DUOC_KEYS, ...SECRET_KEYS, 'sup'].forEach(k => { addStock(S, k, 999, cfg); S.unlocked[k] = true; });
+  [...POT_KEYS, ...TOP_KEYS, ...DIP_KEYS, ...DUOC_KEYS, ...SECRET_KEYS, 'sup'].forEach(k => { addStock(S, k, 999, cfg); S.unlocked[k] = true; });
 }
 
 test('serve đúng món: tiền vào két, review được ghi, slot trống', () => {
@@ -468,8 +468,8 @@ test('serve đúng món: tiền vào két, review được ghi, slot trống', (
   const before = S.money;
   const res = serve(ctx, 0, pot);
   assert.ok(res.ok);
-  assert.equal(res.vnd, DEF_SELL.ca_chua);
-  assert.ok(S.money >= before + DEF_SELL.ca_chua - 1000); /* + tiền, tip có thể 0 */
+  assert.equal(res.vnd, BASE_PRICE.ca_chua);
+  assert.ok(S.money >= before + BASE_PRICE.ca_chua - 1000); /* + tiền, tip có thể 0 */
   assert.equal(R.slots[0], null, 'khách phải rời quầy');
   assert.ok(S.reviews.length >= 1);
 });
