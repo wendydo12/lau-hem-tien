@@ -114,7 +114,15 @@ body{
 /* ===== sell screen ===== */
 #sell{padding:0;gap:0}
 #sceneBand{position:relative;width:100%;flex:0 0 auto;height:38%;max-height:46%;overflow:hidden;display:flex;justify-content:center;align-items:flex-start;background:var(--skyband,#0d0f26)}
-#sceneWrap{position:relative;width:auto;height:100%;max-width:100%;aspect-ratio:378/498;overflow:hidden}
+#sceneWrap{position:relative;width:auto;height:100%;max-width:100%;aspect-ratio:378/498;overflow:visible}
+/* SÂN KHẤU RỘNG HƠN (lệnh phu quân 06/10 17:48): trước đây khung cảnh chỉ rộng bằng chiều cao
+   (tỉ lệ dọc 378/498) nên bong bóng gọi món bị CẮT CHỮ ở mép ("Lẩu cà chua" mất chữ L) và đè
+   lên ảnh xe lẩu. Nay: khung không còn cắt nội dung (overflow visible) → bong bóng tràn ra
+   vùng trời hai bên (nền band đã tô đúng màu trời trong ảnh nên liền mạch), và màn hình ngang
+   thì sân khấu cao hơn → ảnh xe lẩu + khách đều to ra, bong bóng có chỗ thở. */
+@media (min-aspect-ratio: 3/2) and (min-height: 620px){
+  #sceneBand{height:44%}
+}
 #scene{width:100%;height:100%;display:block;image-rendering:pixelated}
 #lane{position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none}
 #toastWrap{position:absolute;left:8px;right:8px;bottom:8px;display:flex;flex-direction:column;gap:4px;pointer-events:none}

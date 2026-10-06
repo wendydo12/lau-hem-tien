@@ -1,27 +1,27 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=36';
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR } from './engine/data.js?v=36';
-import { fresh, load, save, newPot } from './engine/state.js?v=36';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=36';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=36';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=36';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=36';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=36';
-import { makeRNG } from './engine/rng.js?v=36';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=36';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=36';
-import { RUIN_TIERS } from './engine/ruin.js?v=36';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=36';
-import { UPG } from './engine/data.js?v=36';
-import { SPRITES } from './manifest.js?v=36';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=36';
-import { playIntro, introSeen } from './intro.js?v=36';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=36';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=37';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR } from './engine/data.js?v=37';
+import { fresh, load, save, newPot } from './engine/state.js?v=37';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=37';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=37';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=37';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=37';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=37';
+import { makeRNG } from './engine/rng.js?v=37';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=37';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=37';
+import { RUIN_TIERS } from './engine/ruin.js?v=37';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=37';
+import { UPG } from './engine/data.js?v=37';
+import { SPRITES } from './manifest.js?v=37';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=37';
+import { playIntro, introSeen } from './intro.js?v=37';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=37';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
-import { A } from './assets.js?v=36';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { A } from './assets.js?v=37';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
 let S, R, rng, ctx, names;
 let pot = newPot();
 /* debug/QA handle (26/09): phơi R/S/ctx ra console để test tự động được — không ảnh hưởng gameplay */
@@ -130,6 +130,10 @@ function boot() {
       });
     }, true]]);
   $('btnGuide').onclick = showGuide;
+  /* 06/10 (phu quân: "hướng dẫn lúc trước hiện sao giờ mất tiêu") — nút ❔ trên HUD để mở
+   * lại hướng dẫn bất cứ lúc nào, không phụ thuộc việc "chỉ hiện một lần" nữa. */
+  const gh = $('btnGuideHud');
+  if (gh) gh.onclick = showGuide;
   $('btnPause').onclick = pauseDlg;
   $('btnCloseReviews').onclick = () => { showScreen(rvBack); if (rvBack === 'prep') renderPrep(); };
   $('btnCloseStats').onclick = () => { showScreen(statsBack); if (statsBack === 'prep') renderPrep(); };
@@ -324,6 +328,7 @@ function renderPrep() {
       <div class="mb-forecast">👥 Khoảng <b>~${est}</b> khách hôm nay${trendTxt}</div>
       ${bl ? `<div class="mb-best">🔥 Bán chạy 7 ngày qua: ${bl}</div>` : ''}
       <button class="pill small" id="btnStats">📊 Thống kê ngày/tuần/tháng</button>
+      <button class="pill small" id="btnGuidePrep">📖 Cách chơi</button>
     </div>`;
   }
   h += `<div style="font-size:17px;color:var(--ink-soft);margin-bottom:8px">Tiền: <b>${fmtD(S.money)}</b>${S.ls > 0 ? ' · 💎 ' + S.ls : ''} — chọn số phần muốn nhập (trả tiền ngay, có hạn dùng):</div>`;
@@ -419,6 +424,8 @@ function renderPrep() {
   };
   /* màn thống kê */
   const stBtn = $('btnStats');
+  const gPrep = $('btnGuidePrep');
+  if (gPrep) gPrep.onclick = showGuide;   /* 06/10: mở lại hướng dẫn ngay ở màn chuẩn bị */
   if (stBtn) stBtn.onclick = () => openStats('prep');
   /* mở tường đánh giá */
   const rvBtn = $('btnOpenReviews');
