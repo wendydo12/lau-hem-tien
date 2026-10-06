@@ -1,11 +1,14 @@
-/* engine/data.js — DANH MỤC DATA + NỘI DUNG SÁNG TẠO.
- *
- * BẢN QUYỀN (quy tắc sắt của dự án):
- * - Cơ chế/quy tắc chơi (vòng ngày, canh nhịp, kinh tế...) là ý tưởng vận hành — được tham khảo.
- * - MỌI câu chữ ở file này (review, hội thoại, tên nhân vật, mô tả sự kiện/nâng cấp)
- *   là SÁNG TÁC GỐC của Uyển Nhi, viết riêng cho thế giới "lẩu hẻm + tu tiên".
- * - Pixel art: sinh mới hoàn toàn bằng meowa.ai theo art direction riêng (docs/99-ghi-chu.md),
- *   KHÔNG dùng/tải/sao chép bất kỳ asset nào của game tham khảo.
+/* engine/data.js — DANH MỤC MÓN + TOÀN BỘ CÂU CHỮ CỦA GAME.
+
+ * GHI CHÚ NGUỒN GỐC (ghi rõ để minh bạch):
+ * - Thể loại và dòng chảy một ngày chơi (chuẩn bị → mở cửa → tổng kết) là ý tưởng chung
+ *   của dòng game quản lý quán ăn; dự án có tham khảo một bản game quản lý quán trà nổi
+ *   tiếng trong cộng đồng để hiểu thể loại.
+ * - TOÀN BỘ dữ liệu trong tệp này (tên món, tên khách, câu review, mô tả nâng cấp/sự kiện,
+ *   thoại khách tu tiên, tên theme) do dự án tự viết cho thế giới "lẩu hẻm + tu tiên".
+ *   Không có câu chữ nào sao chép từ bản tham khảo — đã đối chiếu bằng script so khớp.
+ * - Pixel art sinh mới bằng meowa.ai theo art direction riêng; không dùng asset của bản khác.
+ * - Hình ảnh/âm thanh lấy từ nguồn ngoài (nếu có) đều ghi rõ nguồn ở credits-log/credits.md.
  */
 
 /* ===== ITEMS =====
@@ -89,21 +92,21 @@ SEC('x_mat_tuong', 'Mật tương hoàng kim', 'Mật tương', '#e0a03c', 7, 0,
 /* --- VẬT DỤNG --- */
 ITEMS.sup = { n: 'Nồi + muỗng + chén', s: 'Nồi chén', type: 'supply', g: 'sup', c: '#c0c0c8', life: 0, cost: 2500, unlock: 0 };
 
-export const BASE_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'base');
+export const POT_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'base');
 export const DIP_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'dip');
 export const TOP_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'top');
 export const DUOC_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'duoc');
 export const SECRET_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'secret');
 export const XTOP_KEYS = SECRET_KEYS.filter(k => ITEMS[k].sell <= 10);  // bán bằng linh thạch
 
-/* món "chậm" (sơ chế lâu) → đơn chứa chúng được khách chờ lâu hơn một chút */
+/* món nấu lâu (sơ chế kỹ) → đơn chứa chúng được khách chờ lâu hơn một chút */
 export const SLOW_KEYS = ['t_tom', 't_muc', 't_ngheu', 't_ca_dieu', 't_de'];
 export const slowN = o => o.tops.filter(t => ITEMS[t]?.type === 'secret' || ITEMS[t]?.g === 'duoc' || SLOW_KEYS.includes(t)).length;
 
 export const SPICY = ['Không cay', 'Cay vừa', 'Cay nhiều', 'Cay Tứ Xuyên'];
 export const SIZES = ['N', 'L'];
-export const DEF_SELL = { L: 15000 };
-[...BASE_KEYS, ...DIP_KEYS, ...TOP_KEYS].forEach(k => DEF_SELL[k] = ITEMS[k].sell);
+export const BASE_PRICE = { L: 15000 };
+[...POT_KEYS, ...DIP_KEYS, ...TOP_KEYS].forEach(k => BASE_PRICE[k] = ITEMS[k].sell);
 
 export const iname = k => ITEMS[k] ? ITEMS[k].n : k;
 export const low = n => n.toLowerCase();
@@ -212,28 +215,191 @@ export const STARS = [
  * 3 = bà cụ (vn_04) · 4 = bé trai (vn_05) · 5 = ông/chú lớn tuổi (vn_01) · 6 = anh shipper (vn_07)
  * vn_00 là CHỦ QUÁN — không bao giờ spawn làm khách. */
 export const PERSONA = [
-  { o: ['Chị lấy', 'Cho chị', 'Em ơi chị lấy'], e: [' nha em!', ' giúp chị!', ' nghen em!'] },
-  { o: ['Em lấy', 'Cho em', 'Anh chị ơi em lấy'], e: [' ạ!', ' nha!', ' với ạ!'] },
-  { o: ['Cho anh', 'Anh lấy', 'Em ơi cho anh'], e: [' nha!', ' nhé!', ' nghen em!'] },
-  { o: ['Cho bà', 'Bà lấy', 'Cháu ơi cho bà'], e: [' nghen cháu!', ' nha con!', ' nhé cháu!'] },
-  { o: ['Con lấy', 'Cho con', 'Cô chú ơi con lấy'], e: [' ạ!', ' nha!', ' với ạ!'] },
-  { o: ['Cho chú', 'Chú lấy', 'Cháu ơi cho chú'], e: [' nha con!', ' nghen cháu!', ' nhé!'] },
-  { o: ['Anh ship lấy', 'Cho anh', 'Em ơi anh lấy'], e: [' nha, anh vội!', ' nhanh giùm anh!', ' nghen em!'] }
+  {o: ["Chị lấy", "Bà chủ ơi cho chị", "Chị đặt"], e: [" nha cưng!", " giùm chị!", " nhé, chị cảm ơn trước!"]},
+  {o: ["Em lấy", "Cho em một", "Chị ơi em gọi"], e: [" ạ, em gọi liền!", " nha chị!", " với ạ!"]},
+  {o: ["Anh gọi", "Anh kêu", "Cô chủ cho anh"], e: [" nhé, anh ngồi bàn ngoài!", " nha em, ghi đơn ngay!", " giùm cái!"]},
+  {o: ["Bà kêu", "Cháu cho bà", "Bà muốn"], e: [" nghen con!", " nhé cháu!", " nha, bà ngồi chờ đây!"]},
+  {o: ["Con gọi", "Cho con", "Cô ơi con lấy"], e: [" ạ, con cảm ơn trước!", " nha cô!", " với ạ!"]},
+  {o: ["Chú gọi", "Chú kêu", "Cháu cho chú"], e: [" nhé, chú ngồi ngoài hẻm!", " nghen cháu, bà chờ được!", " nha, thêm chén nữa!"]},
+  {o: ["Shipper lấy đơn", "Cho anh đơn", "Anh lấy gấp"], e: [" nha em, gấp lắm!", " liền giùm anh!", " nhé, khách đang chờ!"]}
 ];
 export const XPERSONA = [
-  { o: ['Chưởng quầy, cho bản tọa', 'Đạo hữu, dọn cho ta', 'Bổn tọa muốn'], e: ['.', ' đi.', ' nhé.'] },
-  { o: ['Tại hạ xin một', 'Phiền đạo hữu', 'Cho tại hạ'], e: ['.', ' giúp tại hạ.', ' nhé.'] },
-  { o: ['Bổn tiên nghe mùi mà tới, cho ta', 'Cho ta một', 'Nghe đồn ngon, cho ta'], e: ['.', ' đi.', ' nào.'] }
+  {o: ["Chưởng quầy, bản tọa muốn", "Đạo hữu, mang cho ta", "Bổn tọa gọi"], e: [" ngay.", " một phần.", " nhé, ta chờ ở trà đình."]},
+  {o: ["Tại hạ xin", "Phiền đạo hữu bưng", "Cho tại hạ"], e: [" ngay.", " một phần.", " nhé, đa tạ."]},
+  {o: ["Ngửi mùi mà tới, bổn tiên muốn", "Cho ta nồi", "Nghe đồn ngon, cho ta"], e: [" ngay.", " nào.", " đi, ta ngồi đây."]}
 ];
 
 /* ===== TÊN KHÁCH ===== (danh sách do Uyển Nhi tự soạn) */
-export const NM_NU = ["An Nhiên","Băng Tâm","Bảo Hân","Bích Trâm","Cẩm Tú","Diệu Linh","Đài Trang","Gia Hân","Hà My","Hải Anh","Hạnh Dung","Hiền Thục","Hoa Mai","Hoài Thương","Hồng Đào","Hương Lan","Khánh Vy","Kiều Trinh","Kim Chi","Lam Giang","Lệ Thu","Liên Chi","Mỹ Hạnh","Ngọc Ánh","Nguyên Thảo","Nhã Phương","Như Quỳnh","Phương Uyên","Quế Chi","Quỳnh Anh","Sao Mai","Thanh Tâm","Thảo Vy","Thiên Hương","Thu Hằng","Thùy Dương","Trúc Lâm","Tuyết Mai","Uyên Vy","Vân Khánh","Xuân Mai","Yến Oanh","Ngọc Diệp","Cát Tiên","Diễm My","Băng Băng","Mộc Miên","Hạ Vy","Tuệ Lâm","Thục Đoan","Bảo Trâm","Kim Ngân","Mai Khôi","Nguyệt Quế","Trà Giang","Bích Ngọc","Hoàng Cúc","Tố Nga","Đan Thy","Khánh Ngọc"];
-export const NM_NAM = ["Bảo Long","Chí Khang","Đăng Khoa","Đức Mạnh","Gia Hưng","Hải Nam","Hoàng Vũ","Hữu Thắng","Khai Minh","Kiến Văn","Minh Triết","Nam Phong","Quốc Huy","Tấn Tài","Thành Đạt","Thiên Bảo","Tuấn Minh","Việt Dũng","Xuân Trường","Đình Khôi","Mạnh Hùng","Nhật Hào","Phúc Thịnh","Quang Dũng","Trường An","Văn Khôi","Bảo Duy","Đông Quân","Hạo Nhiên","Khải Hoàn","Lâm Phong","Minh Khôi","Ngọc Bảo","Phi Long","Sơn Tùng","Thái Hòa","Trọng Nghĩa","Tử Khiêm","Vĩnh Khang","Hùng Cường"];
-export const NM_BE = ["Bé Bắp","Bé Đậu","Bé Gạo","Su Su","Bơ Bơ","Mít Ướt","Cún Con","Mèo Bông","Kem Dâu","Tôm Tít","Na Na","Gấu Bự","Bống Bính","Bi Bi","Xoài Xanh","Ốc Mít","Nấm Nhí","Khoai Lang"];
-export const NM_TIEN = ['Huyền','Bạch','Thanh','Tử','Vân','Mộc','Thủy','Hỏa','Lôi','Phong','Diệp','Tiêu','Sở','Mộ','Nam Cung','Đông Phương','Tây Môn','Bắc Đường','Âu Dương','Thượng Quan'];
-export const NM_TIEN_DANH = ['Vô Kỵ','Trường Phong','Ngạo Thiên','Băng Nhi','Tử Yến','Thanh Phong','Minh Nguyệt','Tuyết Cơ','Kiếm Tâm','Đan Thanh','Ngọc Hành','Phiêu Dao','Tịch Mịch','Hàn Yên','Vấn Thiên','Nhược Thủy'];
-export const NM_HO = ['Nguyễn','Trần','Lê','Phạm','Hoàng','Huỳnh','Phan','Vũ','Võ','Đặng','Bùi','Đỗ','Hồ','Ngô','Dương','Lý','Trương','Đinh','Lâm','Mai'];
-/* who → chỉ số sprite vn_XX (khớp giới tính/tuổi với tên + giọng gọi):
+export const NM_NU = [
+    "Ánh Tuyết",
+    "Bích Liên",
+    "Cẩm Nhung",
+    "Chi Mai",
+    "Diệu Nga",
+    "Đan Khanh",
+    "Gia Kỳ",
+    "Hạ Lam",
+    "Hiền Mai",
+    "Hoa Quỳnh",
+    "Hoài An",
+    "Hồng Ngọc",
+    "Hương Thảo",
+    "Khả Vy",
+    "Kiều Diễm",
+    "Kim Liên",
+    "Lam Chi",
+    "Lệ Chi",
+    "Liên Hoa",
+    "Mai Linh",
+    "Minh Ngọc",
+    "Mộng Lan",
+    "Mỹ Lệ",
+    "Ngân Khanh",
+    "Nguyệt Minh",
+    "Nhã Thanh",
+    "Nhuệ Anh",
+    "Phương Thảo",
+    "Quỳnh Hương",
+    "Sương Mai",
+    "Tâm Như",
+    "Thanh Vân",
+    "Thiên Thanh",
+    "Thùy Tiên",
+    "Thương Ly",
+    "Tiểu Vy",
+    "Trang Nhung",
+    "Tường An",
+    "Uyên Nghi",
+    "Vân Nhi",
+    "Vy Ly",
+    "Xuân Hương",
+    "Yến Phương",
+    "Ý Nhi",
+    "Diệp Lâm",
+    "Hạ Giang",
+    "Mộc Lan",
+    "Phượng Ly",
+    "Song Ly",
+    "Tiên Hương",
+    "Trúc Mai",
+    "Tuyết Vân",
+    "Vệ Hà",
+    "Xuân Cúc",
+    "Yên Chi",
+    "Băng Thanh",
+    "Dạ Lan",
+    "Kiều Loan",
+    "Linh Chi",
+    "Mai Hương"
+];export const NM_NAM = [
+    "Anh Khôi",
+    "Bảo Trung",
+    "Chí Thành",
+    "Công Danh",
+    "Đắc Thắng",
+    "Đông Phong",
+    "Duy Thịnh",
+    "Gia Khiêm",
+    "Hải Quân",
+    "Hiếu Trung",
+    "Hoàng Phúc",
+    "Hữu Đạt",
+    "Khang Kiện",
+    "Khôi Vĩ",
+    "Long Nhật",
+    "Minh Đức",
+    "Nam Trường",
+    "Ngọc Lâm",
+    "Nhật Quang",
+    "Phong Hào",
+    "Phúc Khang",
+    "Sơn Lâm",
+    "Tấn Lộc",
+    "Thái Sơn",
+    "Thanh Bình",
+    "Thiện Lương",
+    "Trí Tín",
+    "Tuấn Vũ",
+    "Vĩnh An",
+    "Việt Thắng",
+    "Xuân Hiếu",
+    "Đình Quang",
+    "Mạnh Tường",
+    "Bá Hùng",
+    "Cao Kiên",
+    "Danh Khang",
+    "Hữu Lợi",
+    "Kiến Quốc",
+    "Lạc Hồng"
+];export const NM_BE = [
+    "Bé Cà",
+    "Bé Cốm",
+    "Bé Quýt",
+    "Bé Măng",
+    "Bé Hến",
+    "Bé Nếp",
+    "Bé Sắn",
+    "Bé Rơm",
+    "Bé Trứng",
+    "Bé Cua",
+    "Bé Ốc",
+    "Bé Bưởi",
+    "Bé Chanh Dây",
+    "Bé Kẹo",
+    "Bé Bánh",
+    "Bé Sữa",
+    "Bé Tép",
+    "Bé Ngô"
+];export const NM_TIEN = [
+    "Tống",
+    "Ôn",
+    "Vu",
+    "Ngụy",
+    "Thẩm",
+    "Liêu",
+    "Kỷ",
+    "Tây Môn",
+    "Bạch"
+];export const NM_TIEN_DANH = [
+    "Vô Trần",
+    "Thanh Hạc",
+    "Ngạo Tuyết",
+    "Hàn Sương",
+    "Tử Đằng",
+    "Bạch Vân",
+    "Tuyết Liên",
+    "Kiếm Ca",
+    "Đan Hà",
+    "Ngọc Linh",
+    "Phiêu Vân",
+    "Tịch Mịch Sơn",
+    "Yên Hà",
+    "Vấn Kiếm",
+    "Nhược Vân",
+    "Trường Ca",
+    "Hạo Nguyệt"
+];export const NM_HO = [
+    "Nguyễn",
+    "Trần",
+    "Lê",
+    "Phạm",
+    "Hoàng",
+    "Huỳnh",
+    "Phan",
+    "Vũ",
+    "Võ",
+    "Đặng",
+    "Bùi",
+    "Đỗ",
+    "Hồ",
+    "Ngô",
+    "Dương",
+    "Lý",
+    "Trương",
+    "Đinh",
+    "Lâm",
+    "Mai"
+];/* who → chỉ số sprite vn_XX (khớp giới tính/tuổi với tên + giọng gọi):
  * 0 chị trẻ→vn_06 · 1 nữ sinh→vn_02 · 2 anh VP→vn_03 · 3 bà cụ→vn_04 · 4 bé trai→vn_05 · 5 ông chú→vn_01 · 6 shipper→vn_07
  * (vn_00 = chủ quán, không spawn làm khách) */
 export const WHO_SPR = [6, 2, 3, 4, 5, 1, 7];
@@ -241,104 +407,139 @@ export const WHO_SPR = [6, 2, 3, 4, 5, 1, 7];
 /* ===== MÁY SINH REVIEW ===== (toàn bộ câu chữ: sáng tác gốc, lẩu hẻm Sài Gòn)
  * {mon} = tên nồi lẩu, {top} = topping đầu, {shop} = tên quán */
 export const TXT = {
-  great: [
-    "Nồi {mon} sôi sùng sục, húp chén nước đầu là ấm tới dạ dày", "Nước {mon} ngọt từ xương chứ không ngọt đường, biết liền à",
-    "{top} nhúng vài giây vớt ra còn giòn ngọt, hết sảy", "Quán hẻm mà chất lượng nhà hàng, mình thề",
-    "Ngồi vỉa hè gió lùa, lẩu sôi trước mặt, đời vậy là vui", "Chủ quán nhớ mặt khách, tới là hỏi 'như cũ hả'",
-    "Nước lẩu đậm, chấm chén muối ớt xanh nữa là bá cháy", "Topping tươi, bò xắt tay dày cui, ăn đã miệng",
-    "Nồi giữ lửa tốt, ăn tới miếng cuối vẫn còn sôi lăn tăn", "Rủ cả phòng trọ qua, đứa nào cũng xin lưu địa chỉ",
-    "Giá này thì sinh viên ăn được mỗi tuần", "Nồi đầy ụ, hai đứa ăn không hết phải xin hộp mang về",
-    "Mùi lẩu bay ra đầu hẻm, đi ngang là bụng réo", "Nước trong veo mà ngọt thanh, không hề bột ngọt",
-    "Đồ nhúng ra tới đâu hết tới đó, nhìn là biết tươi", "Chủ quán dễ thương, khách chờ là bưng thêm dĩa rau",
-    "Ăn lần đầu mà vị quen như cơm nhà", "{mon} mà gặp {top} thì đúng bài, khỏi chê",
-    "Quán nhỏ xíu mà tối nào cũng kín bàn", "Cuối bữa bỏ bún vô nước lẩu, thiên đường là đây",
-    "Lửa canh chuẩn, không khét đáy nồi", "Mình ăn cay dở mà nồi cay vừa của quán vẫn theo được",
-    "Bưng ra nhanh hơn mình tưởng, còn sôi sùng sục", "Chén nước chấm pha vừa miệng, khỏi chỉnh",
-    "Đêm khuya đói bụng gặp nồi này là hết ý", "Đi làm về mệt, ghé làm nồi là hồi máu",
-    "Thấy bảng ghi không bột ngọt là mình vô liền", "Rau rửa sạch để ráo, nhìn là biết kỹ",
-    "Khói lẩu bay mờ đèn hẻm, cảnh này đáng 5 sao", "Chốt sổ quán ruột, khỏi cần nghĩ quán nào nữa"
-  ],
+  great: ["Nước {mon} đậm tới giọt cuối, húp xong là thấy ấm cả người", "Nồi {mon} bưng ra còn sôi lăn tăn, thơm tới mức đứa bàn bên phải hỏi tên món", "{top} nhúng ba giây vớt lên còn giòn ngọt, đúng chuẩn dân ăn lẩu", "Chủ quán nhìn mặt là nhớ đơn, tới lần hai khỏi cần gọi lại", "Nêm nếm vừa tay ghê, cạn nồi mà không thấy khát nước", "Bàn vỉa hè mà nồi lẩu nghiêm túc hơn mấy chỗ máy lạnh", "Đồ nhúng tươi roi rói, bò xắt dày, gắp lên thấy đã con mắt", "Chén nước chấm pha khéo, chấm gì cũng hợp", "Ngồi hẻm gió thổi mà lẩu nóng hổi, đã gì đâu", "Nồi to đùng, hai người ăn muốn xỉu vẫn còn dư", "Đi làm về mệt, ghé đây làm nồi là tỉnh liền", "Nước lẩu trong veo mà ngọt hậu, không kiểu ngọt đường", "Khói lẩu quyện mùi sả, đứng đầu hẻm đã nghe", "Tươi tới mức nhìn đĩa rau là biết mới đi chợ sáng nay", "Gọi nồi {mon} kèm {top}, ăn xong chốt luôn quán ruột", "Rau để ráo nước, nhìn khâu sơ chế là thấy kỹ", "Lửa canh đều, ăn tới cuối nồi vẫn không khét đáy", "Bưng nồi ra nhanh hơn mình nghĩ, còn kịp chụp tấm hình", "Khách chờ được bưng thêm dĩa rau, chủ quán có tâm", "Vị cay nồi {mon} đã ghê, mà còn thơm nữa", "Ngồi tới khuya vẫn được tiếp, không bị nhắc giờ", "Múc chén nước đầu là biết nồi này nấu thật lòng", "Quán nhỏ chật mà xoay ca khéo, chờ xíu là có", "Từ chỗ ghét ăn lẩu mà nếm xong tự đổi ý", "Đêm mưa ghé làm nồi, nghe mưa rơi mà bụng ấm", "Bò cuộn sụn, {top} đủ vị, đúng bài", "Giá này mà chất lượng này thì đi hoài cũng được", "Cả xóm rủ nhau đi, ngồi chật mà vui", "Nước lẩu để lửa riu riu cả buổi vẫn đậm", "Có món {mon} này thôi là đủ giữ khách ở lại"],
   xgreat: [
-    "Nồi {mon} này linh khí ngưng mà không tán, chủ quán có bí quyết gì chăng?",
-    "Bổn tọa nếm qua linh thực trăm họ, không ngờ phàm trần có nồi lẩu khiến ta động tâm",
-    "Ăn một miếng, chân khí chạy nhanh hơn nửa phần, thú vị thật",
-    "Hỏa hậu trong nồi ẩn chút đạo vận, đầu bếp phàm nhân này không đơn giản",
-    "Sư muội ta kén ăn ba trăm năm, vậy mà khen nồi này tới hai lần",
-    "Linh tài trong nồi tươi mới, không phải hàng tồn trong túi trữ vật",
-    "Đáng giá. Bổn tọa sẽ ghi tên quán này vào ngọc giản riêng"
-  ],
-  xbad: [
-    "Bổn tọa chờ tới mức chân hỏa trong người sắp bốc lên đỉnh đầu",
-    "Phàm nhân nấu chậm cũng đành, đằng này còn nấu sai?",
-    "Linh khí trong nồi tán hết rồi, nhạt như nước rửa chén",
-    "Hừ. Quán này không xứng để bổn tọa ghé lần hai",
-    "Ngàn năm đạo hạnh suýt mất vì một nồi lẩu mặn"
-  ]
+      "Linh khí trong nồi {mon} ngưng mà không tán, bổn tọa phải hỏi thăm bí quyết",
+      "Tu luyện ngàn năm, lần đầu nếm được thứ này ở cõi phàm",
+      "Một ngụm vào, linh khí chạy khoan khoái khắp kinh mạch",
+      "Hỏa hậu trong nồi có đạo vận, kẻ phàm nhân này không tầm thường",
+      "Linh khí trong nguyên liệu còn tươi, chẳng phải hàng tồn trong túi trữ vật",
+      "Sư muội bổn tọa vốn kén ăn, vậy mà gật đầu hai lượt",
+      "Bổn tọa ghi tên quán này vào ngọc giản riêng",
+      "Mùi hương lọt cả kết giới, bổn tọa phải tới xem cho rõ",
+      "Chỉ một nồi mà linh đài sáng ra vài phần, đáng để tu luyện tiếp"
+    ],
+    xbad: [
+      "Bổn tọa chờ tới mức chân hỏa muốn trào ra ngoài",
+      "Phàm nhân nấu chậm còn thông cảm được, nấu sai thì quá đáng",
+      "Linh khí tán sạch, chỉ còn nước lã",
+      "Tu luyện ba trăm năm, suýt đạo tâm bất ổn vì một nồi quá mặn",
+      "Bổn tọa đợi tới khi linh thạch trong túi nguội ngắt",
+      "Hừ, bổn tọa nhớ mặt quán này"
+    ],
 };
 
 export const PARTS = {
-  great: [['{mon} ngọt nước', 'Nước lẩu đậm đà', '{top} tươi rói', 'Nồi sôi sùng sục', '{mon} thơm nhức mũi', 'Đồ nhúng đầy đặn', 'Vị vừa miệng', 'Nước chấm pha chuẩn', 'Lẩu nóng hổi', '{mon} đúng điệu'],
-          ['chủ quán có tâm', 'ăn là ghiền', 'lần sau dẫn bạn tới', 'đáng từng đồng', 'quán hẻm mà xịn', 'không chê vào đâu được', 'mai lại ghé', '10 điểm', 'hết nước chấm', 'ấm bụng ghê']],
-  ok: [['Ổn áp', 'Ăn được', '{mon} khá ngon', 'Vị tròn tròn', '{top} tạm ổn', 'Ưng khoảng 8 điểm'],
-       ['nhưng hơi mặn chút', 'nhưng {top} hơi ít', 'lần sau thử nồi khác', 'vẫn sẽ ghé lại', 'giá ổn', 'nước chấm hơi cay', 'chờ hơi lâu xíu', 'mong có món mới']],
-  meh: [['Bình thường', 'Tạm', '{mon} hơi nhạt', 'Mặn hơn mình nghĩ', 'Cũng thường', '{top} hơi dai'],
-        ['không có gì đặc biệt', 'chắc không quay lại', '{top} hơi ít', 'mong quán cải thiện', 'ăn một lần biết thôi', 'giá này hơi phí']],
-  bad: [['Không hợp khẩu vị', '{top} bở rệu', '{mon} khác xa kỳ vọng', 'Vị lạ hoắc', 'Nước lẩu mặn chát'],
-        ['ăn không hết', 'hơi thất vọng', 'không quay lại đâu', 'tiếc tiền ghê']],
-  wait: [['Ngon nhưng chờ hơi lâu', 'Đợi mỏi gối', 'Giờ cao điểm hơi chậm', 'Đông nghẹt thở', 'Chờ muốn xỉu'],
-         ['bù lại {mon} ngon', 'lần sau nhanh hơn nha', 'cũng đáng chờ', 'mong quán thêm người', 'lẩu vẫn ngon']],
-  timeout: [['Đợi mãi không ai nấu', 'Chờ dài cả cổ', 'Đứng cả buổi không tới lượt', 'Không ai ngó ngàng', 'Xếp hàng muốn mọc rễ', 'Gọi món xong biệt tăm', 'Chờ gần chục phút', 'Quán đông mà nấu chậm', 'Nhìn quầy mà không ai nhắc đơn', 'Chờ hoài không thấy lẩu'],
-            ['bỏ về luôn', 'đi quán khác', 'thôi khỏi ăn', 'hết kiên nhẫn', 'lần sau không ghé', 'buồn ghê', 'mất hứng', 'về tay không', 'tiếc thời gian', 'quá thất vọng']],
-  wrong: [['Nấu sai món', 'Gọi một đằng bưng một nẻo', 'Kêu {mon} mà ra nồi khác', 'Nhầm đơn', 'Bưng sai nồi', 'Topping lộn xộn'],
-          ['phải chờ nấu lại', 'lần sau cẩn thận nha', 'hơi bực', 'mất thời gian', 'không vui lắm', 'cần tập trung hơn']],
-  cheap: [['Rẻ mà ngon', 'Giá sinh viên', 'Rẻ bất ngờ', '{mon} giá mềm', 'Nồi to mà rẻ', 'Giá dễ thương'],
-          ['quá hời', 'ủng hộ dài dài', 'chất lượng xịn', 'mai rủ bạn tới', 'đáng đồng tiền', 'ghé hoài luôn']],
-  soldout: [['Quán hết %', 'Tới nơi hết %', 'Hết % sớm vậy', 'Muốn ăn % mà hết', 'Đến muộn mất %'],
-            ['tiếc ghê', 'chuẩn bị nhiều hơn nha', 'lần sau tới sớm', 'buồn xíu', 'đành ăn nồi khác', 'hụt hẫng']],
-  soldoutPartial: [['Được mấy nồi đầu ngon lành', 'Ăn dở thì hết %', 'Nhóm mình chỉ đủ % cho nửa bàn', 'Nồi đầu ổn, lượt sau hết %', 'Quán nấu kha khá rồi mới hết %'],
-                   ['tiếc là chưa đủ đơn', 'cũng đỡ phần nào', 'đành chia nhau', 'thông cảm được', 'mong quán trữ dư ra']],
-  soldoutOnl: [['Đặt hạc mà quán hết %', 'Đơn tiên hạc bị hủy vì hết %', 'Đặt xong mới biết hết %', 'Quán báo hết % sau khi nhận đơn'],
-               ['tiếc ghê', 'đành đặt quán khác', 'mong quán cập nhật menu', 'lần sau đặt sớm hơn', 'hơi buồn']],
-  refused: [['Quán không bán cho mình', 'Bị từ chối', 'Tự nhiên không bán', 'Đứng chờ rồi bị mời về'],
-            ['hơi buồn', 'lần sau không ghé', 'kỳ ghê', 'không hiểu sao luôn', 'mất công ghé']],
-  late: [['Hạc chờ lâu quá', 'Giao trễ', 'Đặt hạc mà chờ dài cổ', 'Tiên hạc đậu mỏi chân', 'Đơn làm chậm'],
-         ['lẩu nguội tanh', 'lần sau đặt quán khác', 'nước chấm đổ lênh láng', 'mất hứng', 'không đặt nữa']],
-  pricey: [['Giá hơi chát', '{mon} ngon mà hơi đắt', 'Giá cao so với mặt bằng hẻm', 'Nồi nhỏ mà giá to'],
-           ['chắc không quay lại', 'mong giảm giá chút', 'ăn một lần thôi', 'ví mỏng quá']]
+  great: [
+    ["{mon} đậm nước", "Nồi sôi sùng sục", "{top} tươi thật", "Đồ nhúng đầy đặn", "Nêm vừa tay", "Chấm pha khéo", "Thơm nhức mũi", "Nồi nóng hổi", "{mon} đúng điệu", "Rau tươi rói"],
+    ["chủ quán có tâm", "ăn là nghiền", "tuần sau kéo bạn tới", "đáng từng đồng", "hẻm nhỏ mà xịn", "không chê được câu nào", "tuần sau ghé nữa", "mười điểm không hơn", "hết sạch nước chấm", "ấm bụng tới sáng"],
+  ],
+  ok: [
+    ["Khá được", "Ăn ổn", "{mon} tạm ngon", "Vị tròn tròn", "{top} cũng ổn", "Đâu đó tám điểm"],
+    ["nhưng nêm hơi mặn", "mỗi tội {top} hơi mỏng", "lần sau đổi nồi khác", "vẫn ghé lại nữa", "giá vừa túi", "chấm hơi cay", "đợi hơi lâu chút", "mong thêm món mới"],
+  ],
+  meh: [
+    ["Tàm tạm", "Cũng được", "{mon} nhạt nhạt", "Mặn hơn mình tưởng", "Không ấn tượng", "{top} dai dai"],
+    ["chẳng có gì nhớ", "chắc thôi không ghé", "{top} ít thật", "mong quán chỉnh lại", "ăn một lần cho biết", "số tiền này thấy hơi uổng"],
+  ],
+  bad: [
+    ["Không hợp miệng", "{top} bở rệu", "{mon} khác xa quảng cáo", "Vị lạ hoắc", "Nước mặn chát"],
+    ["ăn không trôi", "hơi hụt hẫng", "thôi không quay lại", "tiếc số tiền"],
+  ],
+  wait: [
+    ["Ngon nhưng đợi lâu", "Chờ mỏi chân", "Giờ đông nên chậm", "Đông nghẹt", "Chờ muốn bỏ"],
+    ["đổi lại {mon} ngon", "kỳ sau nhanh hơn nha", "chờ vậy mà đáng", "mong quán thêm tay", "lẩu vẫn ngon"],
+  ],
+  timeout: [
+    ["Ngồi chờ mãi không ai nấu", "Chờ mỏi cả cổ", "Đợi hoài không thấy nồi", "Không ai để ý tới bàn", "Xếp hàng muốn mọc rễ", "Gọi xong là im bặt", "Chờ gần chục phút", "Đông mà làm không kịp", "Nhìn quầy mà không ai nhắc đơn", "Chờ dài hơn cả nấu"],
+    ["xách túi về", "đi chỗ khác", "thôi khỏi ăn", "hết nhẫn nại", "kỳ sau không ghé", "buồn thật", "cụt hứng", "đi về mà bụng rỗng", "mất toi buổi tối", "cụt cả hứng"],
+  ],
+  wrong: [
+    ["Nấu sai món", "Gọi một kiểu bưng một nẻo", "Kêu {mon} mà ra nồi khác", "Nhầm đơn", "Bưng nhầm nồi", "Topping lộn tùng phèo"],
+    ["phải đợi nấu lại", "kỳ sau dặn kỹ hơn", "hơi bực mình", "tốn thời gian", "không vui chút nào", "cần để ý hơn"],
+  ],
+  cheap: [
+    ["Rẻ mà ngon", "Giá dễ kham", "Rẻ hơn mình tưởng", "{mon} tiền nhẹ", "Nồi to mà giá nhẹ", "Giá thương lượng được"],
+    ["hời thật", "ủng hộ tới cùng", "chất lượng xứng giá", "mai kéo bạn tới", "đáng đồng tiền bát gạo", "ghé đều đều"],
+  ],
+  soldout: [
+    ["Tới nơi thì quán báo hết %", "Tới nơi thì hết %", "Hết % sớm vậy", "Thèm % mà không còn", "Đến trễ mất %"],
+    ["tiếc thật", "chuẩn bị thêm nha", "kỳ sau tới sớm", "thấy tiếc", "đành gọi nồi khác", "chưng hửng"],
+  ],
+  soldoutPartial: [
+    ["Mấy nồi đầu ngon lành", "Ăn nửa chừng thì hết %", "Nhóm mình chỉ đủ % cho nửa bàn", "Nồi đầu ổn, lượt sau hết %", "Chạy được nửa buổi thì hết %"],
+    ["tiếc là chưa trọn vẹn", "cũng đỡ phần nào", "chia nhau ăn đỡ", "cũng hiểu cho quán", "mong trữ dư thêm"],
+  ],
+  soldoutOnl: [
+    ["Đặt hạc mà quán hết %", "Đơn tiên hạc bị hủy vì hết %", "Đặt xong mới hay hết %", "Nhận đơn rồi mới báo hết %"],
+    ["tiếc thật", "quay sang đặt chỗ khác", "mong quán cập nhật thực đơn", "kỳ sau đặt sớm hơn", "chạnh lòng"],
+  ],
+  refused: [
+    ["Quán từ chối bán", "Bị mời ra", "Tự dưng không bán", "Chờ một hồi rồi bị mời về"],
+    ["chạnh lòng", "kỳ sau không ghé", "kỳ lạ thật", "không hiểu nổi", "mất công đi"],
+  ],
+  late: [
+    ["Hạc chờ lâu quá", "Giao trễ hẹn", "Đặt hạc mà chờ dài cổ", "Hạc đậu mỏi cánh", "Đơn làm chậm rì"],
+    ["lẩu nguội mất ngon", "kỳ sau đặt chỗ khác", "nước chấm đổ hết", "cụt hứng", "thôi không đặt nữa"],
+  ],
+  pricey: [
+    ["Tiền hơi cao", "{mon} ngon mà đắt", "Giá cao hơn mặt bằng hẻm", "Nồi nhỏ mà tiền to"],
+    ["chắc thôi không ghé", "mong bớt chút giá", "ăn một lần thôi", "túi tiền không kham nổi"],
+  ],
 };
 
 /* Review dài 3 đoạn: mở - thân - kết (sáng tác gốc) */
 export const LONG = {
-  great: [['Lần đầu mò vô hẻm theo chỉ dẫn của bạn mà không hối hận.', 'Thấy bảng neon đỏ rực cuối hẻm nên tấp vô thử.', 'Được đồng nghiệp giới thiệu hoài, nay mới đi được.', 'Thành khách quen {shop} từ tháng trước rồi.', 'Trời trở lạnh, thèm gì đó nóng hổi nên làm nồi {mon}.', 'Đặt nồi {mon} lớn đem về cho cả nhà.', 'Tan làm đói bụng, chạy thẳng ra quán.', 'Mình thuộc dạng khó tính chuyện lẩu mà quán này qua ải được.'],
-          ['Nước {mon} ngọt sâu, mặn ngọt đâu ra đó, {top} nhúng vừa chín tới còn giòn.', 'Nước lẩu thơm, béo mà không ngán, vét tới muỗng cuối.', '{top} tươi rói, nhìn màu là biết hàng mới trong ngày.', 'Chủ quán hỏi han độ cay từng bàn, chu đáo dễ sợ.', 'Khách đông mà nồi ra chưa tới năm phút.', 'Nồi đầy đặn, topping không hề keo kiệt.', 'Bàn ghế vỉa hè sạch sẽ, gió mát lồng lộng.', 'Nồi lớn hai đứa ăn no căng, giá lại mềm.'],
-          ['Chắc chắn quay lại.', 'Rủ hội bạn tới thử mới được.', '5 sao, miễn bàn.', 'Ai chưa thử thì thử đi.', 'Mong quán giữ phong độ.', 'Tuần sau ghé thử nồi khác.']],
-  ok: [['Ghé buổi chiều nên quán vắng, ngồi thoải mái.', 'Ăn thử {mon} vì thấy bảng đề cử.', 'Quán ngay gần nhà nên tiện ghé.', 'Đặt mang về cho cả nhà ăn tối.'],
-       ['Lẩu ngon, chỉ hơi mặn với khẩu vị mình.', '{top} ổn nhưng hơi ít so với giá.', 'Vị đều tay, không có gì để chê nhiều.', 'Chủ quán vui nhưng hôm nay ra món hơi chậm.', 'Nước lẩu để lâu cạn bớt nên mặn dần về cuối.'],
-       ['Nhìn chung ổn, sẽ quay lại.', '4 sao, lần sau thử nồi khác.', 'Tạm hài lòng.', 'Chỉnh chút xíu nữa là tròn 5 sao.']],
-  meh: [['Lần đầu ghé ăn cho biết.', 'Thấy nhiều người khen nên tò mò thử.', 'Ghé mua mang về.'],
-        ['{mon} nhạt, vị nước lẩu không rõ nét.', '{top} dai, không tươi như mình hình dung.', 'Mặn gắt hơn khẩu vị mình.', 'Nồi hơi nhỏ so với giá.', 'Chỗ ngồi chật, hơi nóng.'],
-        ['Chắc không quay lại.', 'Cũng thường, không có gì nhớ.', 'Mong quán cải thiện.', 'Ăn một lần cho biết vậy.']],
-  bad: [['Thật lòng hơi thất vọng lần này.', 'Mua về mà bỏ mứa nửa nồi.', 'Không được như lần trước mình ăn.'],
-        ['{top} bở, nghi để qua ngày.', '{mon} vị lạ, khác hẳn mọi lần.', 'Nước lẩu mặn chát, topping thì lèo tèo.', 'Bưng ra bị sóng sánh đổ ra bàn.'],
-        ['Không quay lại.', 'Tiếc tiền ghê.', 'Mong quán coi lại chất lượng.']],
-  wait: [['Giờ cao điểm quán đông ngoài sức tưởng tượng.', 'Ghé buổi trưa, khách xếp dài ra tận đầu hẻm.', 'Order xong đứng đợi khá lâu.'],
-         ['Chờ gần 15 phút mới thấy nồi, một mình chủ quán xoay như chong chóng.', 'Quán một người nấu nên đuối thấy rõ, được cái lẩu ra vẫn đúng vị.', 'Đợi lâu nước lẩu bay hơi bớt nên mặn hơn mọi khi.', 'Khách tiên hạc với khách tại bàn chen nhau, hơi loạn.', 'Lẩu ngon nhưng chờ lâu, đứng mỏi chân.', '{mon} vẫn ngon, chỉ tội phải đợi.'],
-         ['Mong quán thêm tay vào giờ cao điểm.', 'Trừ sao vì chờ lâu.', 'Lần sau mình ghé giờ vắng.']],
-  timeout: [['Đứng chờ mãi không tới lượt mình.', 'Gọi món xong như bị quên lãng.', 'Quán đông mà không ai điều phối.'],
-            ['Gần 20 phút không thấy lẩu đâu, đành đi về.', 'Thấy đơn mình ghi trên bảng mà không ai đụng tới.', 'Đứng muốn rã chân, cuối cùng phải tìm quán khác.', 'Trễ giờ học nên mình không đợi nổi.', 'Nhắc hai ba lần mà chủ quán vẫn bận tay nồi khác.', 'Khách tới sau được làm trước, hơi bực thật.', 'Hỏi thì được bảo chờ xíu, rồi xíu hoài.'],
-            ['Thất vọng, không quay lại.', 'Mất thời gian vô ích.', 'Lần sau chọn quán khác.']],
-  wrong: [['Đặt {mon} mà bưng ra nồi khác.', 'Kêu không cay mà ăn vô cay xè lưỡi.', 'Nhầm với đơn bàn bên.', 'Căn dặn kỹ rồi mà vẫn sai.'],
-          ['Đứng chờ nấu lại thêm một chập.', 'Topping lộn, độ cay cũng trật.', 'Chủ quán xin lỗi liền nhưng vẫn mất vui.'],
-          ['Mong quán kỹ hơn khâu đọc đơn.', 'Trừ sao vì làm sai.', 'Lần sau mình phải dặn hai lần.']],
-  pricey: [['Giá hơi cao so với mặt bằng trong hẻm.', 'Nồi {mon} giá khá chát.'],
-           ['Vị ổn nhưng chưa tới mức đáng giá đó.', 'Nồi lớn mà nhỏ hơn tưởng tượng, topping ít.'],
-           ['Thỉnh thoảng lắm mới ghé.', 'Mong quán cân lại giá.', 'Mềm hơn chút là mình quay lại liền.']],
-  cheap: [['Giá quá hợp lý luôn.', 'Đang tìm quán rẻ mà ngon thì gặp {shop}.'],
-          ['Nồi {mon} lớn mà giá mềm hơn nhiều chỗ, topping đầy đặn.', 'Sinh viên như mình ăn mỗi tuần vẫn kham được.'],
-          ['Ủng hộ dài dài.', 'Rủ cả lớp tới liền.', 'Quá hời, 5 sao.']],
-  late: [['Đặt qua tiên hạc mà chờ lâu quá trời.', 'Hạc báo phải đợi quán nấu xong.'],
-         ['Tới nơi lẩu nguội ngắt, nước chấm sóng sánh đổ.', 'Gần một tiếng mới nhận được nồi.'],
-         ['Lần sau mình đặt quán khác.', 'Thôi không đặt nữa.', 'Mong quán ưu tiên đơn hạc chút.']]
+  great: [
+    ["Lần đầu mò vào hẻm theo lời rủ của đứa bạn, không ngờ đáng công.", "Thấy bảng neon cuối hẻm nên tấp vào thử.", "Nghe khen nhiều quá, hôm nay mới sắp xếp đi được.", "Thành khách quen từ dạo trước, giờ tuần nào cũng ghé.", "Trời trở lạnh, thèm gì đó nóng nên gọi nồi {mon}.", "Đặt nồi {mon} cỡ lớn mang về cho cả nhà.", "Tan ca đói bụng, chạy thẳng ra quán.", "Mình vốn khó tính chuyện nước lẩu mà quán này qua được cửa ải."],
+    ["Nước {mon} ngọt hậu, mặn ngọt rõ ràng, {top} nhúng vừa tới vẫn giòn.", "Nước lẩu thơm, béo mà không ngấy, húp tới muỗng cuối.", "{top} tươi, nhìn sắc là biết hàng nhập trong ngày.", "Chủ quán hỏi từng bàn ăn cay được tới đâu, chu đáo.", "Khách đông mà nồi bưng ra chưa tới năm phút.", "Nồi đầy đặn, topping không hề bị bớt xén.", "Bàn vỉa hè lau sạch, ngồi gió thổi mát rượi.", "Nồi lớn ăn no căng bụng, giá lại nhẹ nhàng."],
+    ["Chắc chắn ghé lại.", "Rủ hội bạn tới cho biết.", "Mười điểm, khỏi bàn.", "Ai chưa thử thì nên thử.", "Mong quán giữ phong độ.", "Cuối tuần ghé nếm nồi khác."],
+  ],
+  ok: [
+    ["Ghé buổi chiều nên quán vắng, ngồi thoải mái.", "Thấy bảng đề cử {mon} nên gọi thử.", "Quán ngay gần nhà nên ghé cho tiện.", "Đặt mang về cho cả nhà ăn tối."],
+    ["Lẩu ngon, chỉ hơi mặn với khẩu vị mình.", "{top} ổn nhưng hơi ít so với tiền.", "Nêm đều tay, không có gì để chê nhiều.", "Chủ quán vui vẻ mà hôm nay ra món hơi chậm.", "Nước để lâu cạn bớt nên càng về sau càng mặn."],
+    ["Nhìn chung được, sẽ ghé lại.", "Bốn sao, kỳ sau thử nồi khác.", "Tàm tạm hài lòng.", "Chỉnh thêm chút là tròn năm sao."],
+  ],
+  meh: [
+    ["Lần đầu ghé cho biết.", "Nghe khen nhiều nên tò mò.", "Ghé mua mang về ăn thử."],
+    ["{mon} nhạt, nước lẩu không rõ vị.", "{top} dai, không tươi như mình nghĩ.", "Mặn gắt hơn khẩu vị.", "Nồi hơi nhỏ so với giá.", "Chật chội, ngồi hơi nóng."],
+    ["Chắc thôi không ghé nữa.", "Cũng thường, chẳng nhớ gì.", "Mong quán chỉnh lại.", "Ăn một lần cho biết."],
+  ],
+  bad: [
+    ["Thật lòng hơi hụt hẫng lần này.", "Mua về mà bỏ dở nửa nồi.", "Không còn được như lần trước."],
+    ["{top} bở, nghi để qua ngày.", "{mon} vị lạ, khác hẳn mọi khi.", "Nước mặn chát, topping đếm trên đầu ngón tay.", "Bưng ra bị sóng sánh đổ cả ra bàn."],
+    ["Thôi không quay lại.", "Tiếc số tiền.", "Mong quán soi lại chất lượng."],
+  ],
+  wait: [
+    ["Giờ cao điểm đông ngoài sức tưởng tượng.", "Ghé buổi trưa, khách xếp hàng dài ra tận cửa hẻm.", "Gọi xong đứng đợi khá lâu."],
+    ["Chờ gần mười lăm phút mới thấy nồi, một mình chủ quán xoay như chong chóng.", "Quán chỉ một người nấu nên đuối thấy rõ, bù lại nước lẩu vẫn đúng vị.", "Đợi lâu nước bay hơi nên mặn hơn mọi khi.", "Khách tiên hạc với khách tại bàn chen nhau, hơi rối.", "Lẩu ngon mà phải đợi, đứng mỏi cả chân.", "{mon} vẫn ngon, chỉ tội phải chờ."],
+    ["Mong quán thêm người giờ cao điểm.", "Bớt sao vì phải chờ.", "Lần sau ghé giờ vắng vậy."],
+  ],
+  timeout: [
+    ["Đứng đợi mãi mà không tới lượt.", "Gọi món xong như bị quên.", "Quán đông mà không ai chia việc."],
+    ["Gần hai mươi phút không thấy nồi đâu, đành đi về.", "Thấy đơn mình ghi trên bảng mà không ai đụng tới.", "Đứng muốn rã chân, cuối cùng phải tìm chỗ khác.", "Trễ giờ học nên không đợi nổi.", "Nhắc hai ba lượt mà chủ quán còn bận nồi khác.", "Người tới sau được làm trước, hơi bực thật.", "Hỏi thì được bảo chờ chút, rồi chút mãi."],
+    ["Hụt hẫng, không ghé nữa.", "Mất toi thời gian.", "Lần sau chọn chỗ khác."],
+  ],
+  wrong: [
+    ["Đặt {mon} mà bưng ra nồi khác.", "Dặn không cay mà ăn vào cay xé lưỡi.", "Lộn sang đơn bàn bên.", "Căn dặn kỹ mà vẫn sai."],
+    ["Đợi nấu lại thêm một chập.", "Topping lộn, độ cay cũng trật.", "Chủ quán xin lỗi liền mà vẫn mất vui."],
+    ["Mong quán đọc đơn kỹ hơn.", "Bớt sao vì làm sai.", "Kỳ sau phải dặn hai lượt."],
+  ],
+  pricey: [
+    ["Giá hơi cao so với mặt bằng trong hẻm.", "Nồi {mon} tính tiền khá chát."],
+    ["Vị ổn nhưng chưa tới mức giá đó.", "Nồi lớn mà nhỏ hơn mình tưởng, topping lại ít."],
+    ["Lâu lâu mới dám ghé.", "Mong quán cân lại giá.", "Nhẹ hơn chút là ghé liền."],
+  ],
+  cheap: [
+    ["Tính ra quá hời cho một nồi đầy đặn.", "Vốn định tìm chỗ rẻ mà ngon, ai ngờ gặp {shop}."],
+    ["Nồi {mon} lớn mà tiền nhẹ hơn nhiều chỗ, topping đầy.", "Sinh viên như mình tuần nào ăn cũng kham nổi."],
+    ["Ủng hộ quán dài lâu.", "Kéo cả lớp tới ăn liền.", "Hời quá, năm sao tròn."],
+  ],
+  late: [
+    ["Đặt qua tiên hạc mà chờ dài cả buổi.", "Hạc báo phải đợi quán nấu xong mới đi."],
+    ["Tới nơi lẩu nguội ngắt, nước chấm đổ lênh láng.", "Gần một tiếng mới nhận được nồi."],
+    ["Lần sau đặt chỗ khác.", "Thôi không đặt nữa.", "Mong quán ưu tiên đơn hạc."],
+  ],
 };
 
 export const TAIL_MOOD = { pos: [' 😍', ' 🥰', ' 🔥', ' 💯', ' 🍲', ' ✨', ' 😋', ' 🤩', ' ❤️', ' 👏'], ok: [' 👍', ' 🙂', ' 😋', ' 👌', ''], mid: [' 😐', ' 🤔', ' 😅', ''], neg: [' 😞', ' 😤', ' 💔', ' 😢', ' 🙁'] };

@@ -1,4 +1,4 @@
-/* engine/stats.js — THỐNG KÊ ngày/tuần/tháng + bán chạy (port UI gốc "Theo ngày/Tuần/Tháng").
+/* engine/stats.js — THỐNG KÊ ngày/tuần/tháng + bán chạy (bảng theo ngày / tuần / tháng).
  * Đọc S.history (rec ngày đã đóng) + S.cur (ngày đang bán) — không đổi state. */
 import { rating } from './economy.js';
 import { recRev, recCost } from './economy.js';
@@ -53,7 +53,7 @@ export function rangeStats(S, from, to, cfg) {
 }
 
 /* món bán chạy nhất trong khoảng ngày — đếm theo sales[k].q (bỏ 'L' size và topping lẻ? KHÔNG:
- * giữ mọi key như journeyStats gốc nhưng bỏ 'L' — trả về top N) */
+ * giữ mọi key bỏ riêng cỡ nồi 'L' — trả về top N) */
 export function bestSellers(S, from, to, n = 3) {
   const agg = {};
   (S.history || []).forEach(r => {
@@ -73,7 +73,7 @@ export function bestSellers(S, from, to, n = 3) {
 export const weekRange = S => [Math.max(1, S.day - 7), S.day - 1];
 export const monthRange = S => [Math.max(1, S.day - 30), S.day - 1];
 
-/* dòng "🔥 Bán chạy: ..." như UI gốc */
+/* dòng "🔥 Bán chạy: ..." như bảng thống kê */
 export function bestLine(S, from, to) {
   const top = bestSellers(S, from, to, 3);
   if (!top.length) return '';

@@ -1,0 +1,8 @@
+Vết xoá mã nguồn tham khảo — 06/10/2026
+mục đích: ghi lại dấu vết để đối chiếu, nội dung đã xoá khỏi kho
+
+original_game.html  420209  efdd5683e33ae048811ea8faa4730c0b
+script_0.js  1652  02d0bf53614508ccb91471c816bbb6ce
+script_1.js  356138  86463f259e38a4ea173c0c9e56dca36d
+script_2.js  138  a08445309ffbfd6bdfc734a710590ff9
+script_dom_245k.js  266193  9f2f83121913836b19d3bd5b8f92d486

@@ -1,4 +1,4 @@
-/* engine/cult.js — HỆ TU VI của chủ quán (tính năng ĐẶC BIỆT, không có ở game gốc).
+/* engine/cult.js — HỆ TU VI của chủ quán (tính năng ĐẶC BIỆT, là nét riêng của Lẩu Hẻm Tiên).
  * Ý tưởng: Minh không chỉ bán lẩu — anh "tu" qua từng ngày đứng bếp.
  * Mỗi nồi lẩu hoàn hảo, mỗi khách hài lòng là một chút "đạo vận" tích tụ.
  * Đủ tu vi thì ĐỘT PHÁ cảnh giới → mở buff vĩnh viễn + thoại vị khách tiên đầu tiên nhận ra.

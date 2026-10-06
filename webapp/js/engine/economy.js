@@ -1,5 +1,5 @@
-/* engine/economy.js — giá, chi phí, traffic, thuế, vay, cầm đồ linh thạch, sổ nợ. Port công thức gốc. */
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, SECRET_KEYS, UPG, DEF_SELL, XTOP_KEYS } from './data.js';
+/* engine/economy.js — giá, chi phí, lượng khách, thuế, vay, cầm đồ linh thạch, sổ nợ. */
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, SECRET_KEYS, UPG, BASE_PRICE, XTOP_KEYS } from './data.js';
 import { costOf } from './stock.js';
 import { trafficMul } from './cult.js';
 import { ruinTrafficMul } from './ruin.js';
@@ -7,7 +7,7 @@ import { ruinTrafficMul } from './ruin.js';
 /* món secret bán bằng linh thạch (sell = số LS hạ phẩm) */
 const isLSItem = k => ITEMS[k] && ITEMS[k].type === 'secret' && ITEMS[k].sell <= 10;
 
-/* ---------- định dạng tiền (như gốc: 1k = 1.000đ) ---------- */
+/* ---------- định dạng tiền (1k = 1.000đ cho dễ đọc) ---------- */
 export const fmt = n => (Math.round(n / 100) / 10).toLocaleString('vi-VN', { maximumFractionDigits: 1 }) + 'k';
 export const fmtBig = n => n >= 1e9 ? (n / 1e9).toLocaleString('vi-VN', { maximumFractionDigits: 2 }) + ' tỷ'
   : n >= 1e6 ? (n / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 2 }) + ' triệu'
@@ -35,22 +35,22 @@ export function priceLS(o, S, cfg) {
   return { vnd, ls, totalLS: Math.max(1, Math.round(vnd / rate)) + ls };
 }
 
-/* giá gốc để so sánh (index đắt/rẻ) */
-export const priceIdx = (o, S) => price(o, S) / price(o, { sell: DEF_SELL });
+/* giá gốc (giá mặc định của menu) để so sánh (index đắt/rẻ) */
+export const priceIdx = (o, S) => price(o, S) / price(o, { sell: BASE_PRICE });
 export const overCap = (o, S, cfg) => price(o, S) > cfg.priceCap;
 
 /* ---------- "đắt" theo ngưỡng ---------- */
 export const potCap = (S, cfg) => cfg.potCap;
 export const itemPricey = (S, k, cfg) => k === 'L' ? lPricey(S, cfg)
   : ITEMS[k] && ITEMS[k].type === 'base' ? S.sell[k] >= cfg.potCap
-  : S.sell[k] / DEF_SELL[k] > 1.3;
+  : S.sell[k] / BASE_PRICE[k] > 1.3;
 export const lPricey = (S, cfg) => S.sell.L > cfg.sizeWarn;
 export const lChance = (S, cfg) => S.sell.L >= cfg.sizeCap ? 0 : lPricey(S, cfg) ? .035 : .35;
-export const pricyItems = (S, cfg) => [...BASE_KEYS.filter(k => S.unlocked[k] && itemPricey(S, k, cfg)), ...(S.sell.L >= cfg.sizeCap ? ['L'] : [])];
+export const pricyItems = (S, cfg) => [...POT_KEYS.filter(k => S.unlocked[k] && itemPricey(S, k, cfg)), ...(S.sell.L >= cfg.sizeCap ? ['L'] : [])];
 export function orderPricey(o, S, cfg) {
   return overCap(o, S, cfg) || [o.base, ...(o.dip ? [o.dip] : []), ...o.tops, ...(o.size === 'L' ? ['L'] : [])].some(k => itemPricey(S, k, cfg));
 }
-/* topping/nước chấm đắt thì khách bỏ qua (addOk/addSkip gốc) */
+/* topping/nước chấm đắt quá thì khách bỏ qua */
 export const addOk = (S, k, cfg) => sv(S, k) <= cfg.addCap;
 export const addSkip = (S, k, cfg, rng) => sv(S, k) > cfg.addWarn && rng.next() >= .2;
 
@@ -72,18 +72,57 @@ function STAFF_WAGE(S, cfg) {
 }
 export const fixed = (S, cfg) => ({ rent: cfg.rent, util: cfg.utilBase + upgCount(S) * cfg.utilPerUpg });
 
-/* ---------- uy tín + traffic ---------- */
-export function rating(S) { const r = S.reviews.slice(0, 40); if (!r.length) return 4; return r.reduce((a, x) => a + x.s, 0) / r.length; }
+/* ---------- uy tín quán ---------- */
+/* điểm sao trung bình của 40 review gần nhất; quán mới chưa có ai đánh giá thì lấy 4 sao */
+export function rating(S) {
+  const r = S.reviews.slice(0, 40);
+  if (!r.length) return 4;
+  return r.reduce((a, x) => a + x.s, 0) / r.length;
+}
 export const starStr = v => { const f = Math.round(v); return '★'.repeat(f) + '☆'.repeat(5 - f); };
 
-/* công thức traffic port nguyên xi từ gốc: rating → hệ số khách, boost trang bị, giá RẺ hút khách (avgIdx<1), giá đắt bị phạt qua pricyItems ở spawn
- * + TU VI Nguyên Anh khói bếp (trafficMul) + THANG PHÁ SẢN (ruinTrafficMul — tin đồn quán sắp đóng) */
+/* ---------- uy tín + lượng khách ----------
+ * Lượng khách = nền theo sao × hệ số trang bị × sức hút của giá × mùa/sự kiện
+ *   · nền theo sao:  0.55 → 1.45 khi sao chạy 1 → 5, chặn dưới 0.6 khi sao thấp,
+ *     và 10 ngày đầu còn khởi động chậm (0.8 + 0.02×ngày)
+ *   · hệ số trang bị:  bảng neon +20%, clip quảng cáo +25%, kinh nghiệm mở quán +1.2%/ngày (tối đa 40 ngày)
+ *   · sức hút của giá: bán rẻ hơn giá mặc định thì đông khách hơn, bán đắt thì vơi khách
+ *   · nhân thêm mùa trong ngày (evMul), khói bếp cảnh giới Nguyên Anh (trafficMul),
+ *     và tin đồn quán sắp đóng cửa (ruinTrafficMul)
+ */
+
+/* nền khách theo điểm sao + độ "mới mở" */
+function nenKhachTheoSao(sao, ngay) {
+  const theoSao = .55 + (sao - 1) / 4 * .9;
+  const chanSaoThap = Math.min(1, Math.max(.6, .6 + (sao - 3.5) * .4));
+  const khoiDong = ngay < 10 ? .8 + .02 * ngay : 1;
+  return theoSao * chanSaoThap * khoiDong;
+}
+
+/* trang bị + kinh nghiệm mở quán kéo khách */
+function heSoTrangBi(S) {
+  const bang = S.upg.sign ? .2 : 0;
+  const clip = S.upg.ads ? .25 : 0;
+  const kinhNghiem = Math.min(S.day, 40) * .012;
+  return 1 + bang + clip + kinhNghiem;
+}
+
+/* chỉ số giá 1.0 = bán đúng giá mặc định; dưới 1 là rẻ hơn */
+function chiSoGia(S) {
+  const monMo = POT_KEYS.filter(k => S.unlocked[k]);
+  if (!monMo.length) return 1;
+  return monMo.reduce((a, k) => a + S.sell[k] / BASE_PRICE[k], 0) / monMo.length;
+}
+
 export function traffic(S, cfg, evMul = 1) {
-  const r = rating(S);
-  const rf = (.55 + (r - 1) / 4 * .9) * Math.min(1, Math.max(.6, .6 + (r - 3.5) * .4)) * (S.day < 10 ? .8 + .02 * S.day : 1);
-  const boost = 1 + (S.upg.sign ? .2 : 0) + (S.upg.ads ? .25 : 0) + Math.min(S.day, 40) * .012;
-  const avgIdx = BASE_KEYS.filter(k => S.unlocked[k]).reduce((a, k) => a + S.sell[k] / DEF_SELL[k], 0) / Math.max(1, BASE_KEYS.filter(k => S.unlocked[k]).length);
-  return rf * boost * evMul * trafficMul(S) * ruinTrafficMul(S) / Math.max(.85, Math.min(1, avgIdx) ** 2);
+  const gia = chiSoGia(S);
+  const hutKhachTheoGia = 1 / Math.max(.85, Math.min(1, gia) ** 2);
+  return nenKhachTheoSao(rating(S), S.day)
+    * heSoTrangBi(S)
+    * hutKhachTheoGia
+    * evMul
+    * trafficMul(S)
+    * ruinTrafficMul(S);
 }
 
 /* ---------- ghi nhận doanh thu ngày ----------
@@ -114,7 +153,7 @@ function potListedTotal(o, S) {
 }
 
 /* ---------- tổng kết: doanh thu / chi phí ----------
- * Mô hình: nhập hàng trả tiền TRƯỚC (S.cur.restock) — giống "Nấu & nhập" của thể loại.
+ * Mô hình: nhập hàng trả tiền TRƯỚC (S.cur.restock) — giống "Nấu và nhập hàng" của thể loại.
  * Có restock → COGS = restock (hàng hỏng/hết hạn đã nằm trong đó). Không có → fallback ing+waste. */
 export const recRev = r => Object.values(r.sales || {}).reduce((a, x) => a + (x.a || 0), 0) + (r.tips || 0) + (r.gift || 0);
 export function recCost(r, cfg) {
@@ -123,14 +162,14 @@ export function recCost(r, cfg) {
   return cogs + (r.rent || 0) + (r.util || 0) + (r.tax || 0) + (r.wage || 0) + (r.fee || 0);
 }
 
-/* ---------- thuế hộ kinh doanh (giữ nguyên luật gốc: VAT 3% + PIT 1.5%, ngưỡng 1 tỷ/năm) ---------- */
+/* ---------- thuế hộ kinh doanh (VAT 3% + PIT 1.5%, ngưỡng 1 tỷ/năm) ---------- */
 export function dayTax(S, cfg, dayRevenue) {
   S.yearRev = (S.yearRev || 0) + dayRevenue;
   if (S.yearRev <= cfg.taxThreshold) return 0;
   return Math.round(dayRevenue * (cfg.vat + cfg.pit) / 100);
 }
 
-/* ---------- vay (port LOANS gốc) ---------- */
+/* ---------- vay nóng / vay ngân hàng ---------- */
 export const LOANS = [
   { id: 'loan', n: 'Vay ngân hàng', max: cfg => cfg.bankMax, rate: cfg => cfg.bankRate, opts: cfg => [200000, 500000, cfg.bankMax] },
   { id: 'hot', n: 'Vay nóng hắc thị', max: cfg => cfg.hotMax, rate: cfg => cfg.hotRate, opts: cfg => [1000000, 2000000, cfg.hotMax], hide: 1 }
@@ -212,7 +251,7 @@ export function resolveDebts(S, cfg) { /* gọi đầu ngày — trả về các
   return out;
 }
 
-/* ---------- chống gian lận (port cheatHit gốc) ---------- */
+/* ---------- chống gian lận: quán bị cạy két */
 export function cheatHit(S, cfg, rng) {
   const keep = (1 + Math.floor(rng.next() * 9)) * 100000;
   const lost = Math.max(0, S.money - keep);

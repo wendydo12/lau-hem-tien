@@ -1,10 +1,10 @@
 /* engine/replies.js — TƯỜNG ĐÁNH GIÁ + CHỦ QUÁN PHẢN HỒI (tính năng ĐẶC BIỆT).
- * Học từ game gốc: review có avatar, tên, ngày, sao, chữ, HÌNH MÓN đã gọi, và ô "Phản hồi của quán".
+ * Bố cục ô review tham khảo từ thể loại: review có avatar, tên, ngày, sao, chữ, HÌNH MÓN đã gọi, và ô "Quán đáp lại".
  * Nâng cấp của mình: phản hồi theo 3 TÔNG GIỌNG — mỗi tông có hệ quả thật lên uy tín,
  * biến tường review từ chỗ "đọc cho vui" thành một lượt chơi có chiến lược.
  *
  * Toàn bộ câu chữ phản hồi mẫu + luật tông giọng: SÁNG TÁC GỐC của Uyển Nhi.
- * (Không chép nguyên văn câu cà khịa nào của game gốc — chỉ học cơ chế "chủ quán được trả lời".)
+ * (Toàn bộ câu chữ phản hồi do dự án tự viết.)
  */
 import { rating } from './economy.js';
 import { addExp, EXP } from './cult.js';

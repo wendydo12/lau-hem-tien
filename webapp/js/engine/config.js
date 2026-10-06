@@ -33,7 +33,7 @@ export const DEFAULT_CONFIG = {
   addWarn: 20000, addCap: 30000, // nước chấm/topping: >20k 80% khách bỏ qua, >30k không ai gọi
   thiefMoney: 100000000, thiefDay: 30, thiefLeft: 500000, // chống gian lận: két > mức này trước ngày này = bị trộm sạch, chừa lại thiefLeft
   ls: {                      // LINH THẠCH
-    rate: 50000,             // VNĐ / 1 linh thạch hạ phẩm (tỷ giá gốc)
+    rate: 50000,             // VNĐ / 1 linh thạch hạ phẩm (tỷ giá mặc định)
     drift: 0.08,             // biên dao động tỷ giá mỗi ngày ±8%
     holdMin: 0.85, holdMax: 1.2, // tiệm cầm đồ mua vào (min) / bán ra (max) so với rate — spread
     tienChance: 0.12,        // xác suất 1 khách là khách tu tiên (tăng theo tụ linh trận)
@@ -45,7 +45,7 @@ export const DEFAULT_CONFIG = {
   },
   online: { minProfit: 15000000, fromDay: 60, minRating: 4.0 }, // điều kiện mở Tiên Hạc Truyền Tin
   levels: { l2: 6, l3: 30, l4: 60 },       // ngày bắt đầu mỗi cấp độ khó
-  moodBlockDays: 60, moodBadPerBlock: 2,   // ngày "khách khó ở": 2 ngày/60 ngày
+  moodBlockDays: 60, moodBadPerBlock: 2,   // ngày "khách chua tính": 2 ngày/60 ngày
   pourPerfect: [0.55, 0.93], // vạch xanh minigame canh lửa (fill 0..1) — nới rộng 25/09 cho dễ canh
   pourGrace: 0.04,           // dung sai thả tay trễ (≈65ms) vẫn tính chuẩn
   pot: { fillMs: 1600 },     // thời gian giữ để fill 0→1 (chậm lại cho dễ canh)

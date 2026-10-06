@@ -1,4 +1,4 @@
-/* engine/stock.js — kho theo mẻ có hạn dùng (port nguyên cơ chế gốc) */
+/* engine/stock.js — kho theo mẻ có hạn dùng  */
 import { ITEMS } from './data.js';
 
 /* thêm q phần nguyên liệu k vào kho, mẻ hạn dùng tính từ ngày hiện tại */

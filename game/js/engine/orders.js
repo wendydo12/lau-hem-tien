@@ -1,5 +1,5 @@
-/* engine/orders.js — sinh đơn hàng theo cấp độ, so khớp nồi, tính sao. Port công thức gốc. */
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, SIZES, PERSONA, XPERSONA, NM_HO, NM_NU, NM_NAM, NM_BE, NM_TIEN, NM_TIEN_DANH, SLOW_KEYS, slowN } from './data.js';
+/* engine/orders.js — sinh đơn hàng theo cấp độ, so khớp nồi, tính sao. Tính theo công thức của dự án. */
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, SIZES, PERSONA, XPERSONA, NM_HO, NM_NU, NM_NAM, NM_BE, NM_TIEN, NM_TIEN_DANH, SLOW_KEYS, slowN } from './data.js';
 import { qty } from './stock.js';
 import { addOk, addSkip, lChance, priceIdx, orderPricey, overCap } from './economy.js';
 import { wpick } from './rng.js';
@@ -18,7 +18,7 @@ export function maxTops(day, cfg) {
   return 5;                                   // ngày 60+: 5 món — cao thủ lẩu
 }
 
-/* tên khách thường (port uniqName/PNAME gốc) */
+/* tên khách thường  */
 export function makeNameGen(S, rng) {
   const HN = L => rng.pick(NM_HO) + ' ' + rng.pick(L);
   const uniq = gen => {
@@ -48,12 +48,12 @@ export function makeNameGen(S, rng) {
   };
 }
 
-/* sinh 1 đơn (port genOrder gốc)
+/* sinh 1 đơn 
  * LUẬT (sửa 25/09 sau playtest): đơn ngày 1-2 không topping; từ ngày 3+ topping phải còn hàng,
- * khách KHÔNG bỏ về vì hết topping nữa (giống game gốc — chỉ base hết mới bỏ). */
+ * khách KHÔNG bỏ về vì hết topping nữa (chỉ khi hết món chính khách mới bỏ về). */
 export function genOrder(S, cfg, rng, lv = levelOf(S.day, cfg), opts = {}) {
   const un = k => S.unlocked[k], has = k => qty(S, k) > 0;
-  const bases = BASE_KEYS.filter(un);
+  const bases = POT_KEYS.filter(un);
   let so = null;
   const want = ks => { const k = rng.pick(ks); if (has(k)) return k; const av = ks.filter(has); if (av.length && rng.chance(.5)) return rng.pick(av); so = so || k; return k; };
   const dipPool = lv >= 2 ? DIP_KEYS.filter(un).filter(k => addOk(S, k, cfg) && has(k)) : [];
@@ -98,7 +98,7 @@ export function genOrder(S, cfg, rng, lv = levelOf(S.day, cfg), opts = {}) {
   };
 }
 
-/* so khớp nồi đã nấu với đơn (port matches gốc) */
+/* so khớp nồi đã nấu với đơn  */
 export function matches(a, b) {
   return a.base === b.base
     && (a.dip || 'none') === (b.dip || 'none')
@@ -108,7 +108,7 @@ export function matches(a, b) {
     && a.tops.every(t => b.tops.includes(t));
 }
 
-/* ghi rõ sai gì (port wrongKinds gốc — để review khớp sự thật) */
+/* ghi rõ sai gì (để review khớp sự thật) */
 export function wrongKinds(pot, o) {
   const k = {};
   if (pot.base !== o.base || (pot.dip || null) !== (o.dip || null)) k.mon = 1;
@@ -118,7 +118,7 @@ export function wrongKinds(pot, o) {
   return k;
 }
 
-/* kiên nhẫn tối đa (port công thức gốc + đạo tâm tu tiên)
+/* kiên nhẫn tối đa (công thức của dự án + đạo tâm tu tiên)
  * RAMP BALANCE 25/09: đơn càng nhiều món nhúng khách càng kiên nhẫn chờ —
  * +18% mỗi món nhúng, món lâu chín (tôm/mực/nghêu/cá/dê/dược thiện/secret) cộng thêm +20% mỗi món,
  * để số topping tăng dần theo ngày không làm khách bỏ về oan. */
@@ -133,7 +133,7 @@ export function maxPat(cups, lv, S, cfg, isXian = false) {
   return max;
 }
 
-/* tính sao khi giao xong đơn (port stars gốc) */
+/* tính sao khi giao xong đơn  */
 export function stars(c, S, cfg, rng, online = false) {
   if (c.star != null) return { s: 5, why: 'star' };
   const w = 1 - c.pat / c.max;
@@ -161,7 +161,7 @@ export function stars(c, S, cfg, rng, online = false) {
   return { s, why };
 }
 
-/* chọn loại khách hâm (port pickBrat gốc: ngày 1-9 không có; xác suất tăng dần)
+/* chọn loại khách hâm (ngày 1-9 không có; xác suất tăng dần)
  * TU VI Hợp Thể lẩu đạo: khí chất chủ quán át vía → giảm 40% tổng xác suất */
 export function pickBrat(S, cfg, rng) {
   if (S.day < 10) return null;

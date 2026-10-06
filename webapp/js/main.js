@@ -1,7 +1,7 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
 import { makeCFG, GAME_VERSION } from './engine/config.js?v=31';
-import { ITEMS, BASE_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, DEF_SELL, iname, PERSONA, WHO_SPR } from './engine/data.js?v=31';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR } from './engine/data.js?v=31';
 import { fresh, load, save, newPot } from './engine/state.js?v=31';
 import { addStock, qty, take, costOf } from './engine/stock.js?v=31';
 import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=31';
@@ -86,7 +86,7 @@ function boot() {
   if (!S.badPlan) S.badPlan = mkBadPlan(S.day, makeRNG(S.seed));
   rng = makeRNG(S.seed);
   /* mới vô game (chưa có save) → nút chính là "Mở quán" (new game);
-   * có save rồi mới hiện "Chơi tiếp" + "Quán mới" (lệnh phu quân 25/09) */
+   * có save rồi mới hiện "Đi tiếp" + "Quán mới" (lệnh phu quân 25/09) */
   const hasSave = !!r.loaded && (S.day > 1 || S.midDay || Object.keys(S.stock).some(k => (S.stock[k] || []).length));
   const btnPlay = $('btnPlay');
   btnPlay.textContent = hasSave ? 'Chơi tiếp (Ngày ' + S.day + ')' : '🍲 Mở quán';
@@ -290,22 +290,22 @@ function replayNewLife() {
 }
 function planCost() { return Object.entries(plan).reduce((a, [k, q]) => a + q * costOf(cfg, k), 0); }
 function canOpen() {
-  // cần ít nhất 1 nồi base + nồi chén (như gốc: chưa có hàng thì không mở cửa)
-  const hasBase = BASE_KEYS.some(k => qty(S, k) + (plan[k] || 0) > 0 && S.unlocked[k]);
+  // cần ít nhất 1 nồi base + nồi chén (như mặc định: chưa có hàng thì không mở cửa)
+  const hasBase = POT_KEYS.some(k => qty(S, k) + (plan[k] || 0) > 0 && S.unlocked[k]);
   const hasSup = qty(S, 'sup') + (plan.sup || 0) > 0;
   return hasBase && hasSup;
 }
 function renderPrep() {
   const ev = evText(S, cfg);
-  const keys = [...BASE_KEYS, 'sup', ...TOP_KEYS, ...DIP_KEYS, ...DUOC_KEYS];
-  let h = `<div class="sum-title">Ngày ${S.day} — Chuẩn bị <button class="pencil" id="btnRenameShop" title="Đổi tên quán">✏️</button></div>
+  const keys = [...POT_KEYS, 'sup', ...TOP_KEYS, ...DIP_KEYS, ...DUOC_KEYS];
+  let h = `<div class="sum-title">Ngày ${S.day} — Chuẩn bị <button class="pencil" id="btnRenameShop" title="Sửa tên quán">✏️</button></div>
   <div class="sum-sub">${ev ? '📅 ' + ev : 'Một ngày bình thường trong hẻm'}</div>`;
-  /* ---- MENU HÔM NAY (port UI gốc): bảng giá các nồi đang mở + món bán chạy tuần ---- */
-  const menuBases = BASE_KEYS.filter(k => S.unlocked[k]);
+  /* ---- MENU HÔM NAY : bảng giá các nồi đang mở + món bán chạy tuần ---- */
+  const menuBases = POT_KEYS.filter(k => S.unlocked[k]);
   if (menuBases.length) {
     const [wf, wt] = [Math.max(1, S.day - 7), S.day - 1];
     const bl = bestLine(S, wf, wt);
-    /* dự báo khách hôm nay (tính từ công thức traffic + evMul — giống game gốc hiện "~41") */
+    /* dự báo khách hôm nay (tính từ công thức lượng khách + hệ số mùa) */
     const est = Math.round(traffic(S, cfg, evMul(S)) * 14);   // hệ số 14 ≈ số khách/ngày ở rating trung bình
     const trendTxt = evIs(S, 'trend') && S.ev.k && ITEMS[S.ev.k] ? ` · 📈 ${iname(S.ev.k)} gọi gấp đôi` : '';
     h += `<div class="menu-board">
@@ -381,7 +381,7 @@ function renderPrep() {
     if (!open.length) return '';
     return `<div class="restock-group-label">${label}</div><div class="restock-grid">${open.map(rowHtml).join('')}</div>`;
   };
-  h += grp('🍲 NỒI & NỒI CHÉN', [...BASE_KEYS, 'sup']);
+  h += grp('🍲 NỒI & NỒI CHÉN', [...POT_KEYS, 'sup']);
   h += grp('🥣 NƯỚC CHẤM', DIP_KEYS);
   h += grp('🥩 ĐỒ NHÚNG LẨU', [...TOP_KEYS, ...DUOC_KEYS]);
   /* công thức chưa mở — 1 khối riêng gọn (fix 25/09: trả phí để học) */
@@ -401,7 +401,7 @@ function renderPrep() {
     h += '</div>';
   }
   $('prepBody').innerHTML = h;
-  /* đổi tên quán (port UI gốc — bút chì cạnh tên) */
+  /* đổi tên quán (bút chì cạnh tên) */
   const renameBtn = $('btnRenameShop');
   if (renameBtn) renameBtn.onclick = () => {
     openShopNaming(document.body, { name: S.creatorName || 'Chủ quán' }).then(nm => {
@@ -437,7 +437,7 @@ function renderPrep() {
     updateHud();
   });
   const btn = $('btnOpen');
-  btn.textContent = canOpen() ? `Nấu & nhập · ${fmtD(planCost())} — Mở cửa ngày ${S.day}` : 'Cần nhập ít nhất 1 loại lẩu + nồi chén';
+  btn.textContent = canOpen() ? `Nấu và nhập hàng · ${fmtD(planCost())} — Mở cửa ngày ${S.day}` : 'Cần nhập ít nhất 1 loại lẩu + nồi chén';
   btn.disabled = !canOpen();
 }
 function openShop() {
@@ -555,7 +555,7 @@ function startSell() {
   scheduleSpawns(dayMs);
 }
 
-/* giờ cao điểm: 12-13h, 18-21h game-time (như gốc khách tới theo giờ) */
+/* giờ cao điểm: 12-13h, 18-21h game-time (như mặc định khách tới theo giờ) */
 function spawnRate() {
   const hh = 11 + gameSec / 3600;
   const rt = rating(S);
@@ -817,11 +817,11 @@ window.addEventListener('orientationchange', () => {
 /* ---- stations ---- */
 function renderStations() {
   // NỒI
-  const pots = BASE_KEYS.filter(k => S.unlocked[k]);
+  const pots = POT_KEYS.filter(k => S.unlocked[k]);
   $('stPots').innerHTML = pots.map(k => ingBtn(k, pot.base === k)).join('');
   // cỡ
   $('stSize').innerHTML = ['N', 'L'].map(sz =>
-    `<button class="pill${pot.size === sz ? ' sel' : ''}" data-size="${sz}">${sz === 'N' ? 'Nồi nhỏ' : 'Nồi lớn +' + fmtD(DEF_SELL.L)}</button>`).join('');
+    `<button class="pill${pot.size === sz ? ' sel' : ''}" data-size="${sz}">${sz === 'N' ? 'Nồi nhỏ' : 'Nồi lớn +' + fmtD(BASE_PRICE.L)}</button>`).join('');
   // cay
   $('stSpicy').innerHTML = levelOf(S.day, cfg) >= 2 ? SPICY.map(sp =>
     `<button class="pill${pot.spicy === sp ? ' sel' : ''}" data-spicy="${sp}">${sp}</button>`).join('') : '';
@@ -922,7 +922,7 @@ function renderPotVisual() {
 function startFire() {
   if (pouring) return;
   if (!pot.base) { toast('Chọn nồi lẩu trước đã', 'bad'); return; }
-  // trừ nguyên liệu NGAY khi bắt đầu nấu (sai/khét = mất, như gốc)
+  // trừ nguyên liệu NGAY khi bắt đầu nấu (sai/khét = mất, như mặc định)
   if (!take(S, 'sup')) { toast('Hết nồi chén! Nhập thêm đi', 'bad'); return; }
   if (!take(S, pot.base)) { toast('Hết ' + iname(pot.base) + '!', 'bad'); take(S, 'sup'); return; }
   const missing = [];
@@ -1288,7 +1288,7 @@ function renderReviews() {
   shown.forEach((r, idx) => {
     const el = document.createElement('div');
     el.className = 'rv-card' + (r.x ? ' xian' : '') + (r.back ? ' backfire' : '');
-    /* HÌNH MÓN MINH HỌA bên phải — review nồi nào hiện đúng hình nồi đó (như game gốc) */
+    /* HÌNH MÓN MINH HỌA bên phải — review nồi nào hiện đúng hình nồi đó (như thiết kế) */
     const monImg = r.b ? `<img class="rv-dish" src="${A + (SPRITES.pot[r.b] || SPRITES.pot.ca_chua)}" alt="">` : '';
     const stars = '★'.repeat(r.s) + '☆'.repeat(5 - r.s);
     let h = `<div class="rv-top">

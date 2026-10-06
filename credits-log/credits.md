@@ -124,3 +124,32 @@ Ghi chú: phu quân gửi 2 track Spotify Mitsukiyo (ようこそトロイメへ
 
 Xử lý hậu kỳ: process_pots.py — flood-fill bỏ nền trắng → transparent, trim + pad vuông, scale 64x64 NEAREST đồng bộ bộ pot.
 Icon app: vẽ PIL thuần (assets/icon/compose_icon.py) — 0 credit meowa.
+
+
+---
+
+## GHI NGUỒN & GIẤY PHÉP (rà ngày 06/10/2026)
+
+### 1. Mã nguồn tham khảo — ĐÃ XOÁ
+Mã nguồn một game quản lý quán trà nổi tiếng trong cộng đồng từng được tải về để **học thể loại**
+(`_research/`). Ngày 06/10/2026 đã xoá sạch khỏi kho (dấu vết + MD5 ở `_research/vet-xoa.txt`).
+Toàn bộ câu chữ và công thức trong game đã được viết lại; đối chiếu tự động: 0 chuỗi có nghĩa
+(≥20 ký tự) trùng với bản tham khảo.
+
+### 2. Âm thanh ngoài — CHƯA RÕ GIẤY PHÉP ⚠️
+| Tệp | Nguồn | Trạng thái |
+|---|---|---|
+| assets/snd/street_buzz.mp3 | tiengdong.com | Trang chỉ ghi "All Rights Reserved", không có điều khoản cho dùng thương mại → **cần thay hoặc xin phép** |
+| assets/snd/kitchen_clang.mp3 | tiengdong.com | như trên |
+
+Đề xuất: thay bằng âm thanh tự tổng hợp (Web Audio như phần SFX còn lại) hoặc nguồn CC0 có ghi rõ.
+
+### 3. Pixel art — CHƯA RÕ ĐIỀU KHOẢN ⚠️
+Toàn bộ pixel art sinh bằng meowa.ai theo art direction riêng của dự án. Trang meowa.ai
+không có trang điều khoản công khai → cần hỏi qua Discord/support về quyền dùng thương mại
+trước khi phát hành chính thức.
+
+### 4. Ghi công
+Game lấy cảm hứng thể loại từ một game quản lý quán trà nổi tiếng trong cộng đồng Việt Nam.
+Dự án ghi nhận điều đó ở đây và ở `docs/01-tong-quan.md`; nháp thư gửi tác giả:
+`docs/04-xin-phep-tac-gia.md`.

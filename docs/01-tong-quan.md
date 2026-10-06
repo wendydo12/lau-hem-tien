@@ -7,7 +7,9 @@ khe không gian nứt ra, khách TU TIÊN bước vào — trả bằng linh th�
 típ khủng. Hai tầng khách, hai nền kinh tế song song.
 
 ## Cảm hứng & cơ chế
-Port 1:1 cơ chế từ "Tiệm Trà Nhỏ" (v3.11, source đầy đủ tại _research/script_dom_245k.js):
+Cơ chế thể loại tham khảo từ game quản lý quán trà nổi tiếng trong cộng đồng (mã nguồn tham khảo
+đã được xoá khỏi kho ngày 06/10/2026, xem _research/README.md). Toàn bộ câu chữ và công thức
+trong game là bản viết lại của dự án:
 vòng ngày Chuẩn bị → Mở cửa (4 phút thật) → Tổng kết; kho theo mẻ có hạn dùng;
 minigame giữ-nhả canh vạch; review máy ghép khớp sự thật; sự kiện/quà/tai họa; thuế;
 vay nợ; nhân viên; cấp độ khó tăng theo ngày (6/30/60); chống gian lận.

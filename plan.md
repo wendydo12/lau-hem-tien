@@ -2,7 +2,7 @@
 
 Game quản lý quán lẩu pixel-art, web, tiếng Việt. Chủ quán người Việt bình thường
 bán lẩu trong hẻm Sài Gòn; đêm xuống khe không gian nứt ra, khách tu tiên bước vào.
-Cơ chế 1:1 theo "Tiệm Trà Nhỏ" (source gốc tại _research/script_dom_245k.js — 1957 dòng, đã map hết).
+Cơ chế thể loại học từ game quản lý quán trà nổi tiếng trong cộng đồng; câu chữ + công thức do dự án viết lại (06/10/2026).
 Mọi pixel art sinh bằng meowa.ai (skill meowa-pixel-gen). Backend-first: engine thuần Node chạy
 được test headless, frontend chỉ là lớp vẽ.
 

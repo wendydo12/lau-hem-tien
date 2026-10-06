@@ -1,5 +1,6 @@
 import UIKit
 import Capacitor
+import AVFoundation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -7,26 +8,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        /* Lẩu Hẻm Tiên — BGM là mp3 phát qua Web Audio (audio.js).
+           Mặc định iOS dùng AVAudioSession category .ambient:
+             - gạt cần IM LẶNG  -> nhạc TẮT NGÚM (đây chính là bug "mất phần nhạc")
+             - app khác đang phát -> nhạc mình bị trộn/tắt
+           Game có nhạc nền chủ đích => phải là .playback, và .mixWithOthers
+           để không cướp tiếng của app khác (podcast/nhạc chàng đang nghe). */
+        do {
+            try AVAudioSession.sharedInstance().setCategory(
+                .playback,
+                mode: .default,
+                options: [.mixWithOthers]
+            )
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("[LauHemTien] AVAudioSession lỗi: \(error)")
+        }
+
+        // iOS có thể tạm ngưng AudioContext khi về nền -> webview cần giữ trạng thái phát
         return true
     }
 
-    func applicationWillResignActive(_ application: UIApplication) {
-        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
-    }
-
-    func applicationDidEnterBackground(_ application: UIApplication) {
-        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-    }
-
     func applicationWillEnterForeground(_ application: UIApplication) {
-        // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+        /* iOS hay nhả AudioSession khi app về nền (cuộc gọi, app khác chiếm).
+           audio.js đã tự resume AudioContext trong au(); ở đây chỉ cần đòi lại session. */
+        try? AVAudioSession.sharedInstance().setActive(true)
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        // Đòi lại session lần nữa cho chắc (sau khi bị app khác làm gián đoạn)
+        try? AVAudioSession.sharedInstance().setActive(true)
     }
 
     func applicationWillTerminate(_ application: UIApplication) {

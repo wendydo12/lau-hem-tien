@@ -1,34 +1,47 @@
-/* engine/reviews.js — máy ghép review khớp sự thật, chống lặp (port nguyên cơ chế TXT/PARTS/LONG + reviewFits gốc) */
+/* engine/reviews.js — máy ghép review khớp sự thật, chống lặp câu (TXT/PARTS/LONG). */
 import { TXT, PARTS, LONG, TAIL_MOOD, MOOD, STAR_TXT, STARS, dname, iname, low } from './data.js';
 import { XIAN_RECOGNIZE, initCult } from './cult.js';
 
-const RX = {
-  wait: /chờ|đợi|lâu|chậm|mỏi chân|xếp hàng|hàng dài|quán đông|đông quá|cao điểm|trễ|xoay không kịp/,
-  pNeg: /đắt|giá hơi|giá này|giá cao|hơi phí|phí tiền|tiếc tiền|chát|ví mỏng|so với giá|mạnh tay|đáng với giá|đáng giá|túi tiền|điều chỉnh giá|bảng giá|giảm giá|khuyến mãi/,
-  pPos: /giá hợp lý|giá sinh viên|giá mềm|giá tốt|rẻ|đáng tiền|giá ok|giá phải chăng|hạt dẻ|hời|giá dễ thương|tâm lý/,
-  wrong: /sai|nhầm|lộn|làm lại|đổi lại|thiếu topping|dặn kỹ|dặn rõ|một đằng/,
-  k: { size: /size|nồi lớn|nồi to/, spicy: /cay|ngọt lịm|lạt lẽo/, tops: /topping/, mon: /nhầm|một đằng|sai vị|nồi khác/ }
+/* bảng nhận diện ý trong câu review — dùng để kiểm câu nói có khớp sự thật không.
+ * Mỗi nhóm là một ý khách có thể phàn nàn/khen; tên nhóm đặt theo tiếng Việt cho dễ đọc.
+ */
+const Y_REVIEW = {
+  /* kêu phải chờ, đợi lâu, quán quá đông */
+  doiLau: /chờ|đợi|mỏi chân|hàng dài|xếp hàng|đông|chật|cao điểm|trễ|kịp tay|đuối/,
+  /* kêu giá cao, tiếc tiền */
+  giaCao: /đắt|chát|giá cao|hơi cao|tiền hơi|phí|uổng|tiếc tiền|mặn tiền|túi tiền|kham không nổi|mặt bằng/,
+  /* khen giá dễ chịu */
+  giaDe: /rẻ|hời|giá mềm|tiền nhẹ|dễ kham|đáng tiền|phải chăng|vừa túi|sinh viên/,
+  /* kêu làm sai đơn */
+  saiDon: /sai|nhầm|lộn|nấu lại|đổi lại|bưng nhầm|thiếu topping|dặn kỹ|một đằng|một nẻo/,
+  /* loại lỗi cụ thể — chỉ xét khi khách kêu làm sai */
+  loai: {
+    size: /size|nồi lớn|nồi to|cỡ lớn/,
+    spicy: /cay|nhạt|lạt/,
+    tops: /topping/,
+    mon: /nồi khác|sai vị|nhầm món|món khác/
+  }
 };
 
-/* review phải khớp sự thật (port reviewFits gốc) */
+/* câu review phải khớp với chuyện thật đã xảy ra trong ca */
 export function reviewFits(t, why, c) {
   const f = c && c.rf; if (!f) return true;
   const L = t.toLowerCase();
-  if (RX.wait.test(L) && !f.wait && !['wait', 'timeout', 'late'].includes(why)) return false;
-  if (RX.pNeg.test(L) && !f.pricey) return false;
-  if (RX.pPos.test(L) && f.pricey) return false;
-  if (RX.wrong.test(L) && !f.wrong) return false;
+  if (Y_REVIEW.doiLau.test(L) && !f.wait && !['wait', 'timeout', 'late'].includes(why)) return false;
+  if (Y_REVIEW.giaCao.test(L) && !f.pricey) return false;
+  if (Y_REVIEW.giaDe.test(L) && f.pricey) return false;
+  if (Y_REVIEW.saiDon.test(L) && !f.wrong) return false;
   if (c.cups && c.cups.every(o => !o.tops.length) && /topping/.test(L)) return false;
   if (c.cups && c.cups.every(o => o.spicy == null) && /cay/.test(L) && why !== 'wrong') return false;
   if (/nồi lớn|nồi to/.test(L) && c.cups && !c.cups.some(o => o.size === 'L')) return false;
-  if (why === 'wrong' && c.wk) { for (const k in RX.k) if (!c.wk[k] && RX.k[k].test(L)) return false; }
+  if (why === 'wrong' && c.wk) { for (const k in Y_REVIEW.loai) if (!c.wk[k] && Y_REVIEW.loai[k].test(L)) return false; }
   return true;
 }
 
 const strip = t => t.replace(/\p{Extended_Pictographic}|\uFE0F/gu, '').trim();
 const cap = x => x.charAt(0).toUpperCase() + x.slice(1);
 
-/* sinh câu review (port reviewText gốc) */
+/* ghép câu review từ kho chữ */
 export function reviewText(S, why, c, st, extra, rng) {
   const o = c && c.cups ? c.cups[0] : null;
   const mon = o ? low(dname(o)) : 'lẩu';
@@ -78,14 +91,14 @@ export function xReviewText(S, why, c, rng) {
   return { t, k: 'X' + t, x: true };
 }
 
-/* review đại năng vi hành (port starLine gốc) */
+/* review của đại năng vi hành */
 export function starReview(c, rng) {
   const st = STARS[c.star];
   const x = rng.pick(STAR_TXT[st.l].rv);
-  return { t: x[0] + ' [Tự động dịch] ' + x[1], k: '★' + c.star + Math.random(), x: true, star: true };
+  return { t: x[0] + ' [Thiên đình dịch] ' + x[1], k: '★' + c.star + Math.random(), x: true, star: true };
 }
 
-/* ghi review vào S (port addReview gốc) */
+/* ghi review vào sổ của quán */
 export function addReview(S, st, why, online, c, extra, rng, R) {
   const isStar = c && c.star != null;
   if (isStar) st = 5;

@@ -1,5 +1,5 @@
 /* engine/state.js — S (save state) + fresh/load/save/migrate/sanitize. Port cơ chế Tiệm Trà Nhỏ, đổi tên khóa. */
-import { ITEMS, DEF_SELL } from './data.js';
+import { ITEMS, BASE_PRICE } from './data.js';
 import { makeCFG } from './config.js';
 import { recRev, recCost } from './economy.js';
 import { addStock } from './stock.js';
@@ -14,7 +14,7 @@ export function fresh(cfg = makeCFG()) {
   const s = {
     lifeV: 1, off: {}, badPlan: null,
     money: cfg.startMoney, ls: cfg.startLS, day: 1,
-    stock: {}, unlocked: {}, upg: {}, sell: { ...DEF_SELL },
+    stock: {}, unlocked: {}, upg: {}, sell: { ...BASE_PRICE },
     reviews: [], served: 0, best: 0, totalRev: 0, totalProfit: 0,
     online: false, shopName: '', history: [], cur: newRec(1),
     yearRev: 0, taxYear: 0,
@@ -48,7 +48,7 @@ export function loadFrom(d, cfg = makeCFG()) {
   return S;
 }
 
-/* chống gian lận + sửa số hỏng (port sanitize gốc) */
+/* chống gian lận + sửa số hỏng (kiểm và sửa số hỏng khi nạp bản lưu) */
 export function sanitize(S, cfg) {
   const cap = cfg.startMoney + S.day * 15000000;
   let bad = false;
@@ -58,7 +58,7 @@ export function sanitize(S, cfg) {
   (S.history || []).forEach(r => {
     if (!r || !r.sales) return;
     Object.entries(r.sales).forEach(([k, x]) => {
-      if (x && x.q > 0 && !(x.a / x.q <= cfg.priceCap * 2)) { x.a = x.q * Math.min(DEF_SELL[k] || cfg.priceCap, cfg.priceCap); bad = true; }
+      if (x && x.q > 0 && !(x.a / x.q <= cfg.priceCap * 2)) { x.a = x.q * Math.min(BASE_PRICE[k] || cfg.priceCap, cfg.priceCap); bad = true; }
     });
   });
   return bad;
@@ -85,7 +85,7 @@ export function dropBaks() {
   ['lhBak3', 'lhBak2', 'lhBak1', SAVE_KEY + '_rescue'].forEach(k => { try { ls.removeItem(k); } catch (e) {} });
 }
 
-/* tự lưu 3 ngày gần nhất (port autoBak gốc) */
+/* tự lưu 3 ngày gần nhất (tự sao lưu) */
 export function autoBak(S) {
   const ls = store(); if (!ls) return;
   try {

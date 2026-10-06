@@ -1,4 +1,4 @@
-/* engine/loop.js — vòng lặp ngày: spawn khách (thường/tiên/đại năng/hạc), serve, tổng kết. Port từ GAME LOOP gốc. */
+/* engine/loop.js — vòng lặp ngày: spawn khách (thường/tiên/đại năng/hạc), serve, tổng kết. Vòng lặp ngày của dự án. */
 import { ITEMS, UPG, PERSONA, XPERSONA, STARS } from './data.js';
 import { levelOf, genOrder, matches, wrongKinds, maxPat, stars, pickBrat, makeNameGen } from './orders.js';
 import { qty, take, expireStock } from './stock.js';
@@ -50,7 +50,7 @@ export function spawn(ctx) {
   const lv = levelOf(S.day, cfg);
   const names = ctx.names || makeNameGen(S, rng);
 
-  /* giá đắt → khách bỏ đi ngay (port gốc) */
+  /* giá đắt → khách bỏ đi ngay (dựng lại) */
   const pi = pricyItems(S, cfg);
   if (pi.length && rng.chance(.8)) {
     R.today.priceLost++;
@@ -58,7 +58,7 @@ export function spawn(ctx) {
     return { kind: 'pricy', item: pi[0] };
   }
 
-  /* đại năng vi hành? (port spawnStar gốc) — CHỈ sau khi pha tu tiên mở */
+  /* đại năng vi hành?  — CHỈ sau khi pha tu tiên mở */
   if (S.starPend && S.xianUnlock) {
     S.starPend = false;
     return spawnStar(ctx, i, lv);
@@ -70,8 +70,8 @@ export function spawn(ctx) {
   if (S.day < 3 || !S.xianUnlock) tienChance = 0;
   const xian = rng.chance(tienChance);
 
-  /* số nồi mỗi khách (port gốc: lv3+ có thể 1-5) */
-  const nc = lv >= 3 ? (function () { const r = rng.next(); return r < .45 ? 1 : r < .7 ? 2 : r < .85 ? 3 : r < .95 ? 4 : 5; })()
+  /* số nồi mỗi khách (dựng lại: lv3+ có thể 1-5) */
+  const nc = lv >= 3 ? (function () { const r = rng.next(); return r < .45 ? 1 : r < .7 ? 2 : r < .85 ? 3 : r < .95 ? 4 : 5; })
     : ((evIs(S, 'weekend') || evIs(S, 'holiday')) && lv >= 2 && rng.chance(.3) ? 2 : 1);
 
   const cups = [];
@@ -129,7 +129,7 @@ function spawnStar(ctx, i, lv) {
   return { kind: 'star', slot: i, c };
 }
 
-/* ---------- SERVE (port serve gốc) ---------- */
+/* ---------- PHỤC VỤ: nấu xong, bưng ra, tính sao ---------- */
 export function serve(ctx, i, pot) {
   const { R, S, cfg, rng } = ctx;
   const c = R.slots[i];
@@ -144,7 +144,7 @@ export function serve(ctx, i, pot) {
     R.today.wrong++;
     addExp(S, EXP.wrong, 'sai món');   /* TU VI: nấu sai là tự hủy đạo hạnh */
     c.pat = Math.max(.5, c.pat - c.max * .3);
-    /* mất nguyên liệu (port spoilCup gốc) */
+    /* mất nguyên liệu (hao nguyên liệu) */
     S.cur.spoil.n++;
     S.cur.spoil.v += unitCost(pot, cfg);
     return { ok: false, why: 'wrong', wk: c.wk, c };
@@ -171,13 +171,13 @@ export function serve(ctx, i, pot) {
     return { ok: true, ls, left, c };
   } else {
     let p = price(o, S);
-    /* khách trả giá (brat mac): chỉ trả 80% — hộ pháp bắt trả đủ (port gốc) */
+    /* khách trả giá (brat mac): chỉ trả 80% — hộ pháp bắt trả đủ (dựng lại) */
     if (c.brat === 'mac') {
       const full = p;
       p = Math.round(p * .8 / 1000) * 1000;
       if (S.upg.ho_phap && rng.next() >= .02) { R.today.gMac = (R.today.gMac || 0) + (full - p); p = full; }
     }
-    /* khách bùng tiền (brat bung): nồi cuối ôm chạy — hộ pháp tóm được (port gốc) */
+    /* khách bùng tiền (brat bung): nồi cuối ôm chạy — hộ pháp tóm được (dựng lại) */
     if (c.brat === 'bung' && c.done.filter(x => !x).length === 1) {
       if (S.upg.ho_phap && rng.next() >= .02) { R.today.gRun = (R.today.gRun || 0) + p; addExp(S, EXP.bung_caught, 'hộ pháp tóm kẻ bùng'); }
       else { S.bungN = (S.bungN || 0) + 1; p = 0; }
@@ -193,7 +193,7 @@ export function serve(ctx, i, pot) {
 
 export function finishCustomer(ctx, i, c, isXian) {
   const { R, S, cfg, rng } = ctx;
-  /* típ (port gốc: tip theo kiên nhẫn còn lại ×5k, sealer +30%, holiday ×2) + TU VI Kim Đan nước dùng */
+  /* típ (dựng lại: tip theo kiên nhẫn còn lại ×5k, sealer +30%, holiday ×2) + TU VI Kim Đan nước dùng */
   let tip = Math.round((c.pat / c.max) * 5) * 1000 * (S.upg.sealer ? 1.3 : 1) * tipMul(S) * (evIs(S, 'holiday') ? 2 : 1) * c.cups.length;
   const rv = stars(c, S, cfg, rng, false);
   const toStaff = ['staff1', 'staff2', 'staff3'].some(x => S.upg[x]);
@@ -211,7 +211,7 @@ export function finishCustomer(ctx, i, c, isXian) {
   else { S.cur.tips += tip; S.money += tip; S.totalRev += tip; R.today.tips += tip; }
 
   addReview(S, rv.s, rv.why, false, c, null, rng, R);
-  /* reviewer VIP: 3 review (port gốc) */
+  /* reviewer VIP: 3 review (dựng lại) */
   if (c.vip) { addReview(S, rv.s, rv.why, false, c, null, rng, R); addReview(S, rv.s, rv.why, false, c, null, rng, R); }
   R.slots[i] = null;
   return rv;
@@ -230,7 +230,7 @@ export function timeoutCustomer(ctx, i) {
   return c;
 }
 
-/* ---------- TỔNG KẾT NGÀY (port gốc: doanh thu - chi phí - lương - thuế) ---------- */
+/* ---------- TỔNG KẾT NGÀY (dựng lại: doanh thu - chi phí - lương - thuế) ---------- */
 export function closeDay(ctx) {
   const { R, S, cfg, rng } = ctx;
   R.running = false;
