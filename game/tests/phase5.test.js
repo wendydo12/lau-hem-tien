@@ -7,6 +7,7 @@ import { REALMS, initCult, addExp, EXP, realmOf, cultBuffs, fireZone, tipMul, tr
 import { RUIN_TIERS, ruinUpdate, ruinTrafficMul } from '../js/engine/ruin.js';
 import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats, bucketOf } from '../js/engine/replies.js';
 import { makeRNG } from '../js/engine/rng.js';
+import { pickServeSlot } from '../js/engine/loop.js';
 
 const cfg = makeCFG();
 const rng = () => makeRNG(987654);
@@ -295,4 +296,49 @@ test('gate: ngày 7 đúng hạn — chưa qua ngày 7 thì chưa mở dù đủ
   const R = initRuntime(S, cfg, 4);
   const out = startDay({ R, S, cfg, rng: makeRNG(1010) });
   assert.equal(S.xianUnlock, false, 'ngày 7 chưa mở — phải SANG ngày 8');
+});
+
+/* ============ THỨ TỰ BƯNG: AI TỚI TRƯỚC ĐƯỢC BƯNG TRƯỚC (lệnh phu quân 06/10) ============ */
+const _donCaChua = () => ({ base: 'ca_chua', dip: null, size: 'N', spicy: null, tops: [] });
+const _noiCaChua = () => ({ base: 'ca_chua', dip: null, size: 'N', spicy: null, tops: [] });
+const _khach = (id, born) => ({ id, born, cups: [_donCaChua()], done: [false], name: 'Khách ' + id });
+
+test('bưng: nhiều khách cùng khớp nồi → người TỚI TRƯỚC được bưng (không theo chỗ ngồi)', () => {
+  const S = seeded();
+  const R = initRuntime(S, cfg, 4);
+  R.slots = [_khach(2, 2000), _khach(1, 1000), null, null];   // khách tới trước lại ngồi chỗ số 2
+  assert.equal(pickServeSlot(R, _noiCaChua()), 1, 'phải bưng cho khách tới trước (chỗ 1)');
+});
+
+test('bưng: không ai khớp nồi → chọn người tới sớm nhất còn đơn dở', () => {
+  const S = seeded();
+  const R = initRuntime(S, cfg, 4);
+  const khacMon = _khach(2, 2000);
+  khacMon.cups = [{ base: 'nam', dip: null, size: 'N', spicy: null, tops: [] }];
+  R.slots = [khacMon, _khach(1, 1000), null, null];
+  assert.equal(pickServeSlot(R, _noiCaChua()), 1);
+});
+
+test('bưng: có khách đang được chọn → ưu tiên khách đó dù tới sau', () => {
+  const S = seeded();
+  const R = initRuntime(S, cfg, 4);
+  const khacMon = _khach(2, 2000);
+  khacMon.cups = [{ base: 'nam', dip: null, size: 'N', spicy: null, tops: [] }];
+  const khacMon2 = _khach(1, 1000);
+  khacMon2.cups = [{ base: 'nam', dip: null, size: 'N', spicy: null, tops: [] }];
+  R.slots = [khacMon, khacMon2, null, null];   // không ai gọi món trong nồi
+  assert.equal(pickServeSlot(R, _noiCaChua(), 2), 0, 'khách đang chọn (id 2) phải được ưu tiên');
+});
+
+test('bưng: quán không còn ai → -1', () => {
+  const S = seeded();
+  const R = initRuntime(S, cfg, 4);
+  assert.equal(pickServeSlot(R, _noiCaChua()), -1);
+});
+
+test('trần khách: runtime mới có sẵn ô đếm khách hôm nay (arrived/cap)', () => {
+  const S = seeded();
+  const R = initRuntime(S, cfg, 3);
+  assert.equal(R.today.arrived, 0);
+  assert.equal(R.today.cap, 0);
 });

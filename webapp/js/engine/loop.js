@@ -19,7 +19,7 @@ export function initRuntime(S, cfg, slotsN) {
     mode: 'prep', tab: 'kho', plan: {},
     slots: new Array(slotsN || 3).fill(null),
     online: [], running: false, paused: false, uid: 0,
-    today: { rev: 0, served: 0, lost: 0, wrong: 0, tips: 0, onl: 0, fee: 0, stars: [], soldLost: 0, priceLost: 0, lsEarned: 0 },
+    today: { rev: 0, served: 0, lost: 0, wrong: 0, tips: 0, onl: 0, fee: 0, stars: [], soldLost: 0, priceLost: 0, lsEarned: 0, arrived: 0, cap: 0 },
     focus: null
   };
   return R;
@@ -215,6 +215,23 @@ export function finishCustomer(ctx, i, c, isXian) {
   if (c.vip) { addReview(S, rv.s, rv.why, false, c, null, rng, R); addReview(S, rv.s, rv.why, false, c, null, rng, R); }
   R.slots[i] = null;
   return rv;
+}
+
+/* ---------- THỨ TỰ BƯNG KHAI (lệnh phu quân 06/10) ----------
+ * AI ĐẾN TRƯỚC THÌ ĐƯỢC BƯNG TRƯỚC: khi nồi khớp đơn của nhiều khách, luôn chọn người tới
+ * sớm nhất (theo c.born) — không chọn theo thứ tự chỗ ngồi cho lung tung. Không ai khớp thì
+ * ưu tiên khách đang được chọn (focusId), cuối cùng mới tới người tới sớm nhất còn đơn dở.
+ * Trả về chỉ số chỗ ngồi, hoặc -1 nếu quán không có ai. Hàm thuần — test được không cần DOM. */
+export function pickServeSlot(R, pot, focusId = null) {
+  const cand = R.slots.map((c, i) => ({ c, i })).filter(x => x.c);
+  const khop = cand.filter(x => x.c.cups.some((o, k) => !x.c.done[k] && matches(pot, o)))
+    .sort((a, b) => (a.c.born || 0) - (b.c.born || 0))[0];
+  if (khop) return khop.i;
+  const fi = R.slots.findIndex(c => c && focusId === c.id);
+  if (fi >= 0) return fi;
+  const doi = cand.filter(x => x.c.done.includes(false))
+    .sort((a, b) => (a.c.born || 0) - (b.c.born || 0))[0];
+  return doi ? doi.i : -1;
 }
 
 /* khách bỏ về vì hết kiên nhẫn */

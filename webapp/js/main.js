@@ -1,31 +1,31 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=33';
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR } from './engine/data.js?v=33';
-import { fresh, load, save, newPot } from './engine/state.js?v=33';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=33';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=33';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=33';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=33';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue } from './engine/loop.js?v=33';
-import { makeRNG } from './engine/rng.js?v=33';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=33';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=33';
-import { RUIN_TIERS } from './engine/ruin.js?v=33';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=33';
-import { UPG } from './engine/data.js?v=33';
-import { SPRITES } from './manifest.js?v=33';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=33';
-import { playIntro, introSeen } from './intro.js?v=33';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=33';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=36';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR } from './engine/data.js?v=36';
+import { fresh, load, save, newPot } from './engine/state.js?v=36';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=36';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=36';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=36';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=36';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=36';
+import { makeRNG } from './engine/rng.js?v=36';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=36';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=36';
+import { RUIN_TIERS } from './engine/ruin.js?v=36';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=36';
+import { UPG } from './engine/data.js?v=36';
+import { SPRITES } from './manifest.js?v=36';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=36';
+import { playIntro, introSeen } from './intro.js?v=36';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=36';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
-import { A } from './assets.js?v=33';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { A } from './assets.js?v=36';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
 let S, R, rng, ctx, names;
 let pot = newPot();
 /* debug/QA handle (26/09): phơi R/S/ctx ra console để test tự động được — không ảnh hưởng gameplay */
-const __lht = { get R() { return R; }, get S() { return S; }, get ctx() { return ctx; }, get pot() { return pot; }, set pot(v) { pot = v; }, renderLane, renderTicket, renderStations, spawn, serve, timeoutCustomer, canCook, autoCloseCheck, endDay };
+const __lht = { get R() { return R; }, get S() { return S; }, get ctx() { return ctx; }, get pot() { return pot; }, set pot(v) { pot = v; }, renderLane, renderTicket, renderStations, spawn, serve, timeoutCustomer, canCook, autoCloseCheck, guestCapFor, pickServeSlot, endDay };
 window.__lht = __lht;
 let pouring = null;       // {start, raf}
 let dayTimer = null;
@@ -160,7 +160,8 @@ function showGuide() {
   modal(`<div class="big-ico">📖</div><h2>Cách chơi</h2>
   <p style="text-align:left">
   1. <b>Chuẩn bị:</b> nhập nguyên liệu (trả tiền trước, có hạn dùng — để lâu là đổ bỏ). Dòng <b>👥 ~X khách</b> báo hôm nay khoảng bao nhiêu người tới — cứ thế mà trữ.<br>
-  2. <b>Mở cửa:</b> khách vào hẻm, gọi món trong bong bóng. Thanh màu trên đầu là kiên nhẫn — cạn là họ bỏ về và cho 1 sao.<br>
+  2. <b>Mở cửa:</b> khách vào hẻm, gọi món trong bong bóng. Thanh màu trên đầu là kiên nhẫn — cạn là họ bỏ về và cho 1 sao. Ai tới trước được bưng trước.<br>
+  2b. <b>Trần khách:</b> mỗi ngày chỉ có một mức khách tối đa (xem 👥 trên HUD, màn chuẩn bị báo trước ~X khách). Hết khách, hoặc quán vắng khách liên tục 15 giây → tự đóng cửa tổng kết (22:00 là giới hạn muộn nhất).<br>
   3. <b>Nấu:</b> chạm khách để xem đơn → chọn nồi → cỡ → độ cay → nước chấm → đồ nhúng → bấm <b>Canh lửa nấu</b>.<br>
   4. <b>Canh lửa:</b> giữ nút, thanh lửa chạy — <b>thả tay đúng vùng CHUẨN xanh lá</b>. Non lửa phải nấu lại, quá lửa khét nồi mất nguyên liệu!<br>
   5. <b>Bưng:</b> bấm "Bưng cho khách" đang chọn. Sai món = đổ bỏ. Thiếu gia vị vào nồi là phải đổ cả nồi — cẩn thận từng lần chạm nhé.<br>
@@ -184,6 +185,13 @@ function updateHud() {
   const rt = rating(S);
   $('hudStars').textContent = starStr(rt);
   $('hudRating').textContent = rt.toFixed(1).replace('.', ',') + ' · ' + (S.reviews.length) + ' đánh giá';
+  /* TRẦN KHÁCH HÔM NAY (lệnh phu quân 06/10): ngoài màn bán hiện số đã tới / trần;
+   * ở màn chuẩn bị (chưa có runtime) hiện mức ước lượng ~X khách cho chủ quán liệu hàng */
+  const gEl = $('hudGuests');
+  if (gEl) {
+    const est = Math.round(traffic(S, cfg, evMul(S)) * 14);
+    gEl.textContent = R ? '👥 ' + R.today.arrived + '/' + R.today.cap : '👥 ~' + est + ' khách';
+  }
   const lsChip = $('hudLS');
   if (S.ls > 0) { lsChip.hidden = false; lsChip.querySelector('b').textContent = S.ls; }
   /* TU VI: chip cảnh giới chủ quán trên HUD */
@@ -234,6 +242,7 @@ function askResumeMidDay() {
 function resumeSell() {
   restoreRuntime();
   R.running = true;
+  if (!R.today.cap) R.today.cap = guestCapFor(S, cfg, rng);   /* save cũ chưa có trần khách → tính lại */
   pot = newPot(); renderTicket(); renderNeed();
   showScreen('sell');
   drawScene();
@@ -517,6 +526,8 @@ function startSell() {
   R = initRuntime(S, cfg, slotCount(S, cfg));
   ctx = { R, S, cfg, rng, names: makeNameGen(S, rng) };
   R.running = true;
+  R.today.cap = guestCapFor(S, cfg, rng);
+  R.today.arrived = 0;
   pot = newPot();
   gameSec = 0;
   S.midDay = true;   // SAVEPOINT: đang giữa ngày bán — reload sẽ được đóng ngày sớm, giữ tiền/kho
@@ -568,11 +579,12 @@ function canCook() {
   if (qty(S, 'sup') <= 0) return false;
   return POT_KEYS.some(k => S.unlocked[k] && qty(S, k) > 0);
 }
-function noteNoStock() {
-  if (R.noStock) return;
-  R.noStock = true;
-  soWarnOn(null);
-  toast('🚫 Hết nguyên liệu — khách có ghé cũng không còn gì để gọi', 'bad', 3200);
+/* TRẦN KHÁCH MỘT NGÀY (lệnh phu quân 06/10): mức ước lượng "👥 ~X khách" ở màn chuẩn bị là
+ * mức trần. Số thật dao động nhẹ ±15% nên ngày nào cũng hơi khác, không phải lúc nào cũng
+ * đúng y con số. Khách tới đủ trần → thôi mời khách. */
+function guestCapFor(S0, cfg0, rng0) {
+  const est = Math.round(traffic(S0, cfg0, evMul(S0)) * 14);
+  return Math.max(3, Math.round(est * (0.85 + rng0.next() * 0.3)));
 }
 /* dải nhắc thiếu hàng: khách gọi món quán không có → bỏ về. Chỉ nhắc MỘT dải nhỏ trên màn bán
  * (tự tắt khi có khách ngồi xuống nấu được), thay vì bắn thông báo liên tục gây nhặng xị. */
@@ -589,18 +601,14 @@ function soWarnOn(item) {
 function soWarnOff() { const el = document.getElementById('soWarn'); if (el) el.hidden = true; }
 function autoCloseCheck() {
   if (!R || !R.running || R.paused) { if (R) R.emptySince = null; return; }
-  const conKhach = R.slots.some(c => c);
-  if (conKhach || canCook()) { R.emptySince = null; return; }
-  if (!R.emptySince) {
-    R.emptySince = performance.now();
-    noteNoStock();   /* báo lý do trước, rồi mới báo đếm ngược cho dễ hiểu */
-    toast('🌙 Khách đã về hết — quán tự đóng cửa sau ' + (cfg.autoCloseSec ?? 6) + ' giây', '', 2800);
-    return;
-  }
-  if (performance.now() - R.emptySince >= (cfg.autoCloseSec ?? 6) * 1000) {
-    toast('🌙 Đóng cửa, tổng kết hôm nay', 'good', 1800);
-    endDay();
-  }
+  if (R.slots.some(c => c)) { R.emptySince = null; return; }   /* còn khách ngồi = còn việc làm */
+  if (!R.emptySince) { R.emptySince = performance.now(); return; }
+  if (performance.now() - R.emptySince < (cfg.autoCloseSec ?? 15) * 1000) return;
+  /* QUÁN TRỐNG LIÊN TỤC ĐỦ LÂU = HẾT KHÁCH (lệnh phu quân 06/10): hết trần khách hôm nay,
+   * hoặc hết đồ nên khách ghé rồi bỏ đi hết → tự đóng cửa tổng kết, khỏi phải ngồi đợi 22:00.
+   * Nút "🌙 Đóng cửa hôm nay" trong menu tạm dừng vẫn giữ để chủ quán tự đóng bất cứ lúc nào. */
+  toast('🌙 Hết khách — tự đóng cửa, tổng kết hôm nay', 'good', 2200);
+  endDay();
 }
 
 /* giờ cao điểm: 12-13h, 18-21h game-time (như mặc định khách tới theo giờ) */
@@ -614,11 +622,20 @@ function spawnRate() {
 function scheduleSpawns() {
   const trySpawn = () => {
     if (!R || !R.running || R.paused) { setTimeout(trySpawn, 500); return; }
-    /* hết nguyên liệu → thôi mời khách (khách ghé cũng chỉ bỏ về) */
-    if (!canCook()) { noteNoStock(); setTimeout(trySpawn, 1200); return; }
-    R.noStock = false;
+    /* đã đủ trần khách hôm nay → thôi mời khách, phục vụ nốt người đang ngồi */
+    if (R.today.arrived >= R.today.cap) {
+      if (!R.capTold) {
+        R.capTold = true;
+        updateHud();
+        toast('👥 Hết khách hôm nay (' + R.today.arrived + ' khách) — phục vụ nốt rồi đóng cửa nhé!', '', 3200);
+      }
+      setTimeout(trySpawn, 2000);
+      return;
+    }
     const res = spawn(ctx);
     if (res) {
+      R.today.arrived++;   /* mỗi lượt khách ghé đều tính vào trần hôm nay (kể cả người bỏ về) */
+      updateHud();
       if (res.kind === 'ok' || res.kind === 'star') {
         soWarnOff();   /* đã có khách ngồi được → tắt dải nhắc thiếu hàng */
         renderLane();
@@ -626,22 +643,11 @@ function scheduleSpawns() {
         else if (res.c.xian) { sfx('xian'); toast('🔮 ' + res.c.name + ' đáp xuống từ khe không gian...', '', 3000); secretOpenCheck(); }
         else { sfx('bell'); if (res.c.brat) toast('⚠️ ' + res.c.name + ' có vẻ khó ở...', 'bad', 2000); }
       } else if (res.kind === 'soldout') {
-        /* khách gọi món quán không có → dải nhắc nhỏ; chỉ bắn thông báo 1 lần mỗi 20 giây */
+        /* MỖI KHÁCH BỊ HẾT HÀNG CHỈ BÁO MỘT LẦN (lệnh phu quân 06/10) — không dội lại liên tục */
         soWarnOn(res.item);
-        const now = performance.now();
-        if (!R._soLast || now - R._soLast > 20000) {
-          R._soLast = now;
-          toast('🚫 Khách bỏ về vì quán thiếu món — xem dải nhắc trên màn', 'bad', 2600);
-        }
+        toast('🚫 Hết ' + iname(res.item).toLowerCase() + ' — khách bỏ về', 'bad');
       }
-      else if (res.kind === 'pricy') {
-        /* khách chê đắt cũng bỏ về cả loạt — nhắc thưa thôi, kẻo rối màn */
-        const nowP = performance.now();
-        if (!R._prLast || nowP - R._prLast > 20000) {
-          R._prLast = nowP;
-          toast('💸 Khách xem menu chê đắt, bỏ đi — thử hạ giá hoặc bớt món nhúng', 'bad', 2600);
-        }
-      }
+      else if (res.kind === 'pricy') toast('💸 Khách xem menu chê đắt, bỏ về', 'bad');
     }
     setTimeout(trySpawn, spawnRate() * 1000 * (0.7 + rng.next() * 0.6));
   };
@@ -1062,13 +1068,8 @@ function finishFire(f) {
 /* ---- bưng / đổ ---- */
 function servePot() {
   if (!pot.base || !pot.used) { toast('Nấu chín đã rồi bưng', 'bad'); return; }
-  /* tìm khách CÓ ĐƠN KHỚP nồi đang bưng trước (như người chơi thật nghĩ);
-   * không ai khớp → đưa cho khách đang focus để engine báo sai món đúng luật */
-  let idx = R.slots.findIndex(c => c && c.cups.some((o, k) => !c.done[k] && matches(pot, o)));
-  if (idx < 0) {
-    const fi = R.slots.findIndex(c => c && R.focus === c.id);
-    idx = fi >= 0 ? fi : R.slots.findIndex(c => c && c.done.includes(false));
-  }
+  /* thứ tự bưng do engine quyết (pickServeSlot): ai tới trước được trước */
+  const idx = pickServeSlot(R, pot, R.focus);
   if (idx < 0) { toast('Chưa có khách nào đợi nồi', 'bad'); return; }
   R.focus = R.slots[idx].id;  // đồng bộ focus với khách sẽ nhận
   const before = S.money, lsBefore = S.ls;
@@ -1149,6 +1150,7 @@ function renderSummary(res) {
     <div class="sum-stat"><b>${R.today.wrong}</b><span>nồi nấu sai</span></div>
     <div class="sum-stat"><b>${(R.today.stars.reduce((a, b) => a + b, 0) / Math.max(1, R.today.stars.length)).toFixed(1).replace('.', ',')}</b><span>sao hôm nay</span></div>
   </div>
+  <div class="sum-line"><span>Khách ghé hôm nay</span><b>${R.today.arrived}/${R.today.cap}</b></div>
   <div class="sum-line"><span>Doanh thu</span><span class="pos">+${fmtD(rev)}</span></div>
   ${R.today.tips ? `<div class="sum-line"><span>Tiền típ</span><span class="pos">+${fmtD(R.today.tips)}</span></div>` : ''}
   ${hist.lsEarned ? `<div class="sum-line"><span>Linh thạch thu được</span><span class="pos">+${fmtLS(hist.lsEarned)}</span></div>` : ''}
