@@ -1,27 +1,27 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=37';
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR } from './engine/data.js?v=37';
-import { fresh, load, save, newPot } from './engine/state.js?v=37';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=37';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=37';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=37';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=37';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=37';
-import { makeRNG } from './engine/rng.js?v=37';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=37';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=37';
-import { RUIN_TIERS } from './engine/ruin.js?v=37';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=37';
-import { UPG } from './engine/data.js?v=37';
-import { SPRITES } from './manifest.js?v=37';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=37';
-import { playIntro, introSeen } from './intro.js?v=37';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=37';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=38';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR } from './engine/data.js?v=38';
+import { fresh, load, save, newPot } from './engine/state.js?v=38';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=38';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=38';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=38';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=38';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=38';
+import { makeRNG } from './engine/rng.js?v=38';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=38';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=38';
+import { RUIN_TIERS } from './engine/ruin.js?v=38';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=38';
+import { UPG } from './engine/data.js?v=38';
+import { SPRITES } from './manifest.js?v=38';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=38';
+import { playIntro, introSeen } from './intro.js?v=38';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=38';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
-import { A } from './assets.js?v=37';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { A } from './assets.js?v=38';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
 let S, R, rng, ctx, names;
 let pot = newPot();
 /* debug/QA handle (26/09): phơi R/S/ctx ra console để test tự động được — không ảnh hưởng gameplay */
@@ -102,7 +102,7 @@ function boot() {
             if (shopName) S.shopName = shopName;
             save(S); updateHud();
             btnPlay.disabled = false;
-            enterPrep(); firstGuide();
+            enterPrep(); guideAfterIntro();
           });
         }});
       });
@@ -123,7 +123,7 @@ function boot() {
           openShopNaming(document.body, creator).then(shopName => {
             if (shopName) S.shopName = shopName;
             save(S); updateHud();
-            enterPrep(); firstGuide();
+            enterPrep(); guideAfterIntro();
             toast('Đã mở quán mới — Ngày 1 bắt đầu!', 'good');
           });
         }});
@@ -159,6 +159,10 @@ function firstGuide() {
     setTimeout(showGuide, 400);
   } catch (e) { showGuide(); }
 }
+/* 07/10 (phu quân: "sau khi xong phần story intro vẫn không hiện hướng dẫn") — đi hết cốt truyện
+ * là MỞ HƯỚNG DẪN LUÔN, không phụ thuộc cờ "đã xem một lần" lưu trong máy nữa. Cốt truyện chỉ
+ * chạy khi mở quán mới / làm lại cuộc đời / xem lại chuyện, nên hiện hướng dẫn ở đây không phiền. */
+function guideAfterIntro() { setTimeout(showGuide, 500); }
 
 function showGuide() {
   modal(`<div class="big-ico">📖</div><h2>Cách chơi</h2>
@@ -296,7 +300,7 @@ function replayNewLife() {
       openShopNaming(document.body, creator).then(shopName => {
         if (shopName) S.shopName = shopName;
         save(S); updateHud();
-        enterPrep(); firstGuide();
+        enterPrep(); guideAfterIntro();
       });
     }});
   });
@@ -1271,7 +1275,7 @@ function gameOverBankrupt() {
   [['🍲 Làm lại cuộc đời', () => {
     S = fresh(cfg); rng = makeRNG(S.seed); save(S);
     updateHud();
-    playIntro(document.body, { onDone: () => { enterPrep(); firstGuide(); } });
+    playIntro(document.body, { onDone: () => { enterPrep(); guideAfterIntro(); } });
   }, true]]);
 }
 
