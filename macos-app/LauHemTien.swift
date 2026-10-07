@@ -17,6 +17,42 @@ let BASE = "http://127.0.0.1:\(PORT)"
 
 final class StaticServer {
     static let shared = StaticServer()
+
+    /* NHẬT KÝ YÊU CẦU (08/10/2026): ghi mỗi lượt xin tệp vào
+     * ~/Library/Logs/LauHemTien-requests.log (giữ 200KB gần nhất).
+     * Vì sao: khi app chỉ hiện màn mở đầu mà không rõ vì sao, đây là chỗ duy nhất nói được tệp nào
+     * đã phục vụ, tệp nào bị danh sách cho phép chặn, tệp nào thiếu. */
+    private func ghiNhatKy(_ dong: String) {
+        let f = NSString(string: "~/Library/Logs/LauHemTien-requests.log").expandingTildeInPath
+        let moc = DateFormatter(); moc.dateFormat = "HH:mm:ss"
+        let them = moc.string(from: Date()) + " " + dong + "\n"
+        let fm = FileManager.default
+        if let h = fm.contents(atPath: f), h.count > 200_000 {
+            try? Data().write(to: URL(fileURLWithPath: f))       /* quá lớn thì xoá trắng */
+        }
+        if let fh = FileHandle(forWritingAtPath: f) {
+            fh.seekToEndOfFile(); fh.write(Data(them.utf8)); try? fh.close()
+        } else {
+            try? them.write(toFile: f, atomically: true, encoding: .utf8)
+        }
+    }
+
+    private func chanViSao(_ rawPath: String) -> String? {
+        var p = rawPath
+        if let q = p.firstIndex(of: "?") { p = String(p[..<q]) }
+        p = p.removingPercentEncoding ?? p
+        if p.contains("..") || p.contains("\\") { return "có .. hoặc \\" }
+        let rel = p.hasPrefix("/") ? String(p.dropFirst()) : p
+        let manh = rel.split(separator: "/").map(String.init)
+        if manh.isEmpty { return nil }
+        if manh.contains(where: { $0.hasPrefix(".") }) { return "tệp/thư mục ẩn (.git, .env…)" }
+        /* nếu có bản trong webapp/ thì luôn hợp lệ (đường dẫn tương đối của trang) */
+        if FileManager.default.fileExists(atPath: ROOT + "/webapp/" + rel) { return nil }
+        if let goc = manh.first, !Self.THU_MUC_CHO_PHEP.contains(goc) {
+            return "ngoài danh sách cho phép (" + goc + ")"
+        }
+        return nil
+    }
     private var listener: NWListener?
     private let queue = DispatchQueue(label: "lau.static-server")
     @Published var up = false
@@ -115,10 +151,14 @@ final class StaticServer {
         let manh = rel.split(separator: "/").map(String.init)
         /* chặn tệp/thư mục ẩn: .git, .env, .DS_Store, .ssh… */
         guard !manh.isEmpty, !manh.contains(where: { $0.hasPrefix(".") }) else { return nil }
-        /* chỉ phục vụ trong danh sách cho phép */
-        guard let goc = manh.first, Self.THU_MUC_CHO_PHEP.contains(goc) else { return nil }
+        /* QUAN TRỌNG (lỗi 08/10): app phục vụ "/" = webapp/index.html, nên đường dẫn TƯƠNG ĐỐI
+         * trong trang rơi xuống GỐC: /js/main.js, /css/main.css, /manifest.webmanifest…
+         * Bản trong webapp/ phải được xét TRƯỚC danh sách cho phép, nếu không trang mất sạch
+         * css + js và chỉ còn màn mở đầu tĩnh (đúng lỗi chủ dự án gặp). */
         let inWebapp = ROOT + "/webapp/" + rel
         if FileManager.default.fileExists(atPath: inWebapp) { return inWebapp }
+        /* còn lại chỉ phục vụ trong danh sách cho phép (assets/, icons/, webapp/) */
+        guard let goc = manh.first, Self.THU_MUC_CHO_PHEP.contains(goc) else { return nil }
         let inRoot = ROOT + "/" + rel
         if FileManager.default.fileExists(atPath: inRoot) { return inRoot }
         return nil
@@ -126,6 +166,8 @@ final class StaticServer {
 
     private func respond(_ conn: NWConnection, path: String, headOnly: Bool) {
         guard let file = resolve(path), FileManager.default.fileExists(atPath: file) else {
+            let ly = chanViSao(path) ?? "không có tệp"
+            ghiNhatKy("404 " + path + "  ← " + ly)
             send(conn, status: "404 Not Found", type: "text/plain; charset=utf-8", body: Data("404 — Lẩu Hẻm Tiên không tìm thấy món này".utf8), headOnly: headOnly)
             return
         }
@@ -138,6 +180,7 @@ final class StaticServer {
             return
         }
         let ext = (target as NSString).pathExtension
+        ghiNhatKy("200 " + path + "  (" + String(body.count) + " byte)")
         send(conn, status: "200 OK", type: mime(ext), body: body, headOnly: headOnly)
     }
 
