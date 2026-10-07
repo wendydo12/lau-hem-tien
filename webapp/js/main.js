@@ -1,30 +1,30 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=46';
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR, TOP_SECTIONS } from './engine/data.js?v=46';
-import { fresh, load, save, newPot } from './engine/state.js?v=46';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=46';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=46';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=46';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=46';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=46';
-import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals } from './engine/shift.js?v=46';   /* CA TỐI 19:00-23:00 */
-import { makeRNG } from './engine/rng.js?v=46';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=46';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=46';
-import { planShift, drawEvent, resolve as surpriseResolve, capBad } from './engine/surprise.js?v=46';   /* SỰ KIỆN BẤT NGỜ TRONG CA (07/10) */
-import { RUIN_TIERS } from './engine/ruin.js?v=46';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=46';
-import { UPG } from './engine/data.js?v=46';
-import { SPRITES } from './manifest.js?v=46';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=46';
-import { playIntro, introSeen } from './intro.js?v=46';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=46';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=47';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR, TOP_SECTIONS } from './engine/data.js?v=47';
+import { fresh, load, save, newPot } from './engine/state.js?v=47';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=47';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=47';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=47';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=47';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=47';
+import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals } from './engine/shift.js?v=47';   /* CA TỐI 19:00-23:00 */
+import { makeRNG } from './engine/rng.js?v=47';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=47';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=47';
+import { planShift, drawEvent, resolve as surpriseResolve, capBad } from './engine/surprise.js?v=47';   /* SỰ KIỆN BẤT NGỜ TRONG CA (07/10) */
+import { RUIN_TIERS } from './engine/ruin.js?v=47';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=47';
+import { UPG } from './engine/data.js?v=47';
+import { SPRITES } from './manifest.js?v=47';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=47';
+import { playIntro, introSeen } from './intro.js?v=47';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=47';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
-import { A } from './assets.js?v=46';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
-import { esc, cleanName } from './safe.js?v=46';   /* 08/10: vá XSS qua tên quán người chơi nhập */
+import { A } from './assets.js?v=47';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { esc, cleanName } from './safe.js?v=47';   /* 08/10: vá XSS qua tên quán người chơi nhập */
 let S, R, rng, ctx, names;
 let pot = newPot();
 /* DẤU KHỞI ĐỘNG (08/10): ghi lại "lần cuối mã game chạy được" vào localStorage.
@@ -413,12 +413,19 @@ function renderPrep() {
     const cur = qty(S, k);
     const inPlan = plan[k] || 0;
     const life = it.life ? (it.life === 1 ? 'dùng trong ngày' : 'hạn ' + it.life + ' ngày') : 'không hạn';
+    /* 08/10: nút ＋ MỜ ĐI khi ví không đủ cho một lần thêm, kèm lời nhắc thiếu bao nhiêu.
+     * Trước đây bấm vào chỉ báo một câu chung chung nên người chơi tưởng nút hỏng. */
+    const buoc = k === 'sup' ? 10 : 5;
+    const giaBuoc = buoc * costOf(cfg, k);
+    const conLai = S.money - planCost();
+    const thieu = giaBuoc - conLai;
+    const duTien = thieu <= 0;
     return `<div class="restock-row${inPlan > 0 ? ' planned' : ''}">
       <img src="${A + spriteOf(k)}" alt="">
       <div class="rn">${it.n} <small>· ${fmtD(costOf(cfg, k))}/phần · ${life} · kho ${cur}</small></div>
       <button class="pill" data-dec="${k}">−</button>
       <b style="min-width:28px;text-align:center">${inPlan}</b>
-      <button class="pill" data-inc="${k}">＋</button>
+      <button class="pill${duTien ? '' : ' het-tien'}" data-inc="${k}"${duTien ? '' : ` title="Ví còn thiếu ${fmtD(thieu)} để thêm ${buoc} phần"`}>＋</button>
     </div>`;
   };
   const grp = (label, ks) => {
@@ -474,7 +481,12 @@ function renderPrep() {
     if (payRoomDebt(S, cfg)) { sfx('coin'); toast('Đã trả ' + fmtD(rd0.owed) + ' tiền phòng — nhẹ cả người!', 'good', 3200); save(S); updateHud(); renderPrep(); }
     else toast('Chưa đủ tiền trả nợ phòng', 'bad');
   };
-  $('prepBody').querySelectorAll('[data-inc]').forEach(b => b.onclick = () => { const k = b.dataset.inc; const step = k === 'sup' ? 10 : 5; if (S.money >= planCost() + step * costOf(cfg, k)) { plan[k] = (plan[k] || 0) + step; sfx('tick'); renderPrep(); } else toast('Không đủ tiền nhập thêm', 'bad'); });
+  $('prepBody').querySelectorAll('[data-inc]').forEach(b => b.onclick = () => {
+    const k = b.dataset.inc; const step = k === 'sup' ? 10 : 5;
+    const thieu = step * costOf(cfg, k) - (S.money - planCost());
+    if (thieu <= 0) { plan[k] = (plan[k] || 0) + step; sfx('tick'); renderPrep(); }
+    else toast('Ví còn thiếu ' + fmtD(thieu) + ' để thêm ' + step + ' phần ' + iname(k).toLowerCase(), 'bad', 2800);
+  });
   $('prepBody').querySelectorAll('[data-dec]').forEach(b => b.onclick = () => { const k = b.dataset.dec; const step = k === 'sup' ? 10 : 5; if ((plan[k] || 0) > 0) sfx('tick'); plan[k] = Math.max(0, (plan[k] || 0) - step); if (!plan[k]) delete plan[k]; renderPrep(); });
   /* học công thức mới — trả phí 1 lần (fix 25/09) */
   $('prepBody').querySelectorAll('[data-unlock]').forEach(b => b.onclick = () => {

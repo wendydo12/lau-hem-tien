@@ -328,6 +328,8 @@ body{
 #prepBody{flex:1;overflow-y:auto}
 .prep-note{font-size:18px;color:var(--ink-soft);text-align:center;padding:20px;line-height:1.5}
 .restock-row{display:flex;align-items:center;gap:8px;padding:6px;border-bottom:1px dashed var(--panel-line)}
+/* 08/10: nút ＋ mờ khi ví không đủ — nhìn là biết ngay vì sao không thêm được */
+.restock-row .het-tien{opacity:.38;filter:grayscale(1);cursor:not-allowed}
 .restock-row.planned{background:rgba(224,160,60,.14);border-radius:6px}   /* 26/09: hàng đang nhập nhẹ nền để mắt không lạc */
 .restock-row img{width:36px;height:36px;image-rendering:pixelated}
 .restock-row .rn{flex:1;font-size:17px}
