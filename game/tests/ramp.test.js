@@ -40,16 +40,21 @@ function tbDoDai(day, n = 300) {
   return { tb: tong / Math.max(1, soLan), dip: dip / soLan, spicy: spicy / soLan, toplon: toplon / soLan };
 }
 
-test('ngày đầu phải thật DỄ: ngày 1-2 đơn trơn (1 món nhúng, không chấm, không cay, cỡ nhỏ)', () => {
+test('ngày đầu phải thật DỄ: ngày 1-2 đơn trơn (1 món nhúng, không chấm, không cay, cỡ lớn HIẾM)', () => {
+  /* 08/10 (chủ dự án: "sao ta ko thấy khách order nồi lớn"): nồi lớn KHÔNG còn bị cấm 3 ngày đầu,
+   * nhưng vẫn phải hiếm để ngày đầu không bị sốc — tối đa 12% ly. */
   for (const day of [1, 2]) {
     const s = S(day), r = makeRNG(77);
-    for (let i = 0; i < 200; i++) {
+    let toplon = 0;
+    for (let i = 0; i < 600; i++) {
       const o = genOrder(s, cfg, r, levelOf(day, cfg));
       assert.equal(o.dip, null, 'ngày ' + day + ' chưa có nước chấm');
       assert.equal(o.spicy, null, 'ngày ' + day + ' chưa có cay');
-      assert.equal(o.size, 'N', 'ngày ' + day + ' chỉ nồi nhỏ');
+      if (o.size === 'L') toplon++;
       assert.ok(o.tops.length <= 1, 'ngày ' + day + ' tối đa 1 món nhúng');
     }
+    const tyLe = toplon / 600;
+    assert.ok(tyLe <= .12, 'ngày ' + day + ': nồi lớn ' + (tyLe * 100).toFixed(1) + '% — ngày đầu phải hiếm (≤12%)');
     assert.equal(potCount(day, makeRNG(9)), 1, 'ngày ' + day + ' mỗi khách 1 nồi');
   }
 });
@@ -77,10 +82,11 @@ test('từng thứ đòi thêm đều leo thang riêng: chấm · cay · cỡ l�
   for (const d of [1, 3, 5]) assert.equal(spicyChance(d, cfg), 0);
   assert.ok(spicyChance(6, cfg) <= .3, 'ngày 6 chỉ ~25% khách đòi cay');
   assert.ok(spicyChance(60, cfg) > spicyChance(30, cfg));
-  /* cỡ nồi L: ngày 1-3 chưa có (bản cũ 35% ngay ngày 1) */
-  const s3 = S(3), s4 = S(4), s30 = S(30);
-  assert.equal(lChance(s3, cfg), 0);
-  assert.ok(lChance(s4, cfg) > 0 && lChance(s4, cfg) < lChance(s30, cfg));
+  /* cỡ nồi L (chỉnh 08/10): CÓ ngay từ ngày 1 nhưng hiếm, rồi leo đều tới ngày 30 */
+  const s1 = S(1), s5 = S(5), s30 = S(30);
+  assert.ok(lChance(s1, cfg) > 0, 'ngày 1 phải có cơ hội gặp nồi lớn (hiếm cũng được)');
+  assert.ok(lChance(s1, cfg) <= .08, 'ngày 1 nồi lớn phải thật hiếm (≤8%)');
+  assert.ok(lChance(s5, cfg) > lChance(s1, cfg) && lChance(s30, cfg) > lChance(s5, cfg));
   /* số nồi: chỉ 1 cho tới ngày 5, sau đó mới dần có 2+ nồi */
   const trung = {};
   for (const d of [1, 5, 9, 15, 29, 40, 60]) {
