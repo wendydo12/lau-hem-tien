@@ -22,7 +22,9 @@ Ngày 07/10/2026 · trạng thái: **đề xuất, chưa code** · người vi�
 
 ## 2. Nguyên tắc cân bằng (để vui chứ không ức chế)
 
-1. Ngày 1–5: **miễn toàn bộ sự kiện xấu** (chỉ có tin vui) — người mới không bị dội.
+1. **Ngày 1–4 yên ổn tuyệt đối** (chỉ có tin vui); **từ ngày 5–6 mới bắt đầu có sự kiện xui**
+   (lệnh phu quân 07/10/2026). Ngày thứ 5: mở màn bằng đúng 1 sự kiện xui nhẹ cho người chơi
+   biết "đời không như mơ", rồi từ ngày 6 trở đi mới chạy theo tỉ lệ dưới đây.
 2. Mỗi ca tối đa **1 sự kiện xấu**, tối đa 1 sự kiện tốt. Tổng tỉ lệ có sự kiện: ~28%/ca.
 3. Sự kiện xấu **không bao giờ lấy quá 12% tiền đang có** (trừ khi có đồ chống thì ít hơn).
 4. Mỗi sự kiện chỉ thông báo **một lần** (bong bóng 1,2 giây + icon), không dội toast.

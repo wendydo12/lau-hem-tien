@@ -90,7 +90,25 @@ Giá quy đổi tạm: 1 linh thạch = 50.000 VNĐ (theo `cfg.ls.rate`), tỷ g
 - Nhớ luật đã ghi trong skill: đồ vật nhỏ **QA bằng đếm pixel**, không tin mắt mô hình;
   nền meowa hay dính màu phẳng → tách bằng flood-fill từ viền ảnh.
 
-## 9. Việc còn chờ phu quân
+## 9. Tiền trọ 2 triệu MỖI THÁNG (lệnh phu quân 07/10/2026)
+
+Hiện tại game chỉ có **một món nợ phòng duy nhất 2 triệu, hạn ngày 7** (`cfg.storyDebt`) — trả xong là hết.
+Phu quân chốt: tiền trọ là **chi phí cố định 2.000.000 mỗi tháng**, trả đều đặn suốt game.
+
+- Chu kỳ 30 ngày. Mốc thu: **ngày 7** (món đầu, theo cốt truyện), rồi **ngày 37, 67, 97…**
+  (tức cứ 30 ngày một lần, không phải ngày 30-60-90 để không đè lên mốc lễ và mốc lên cấp).
+- Nhắc trước 5 ngày bằng băng-rôn trên màn Chuẩn bị (đã có sẵn băng-rôn nợ phòng, chỉ đổi nội dung).
+- Trả sớm được, trả xong băng-rôn chuyển sang màu xanh "Đã trả tiền phòng tháng này".
+- Quá hạn 3 ngày: phạt thêm 10% (200k) và chủ nhà gọi điện nhắc.
+- Quá hạn 7 ngày: **không** game over (game over vẫn chỉ do thâm hụt tiền theo `ruinDeep`);
+  thay vào đó chủ nhà khoá cửa sau: mất chỗ nghỉ → chủ quán mệt, bưng chậm 10% cho tới khi trả xong.
+  Nhẹ nhàng nhưng dai, buộc phải để dành tiền — đúng chất "làm ăn".
+- Ghi vào sổ ngày: `S.cur.roomRent`, hiện trong bảng tổng kết cạnh "Tiền nhà + điện nước".
+- Giữ nguyên `cfg.rent` 40.000/ngày (tiền mặt bằng cái xe lẩu ngoài hẻm) — hai khoản khác nhau:
+  **mặt bằng ngoài hẻm** (hằng ngày) và **phòng trọ của mình** (hằng tháng). Đây cũng là lý do
+  màn "Phòng ở" ở mục 6 có nghĩa: nhà mình thì mình sửa.
+
+## 10. Việc còn chờ phu quân
 
 1. Gật hướng thiết kế này (nhất là: 12+12 món, luật style 60%, giá).
 2. Hai ảnh chàng gửi hôm nay **đã bị macOS xoá** (thư mục tạm của công cụ chụp hình tự dọn) —
