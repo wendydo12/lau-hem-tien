@@ -9,7 +9,7 @@ import { addStock } from './stock.js';
  * SAVE và INTRO dùng CHUNG 1 key, ghi đè nhau. Chuyển sang nối chuỗi để giữ literal thật. */
 export const SAVE_KEY = ['lhTien', 'Save'].join('');
 export const OWNER_KEY = ['lhTien', 'Owner'].join('');
-export const newRec = d => ({ spoil: { n: 0, v: 0 }, day: d, sales: {}, tips: 0, onl: 0, fee: 0, equip: [], ing: {}, waste: {}, rent: 0, util: 0, tax: 0, served: 0, lost: 0, starSum: 0, starN: 0, lsEarned: 0, lsSpent: 0, stolen: 0, bad: 0, gift: 0, loanOut: 0, staffTip: 0 });
+export const newRec = d => ({ spoil: { n: 0, v: 0 }, day: d, sales: {}, surprise: [], tips: 0, onl: 0, fee: 0, equip: [], ing: {}, waste: {}, rent: 0, util: 0, tax: 0, served: 0, lost: 0, starSum: 0, starN: 0, lsEarned: 0, lsSpent: 0, stolen: 0, bad: 0, gift: 0, loanOut: 0, staffTip: 0 });
 
 export function fresh(cfg = makeCFG()) {
   const s = {

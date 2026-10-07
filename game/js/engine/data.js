@@ -182,7 +182,7 @@ export const STAR_TXT = {
   hoa: {
     hi: [['Nghe dưới phàm trần có quán lẩu khiến tu sĩ phải dừng độn quang, chính là đây?', 'Nghe đồn quán này nổi tiếng lắm, ta thử xem sao.'],
          ['Trong động phủ mà ngửi được mùi này, tưởng ai luyện đan hóa ra là lẩu.', 'Đi ngang thấy khói thơm phức, ghé thử cho biết.']],
-    rv: [['Nước lẩu có hậu vị như linh tuyền, lần sau ta dẫn sư huynh xuống.', 'Ngon thật đó, sẽ rủ người nhà tới nữa.'],
+    rv: [['Nước lẩu có hậu vị như linh tuyền, lần sau ta dẫn đồng môn xuống.', 'Ngon thật đó, sẽ rủ người nhà tới nữa.'],
          ['Tay phàm mà vị giác hơn người, bổn tọa khâm phục.', 'Chủ quán dễ thương, phục vụ tốt.']]
   },
   ma: {

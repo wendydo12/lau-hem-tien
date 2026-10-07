@@ -559,3 +559,9 @@ body{
 .need-miss{border-color:var(--red);background:#ffe3e0;color:#7b1f1f;animation:tkPulse 1.1s ease-in-out infinite}
 .need-warn{font-size:13px;color:var(--red);font-weight:bold;background:#ffe3e0;border:2px dashed var(--red);border-radius:6px;padding:4px 6px}
 .need-hint{font-size:13px;color:var(--ink-soft);font-style:italic;padding:6px 2px}
+
+/* ---- SỰ KIỆN BẤT NGỜ: khối "Chuyện trong ca" ở bảng tổng kết + dòng hệ quả ---- */
+.sum-sup { margin: 10px 0 6px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,.06); border: 1px dashed rgba(255,255,255,.22); }
+.sum-sup-t { font-weight: 700; font-size: 14px; opacity: .9; margin-bottom: 4px; }
+.sum-sup .sum-line { margin: 2px 0; }
+.sup-effect { margin-top: 8px; font-size: 15px; color: var(--gold, #f2c14e); }

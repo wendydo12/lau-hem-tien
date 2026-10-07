@@ -3,6 +3,7 @@ import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, SECRET_KEYS, UPG, BASE_PRICE, XTOP
 import { costOf } from './stock.js';
 import { trafficMul } from './cult.js';
 import { ruinTrafficMul } from './ruin.js';
+import { pendTrafficMul } from './surprise.js';
 
 /* món secret bán bằng linh thạch (sell = số LS hạ phẩm) */
 const isLSItem = k => ITEMS[k] && ITEMS[k].type === 'secret' && ITEMS[k].sell <= 10;
@@ -130,6 +131,7 @@ export function traffic(S, cfg, evMul = 1) {
     * hutKhachTheoGia
     * evMul
     * trafficMul(S)
+    * pendTrafficMul(S)     /* ảnh hưởng của sự kiện bất ngờ hôm qua (engine/surprise.js) */
     * ruinTrafficMul(S);
 }
 

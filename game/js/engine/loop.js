@@ -9,6 +9,7 @@ import { newRec, newPot, save, autoBak } from './state.js';
 import { makeRNG } from './rng.js';
 import { addExp, EXP, fireZone, tipMul, lsMul, wasteMul } from './cult.js';
 import { ruinUpdate } from './ruin.js';
+import { collectPending } from './surprise.js';
 
 export const FACES = ['🧑','👩','👨','👧','🧔','👩‍🦰','👵','🧑‍🎓','👦','👱‍♀️','🧑‍💼','👴','👩‍💻','🧑‍🔧','👩‍🎓','👨‍🍳','👩‍🎨','🧑‍🎤','👱','👩‍🦱','👨‍🦱','🧕','👲','🧒','👸','🤵','👷‍♀️','🧑‍🚀','🥷','🧑‍🌾'];
 export const XFACE = ['🧙','🧝','🧚','⚔️','🌙','✨','🔥','❄️'];
@@ -19,7 +20,7 @@ export function initRuntime(S, cfg, slotsN) {
     mode: 'prep', tab: 'kho', plan: {},
     slots: new Array(slotsN || 3).fill(null),
     online: [], running: false, paused: false, uid: 0,
-    today: { rev: 0, served: 0, lost: 0, wrong: 0, tips: 0, onl: 0, fee: 0, stars: [], soldLost: 0, priceLost: 0, lsEarned: 0, arrived: 0, cap: 0 },
+    today: { rev: 0, served: 0, lost: 0, wrong: 0, tips: 0, onl: 0, fee: 0, stars: [], soldLost: 0, priceLost: 0, lsEarned: 0, arrived: 0, cap: 0, surprise: [] },
     focus: null
   };
   return R;
@@ -302,8 +303,10 @@ export function closeDay(ctx) {
 /* ---------- đầu ngày mới: biến cố sổ nợ + tai họa + quà + GATE pha tu tiên ---------- */
 export function startDay(ctx) {
   const { S, cfg, rng } = ctx;
-  const out = { debtEvents: [], bad: null, gift: null, xianAwaken: null };
+  const out = { debtEvents: [], bad: null, gift: null, xianAwaken: null, pending: null };
   out.debtEvents = resolveDebts(S, cfg);
+  /* SỰ KIỆN BẤT NGỜ: khách quay lại trả khoản ghi sổ hôm trước (engine/surprise.js) */
+  out.pending = collectPending(S);
   /* GATE TU TIÊN (lệnh phu quân): ngày ≥ 8 + trả xong nợ phòng + két dư ≥ 1 triệu
    * → mở pha tu tiên 1 lần duy nhất (kèm cutscene UI). Chưa đủ → im lặng chờ ngày sau. */
   const gate = cfg.xianGate || { fromDay: 8, surplus: 1000000 };

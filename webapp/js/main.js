@@ -1,32 +1,35 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=39';
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR } from './engine/data.js?v=39';
-import { fresh, load, save, newPot } from './engine/state.js?v=39';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=39';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=39';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=39';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=39';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=39';
-import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals } from './engine/shift.js?v=39';   /* CA TỐI 19:00-23:00 */
-import { makeRNG } from './engine/rng.js?v=39';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=39';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=39';
-import { RUIN_TIERS } from './engine/ruin.js?v=39';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=39';
-import { UPG } from './engine/data.js?v=39';
-import { SPRITES } from './manifest.js?v=39';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=39';
-import { playIntro, introSeen } from './intro.js?v=39';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=39';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=40';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR } from './engine/data.js?v=40';
+import { fresh, load, save, newPot } from './engine/state.js?v=40';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=40';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=40';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=40';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=40';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=40';
+import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals } from './engine/shift.js?v=40';   /* CA TỐI 19:00-23:00 */
+import { makeRNG } from './engine/rng.js?v=40';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=40';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=40';
+import { planShift, drawEvent, resolve as surpriseResolve, capBad } from './engine/surprise.js?v=40';   /* SỰ KIỆN BẤT NGỜ TRONG CA (07/10) */
+import { RUIN_TIERS } from './engine/ruin.js?v=40';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=40';
+import { UPG } from './engine/data.js?v=40';
+import { SPRITES } from './manifest.js?v=40';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=40';
+import { playIntro, introSeen } from './intro.js?v=40';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=40';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
-import { A } from './assets.js?v=39';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { A } from './assets.js?v=40';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
 let S, R, rng, ctx, names;
 let pot = newPot();
 /* debug/QA handle (26/09): phơi R/S/ctx ra console để test tự động được — không ảnh hưởng gameplay */
-const __lht = { get R() { return R; }, get S() { return S; }, get ctx() { return ctx; }, get pot() { return pot; }, set pot(v) { pot = v; }, renderLane, renderTicket, renderStations, spawn, serve, timeoutCustomer, canCook, autoCloseCheck, guestCapFor, pickServeSlot, endDay };
+const __lht = { get R() { return R; }, get S() { return S; }, get ctx() { return ctx; }, get pot() { return pot; }, set pot(v) { pot = v; }, renderLane, renderTicket, renderStations, spawn, serve, timeoutCustomer, canCook, autoCloseCheck, guestCapFor, pickServeSlot, endDay,
+  /* 07/10: công cụ kiểm thử sự kiện bất ngờ trên trình duyệt (chỉ để QA) */
+  startSell, surpriseCheck, fireSurprise, doSurprise, enterPrep };
 window.__lht = __lht;
 let pouring = null;       // {start, raf}
 let dayTimer = null;
@@ -285,6 +288,7 @@ function resumeSell() {
     if (pb) pb.style.width = (shiftFrac(el) * 100).toFixed(1) + '%';
     tickCustomers();
     autoCloseCheck();
+    surpriseCheck(el);
     if (++ticks % 150 === 0) saveMid();
     if (el >= R.shiftMs) endDay();
   }, 100);
@@ -559,6 +563,10 @@ function startSell() {
   R.pauseMs = 0; R.pauseAt = 0;
   R.arrivals = buildArrivals(R.today.cap, R.shiftMs, rng);
   R.spawnIdx = 0;
+  /* SỰ KIỆN BẤT NGỜ (lệnh phu quân 07/10): ngày 1-4 yên ổn, ngày 5 có 1 sự kiện xấu nhẹ,
+   * từ ngày 6 trở đi mới rải theo tỉ lệ. Cả ca tối đa 1 xấu + 1 tốt, mỗi cái báo một lần. */
+  R.surprisePlan = planShift(S, R, cfg, rng, R.shiftMs);
+  R.surpriseFired = [];
   pot = newPot();
   gameSec = 0;
   S.midDay = true;   // SAVEPOINT: đang giữa ngày bán — reload sẽ được đóng ngày sớm, giữ tiền/kho
@@ -573,6 +581,7 @@ function startSell() {
   save(S);             // SAVEPOINT: biến cố đầu ngày (trừ tiền tai họa...) phải nằm trong save NGAY,
                        // reload giữa ngày không bị cộng/trừ lại lần hai
   setTimeout(() => {
+    if (st.pending && st.pending.collect) toast('📒 Khách ghi sổ hôm trước quay lại trả ' + fmtD(st.pending.collect), 'good', 3200);
     if (st.xianAwaken) { xianAwakenScene(() => { if (st.bad) showBad(st.bad); else if (st.gift) showGift(st.gift); }); }
     else if (st.bad) { showBad(st.bad); }
     else if (st.gift) { showGift(st.gift); }
@@ -591,6 +600,7 @@ function startSell() {
     if (pb) pb.style.width = (shiftFrac(el) * 100).toFixed(1) + '%';
     tickCustomers();
     autoCloseCheck();
+    surpriseCheck(el);
     /* SAVEPOINT mỗi 15 giây (mobile hay bị kill app không kịp beforeunload) */
     if (++ticks % 150 === 0) saveMid();
     if (el >= dayMs) endDay();
@@ -1166,6 +1176,49 @@ function flyMoney(text, ls) {
 }
 
 /* ============ END DAY ============ */
+/* ============ SỰ KIỆN BẤT NGỜ TRONG CA (lệnh phu quân 07/10/2026) ============
+ * Luật: ngày 1-4 yên ổn · ngày 5 đúng một sự kiện xấu nhẹ · từ ngày 6 rải theo tỉ lệ, mỗi ca
+ * tối đa 1 xấu + 1 tốt. Sự kiện là một TÌNH HUỐNG có 2-3 cách xử lý, chủ quán chọn rồi chịu
+ * hậu quả thật (engine/surprise.js). Khi đang mở ô chọn thì ĐỒNG HỒ DỪNG — khách không mất
+ * kiên nhẫn trong lúc chủ quán đọc, không ai bị phạt vì đang suy nghĩ. */
+function surpriseCheck(el) {
+  if (!R || !R.running || R.paused || !R.surprisePlan) return;
+  const slot = R.surprisePlan.events.find(e => !e.done && el >= e.at * 1000);
+  if (!slot) return;
+  slot.done = true;
+  const ev = drawEvent(S, R, cfg, rng, slot.kind, { mild: !!slot.mild, exclude: R.surpriseFired || [] });
+  if (ev) fireSurprise(ev);
+}
+function fireSurprise(ev) {
+  R.paused = true; R.pauseAt = performance.now();     /* dừng đồng hồ khi chủ quán đang cân nhắc */
+  const scene = typeof ev.scene === 'function' ? ev.scene(S, R) : ev.scene;
+  sfx('bell');
+  modal(`<div class="big-ico">${ev.ico}</div><h2>${ev.n}</h2><p>${scene}</p>`,
+    ev.choices.map((c, i) => [c.n, () => doSurprise(ev, i), i === 0]));
+}
+function doSurprise(ev, ci) {
+  const out = surpriseResolve(S, R, cfg, rng, ev.id, ci);
+  R.surpriseFired = R.surpriseFired || [];
+  R.surpriseFired.push(ev.id);
+  save(S);                       /* chọn xong là ghi ngay — reload không ăn lại sự kiện */
+  updateHud();
+  const money = out.money > 0 ? '+' + fmtD(out.money) : out.money < 0 ? '−' + fmtD(-out.money) : '';
+  const extra = [
+    money ? `Tiền: <b>${money}</b>` : '',
+    out.ls ? `Linh thạch: <b>+${out.ls}</b>` : '',
+    out.exp ? `Tu vi: <b>${out.exp > 0 ? '+' : ''}${out.exp}</b>` : '',
+    out.traffic ? `Khách ngày mai: <b>${out.traffic > 0 ? '+' : ''}${Math.round(out.traffic * 100)}%</b>` : ''
+  ].filter(Boolean).join(' · ');
+  modal(`<div class="big-ico">${out.tone === 'good' ? '🌿' : out.tone === 'bad' ? '💨' : '🍃'}</div>
+    <h2>${ev.n}</h2><p>${out.msg}</p>${extra ? `<p class="sup-effect">${extra}</p>` : ''}`,
+    [['Rồi, làm tiếp', () => afterSurprise(out), true]]);
+}
+function afterSurprise(out) {
+  if (R.pauseAt) { R.pauseMs = (R.pauseMs || 0) + (performance.now() - R.pauseAt); R.pauseAt = 0; }
+  R.paused = false;
+  renderLane(); updateHud();
+  if (out.broke) showBreakthrough(out.newRealm, null);
+}
 function endDay() {
   if (!R || !R.running) return;
   clearInterval(dayTimer);
@@ -1193,6 +1246,7 @@ function renderSummary(res) {
     <div class="sum-stat"><b>${(R.today.stars.reduce((a, b) => a + b, 0) / Math.max(1, R.today.stars.length)).toFixed(1).replace('.', ',')}</b><span>sao hôm nay</span></div>
   </div>
   <div class="sum-line"><span>Khách ghé hôm nay</span><b>${R.today.arrived}/${R.today.cap}</b></div>
+  ${hist.surprise && hist.surprise.length ? `<div class="sum-sup"><div class="sum-sup-t">🎲 Chuyện trong ca</div>${hist.surprise.map(x => `<div class="sum-line"><span>${x.ico} ${x.n} <small>· ${x.c}</small></span><span class="${x.money > 0 ? 'pos' : x.money < 0 ? 'neg' : ''}">${x.money > 0 ? '+' + fmtD(x.money) : x.money < 0 ? '−' + fmtD(-x.money) : '—'}</span></div>`).join('')}</div>` : ''}
   <div class="sum-line"><span>Doanh thu</span><span class="pos">+${fmtD(rev)}</span></div>
   ${R.today.tips ? `<div class="sum-line"><span>Tiền típ</span><span class="pos">+${fmtD(R.today.tips)}</span></div>` : ''}
   ${hist.lsEarned ? `<div class="sum-line"><span>Linh thạch thu được</span><span class="pos">+${fmtLS(hist.lsEarned)}</span></div>` : ''}
