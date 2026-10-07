@@ -4,28 +4,28 @@ import assert from 'node:assert/strict';
 import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals, GUEST_CURVE, MIN_GAP_MS } from '../js/engine/shift.js';
 import { makeRNG } from '../js/engine/rng.js';
 
-test('ca tối: 19:00 → 23:00, nhịp 10 phút, cả ca 192 giây thật', () => {
+test('ca tối: 19:00 → 22:00, nhịp 10 phút, cả ca 144 giây thật (chốt 08/10 tối: đóng đúng 22:00)', () => {
   assert.equal(SHIFT.startH, 19);
-  assert.equal(SHIFT.endH, 23);
+  assert.equal(SHIFT.endH, 22);
   assert.equal(SHIFT.tickMin, 10);
   assert.equal(SHIFT.tickSec, 8);
-  assert.equal(shiftMs(), 192000);
+  assert.equal(shiftMs(), 144000);
 });
 
 test('đồng hồ: chỉ hiện mốc 10 phút, đúng giờ mở/đóng cửa', () => {
   assert.equal(clockText(0), '19:00');
-  assert.equal(clockText(shiftMs()), '23:00');
-  assert.equal(clockText(shiftMs() / 2), '21:00');
-  const motNhip = shiftMs() / 24;                 // 8 giây thật = 10 phút game
+  assert.equal(clockText(shiftMs()), '22:00');
+  assert.equal(clockText(shiftMs() / 2), '20:30');
+  const motNhip = shiftMs() / 18;                 // 8 giây thật = 10 phút game (18 nhịp)
   assert.equal(clockText(motNhip), '19:10');
   assert.equal(clockText(motNhip * 2), '19:20');
-  assert.equal(clockText(motNhip * 23.5), '22:50');
+  assert.equal(clockText(motNhip * 17.5), '21:50');
   /* quét cả ca: mọi mốc hiện ra đều là bội số 10 phút */
   for (let i = 0; i <= 200; i++) {
     const txt = clockText(shiftMs() * i / 200);
     const mm = Number(txt.slice(3));
     assert.equal(mm % 10, 0, 'phút phải là mốc 10: ' + txt);
-    assert.ok(Number(txt.slice(0, 2)) >= 19 && Number(txt.slice(0, 2)) <= 23, txt);
+    assert.ok(Number(txt.slice(0, 2)) >= 19 && Number(txt.slice(0, 2)) <= 22, txt);
   }
 });
 

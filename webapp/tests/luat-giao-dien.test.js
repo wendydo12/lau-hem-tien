@@ -2,9 +2,10 @@
  *
  * Vì sao cần: mấy luật dưới đây do chủ dự án chốt bằng lời, nhưng trước đây chỉ nằm trong
  * mã main.js — không có gì chặn nếu ai đó sửa lại. Ba luật đó là:
- *   1. QUÁN TRỐNG ĐỦ LÂU + ĐÃ ĐỦ TRẦN KHÁCH → tự đóng cửa sau autoCloseSec giây (chốt 06/10: 15 giây).
+ *   1. QUÁN TRỐNG ĐỦ LÂU + ĐÃ MỜI HẾT LỊCH KHÁCH CẢ CA → tự đóng sau autoCloseSec giây (15 giây).
  *   2. MỖI KHÁCH BỊ HẾT HÀNG CHỈ BÁO MỘT LẦN — không dội thông báo liên tục.
- *   3. TRẦN KHÁCH MỘT NGÀY lấy từ màn chuẩn bị (số "👥 ~X khách").
+ *   3. CHỈ TIÊU (KPI MỀM) lấy từ màn chuẩn bị: đủ là ĐẠT, vượt là VƯỢT — KHÔNG chặn khách,
+ *      KHÔNG tự đóng sớm vì "đã đủ chỉ tiêu" (chốt chủ dự án 08/10 tối: đóng đúng 22:00).
  * Tệp này đọc thẳng mã nguồn để bắt lỗi "sửa lại rồi quên luật".
  */
 import { test } from 'node:test';
@@ -34,13 +35,14 @@ test('ngày đầu đủ trần món nhúng: các món còn lại phải XÁM (l
 });
 
 
-test('trần khách trong ca PHẢI ĐÚNG con số ghi ở màn chuẩn bị (bỏ nhiễu ±15%)', () => {
-  /* Lỗi chủ dự án bắt 08/10: "số khách là 9 mà serve hết 9 khách khách vẫn vào thêm" —
-   * vì màn chuẩn bị ghi ƯỚC LƯỢNG (traffic × hệ số) còn trần thật lại nhân thêm nhiễu 0,85–1,15
-   * nên thành 10-11. Nay hai con số phải là MỘT. */
+test('CHỈ TIÊU (KPI mềm): KHÔNG được chặn khách khi đã đạt chỉ tiêu', () => {
+  /* Chốt chủ dự án 08/10 tối: "nếu giao 10 khách là đạt kpi trong ngày thì hơn thì dc vượt chỉ
+   * tiêu thôi, chứ kp mới 9h mấy đã hết khách đóng cửa" — phục vụ đủ chỉ tiêu vẫn phải nhận
+   * khách thêm cho tới hết giờ. */
   const src = fs.readFileSync(path.join(GAME, 'js', 'main.js'), 'utf8');
-  assert.ok(!/0\.85 \+ rng/.test(src), 'trần khách còn nhân nhiễu ±15% — sẽ lệch con số ghi ở màn chuẩn bị');
-  assert.ok(/return Math\.max\(3, Math\.round\(est2\)\)/.test(src), 'trần khách phải lấy đúng con số ước lượng');
+  assert.ok(!/R\.today\.arrived >= R\.today\.cap/.test(src.replace(/\n/g, ' '))
+      || !/thôi mời khách/.test(src),
+    'còn logic "đủ trần → thôi mời khách" — vi phạm KPI mềm (khách phải vào thêm tới hết giờ)');
 });
 
 test('đủ khách là tự đóng: autoCloseCheck phải dựa trên "đã mời hết lịch"', () => {
@@ -76,11 +78,13 @@ test('màn chuẩn bị ghi "miễn phí" cho món 0 đồng, không ghi "0đ/ph
 const main = fs.readFileSync(path.join(GAME, 'js/main.js'), 'utf8');
 const cfg = makeCFG();
 
-test('tự đóng cửa: đúng 15 giây quán trống liên tục khi đã đủ trần khách', () => {
+test('tự đóng cửa: đúng 15 giây quán trống liên tục KHI ĐÃ HẾT LỊCH KHÁCH CẢ CA', () => {
   assert.equal(cfg.autoCloseSec, 15, 'autoCloseSec phải là 15 giây theo yêu cầu thiết kế');
   assert.ok(/autoCloseCheck/.test(main), 'phải có hàm autoCloseCheck');
-  assert.ok(/R\.today\.arrived < R\.today\.cap/.test(main),
-    'autoCloseCheck phải CHỜ đủ trần khách mới cho phép đóng (không đóng giữa ca)');
+  assert.ok(!/if \(!hetLich && R\.today\.arrived < R\.today\.cap\)/.test(main),
+    'autoCloseCheck còn DÍNH chỉ tiêu khách — vi phạm KPI mềm (đủ chỉ tiêu vẫn nhận khách)');
+  assert.ok(/R\.spawnIdx >= R\.arrivals\.length/.test(main),
+    'điều kiện tự đóng phải dựa trên "mời hết lịch khách cả ca"');
   assert.ok(/R\.slots\.some\(c => c\)/.test(main),
     'còn khách ngồi thì không được tự đóng cửa');
   assert.ok(/R\.emptySince/.test(main), 'phải đếm mốc quán trống liên tục');
@@ -117,13 +121,13 @@ test('hết khách: chỉ báo MỘT lần nhờ cờ capTold', () => {
   assert.ok(/capTold/.test(main), 'phải có cờ capTold để thông báo hết khách đúng một lần');
 });
 
-test('trần khách một ngày: dùng chung công thức với số ước lượng ở màn chuẩn bị', () => {
-  const i = main.indexOf('function guestCapFor');
+test('chỉ tiêu một ngày: dùng chung công thức với số dự báo ở màn chuẩn bị (không trần mềm)', () => {
+  const i = main.indexOf('function chiTieuFor');
   const than = main.slice(i, i + 900);
   assert.ok(/traffic\(/.test(than) && /guestCapMul/.test(than),
-    'trần khách phải tính từ traffic × guestCapMul — đúng con số ước lượng hiện ở màn chuẩn bị');
-  assert.ok(/guestSoftBase/.test(than), 'phải áp trần mềm số khách theo ngày');
-  assert.ok(/Math\.max\(3,/.test(than), 'trần không bao giờ nhỏ hơn 3 khách');
+    'chỉ tiêu phải tính từ traffic × guestCapMul — đúng con số dự báo hiện ở màn chuẩn bị');
+  assert.ok(!/guestSoftBase/.test(than), 'chỉ tiêu KHÔNG bị trần mềm cắt (KPI mềm, khách cứ vào)');
+  assert.ok(/Math\.max\(6,/.test(than), 'chỉ tiêu không nhỏ hơn 6 khách');
 });
 
 test('thời gian ca tối do engine/shift.js quyết định, main.js không tự bịa nhịp', () => {

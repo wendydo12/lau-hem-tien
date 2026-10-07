@@ -1,20 +1,22 @@
 /* engine/shift.js — CA TỐI của quán (yêu cầu thiết kế 07/10/2026)
  *
- * Quán chỉ mở 19:00 → 23:00, đồng hồ nhảy từng 10 PHÚT kiểu Stardew Valley (19:00, 19:10…).
- * Nhịp thật: 8 giây cho mỗi 10 phút game → cả ca = 24 nhịp = 192 giây ≈ 3 phút 12 giây thật.
+ * Quán chỉ mở 19:00 → 22:00, đồng hồ nhảy từng 10 PHÚT kiểu Stardew Valley (19:00, 19:10…).
+ * Nhịp thật: 8 giây cho mỗi 10 phút game → cả ca = 18 nhịp = 144 giây = 2 phút 24 giây thật.
+ * 08/10 (chủ dự án chốt): ĐÓNG CỬA ĐÚNG 22:00. Con số 👥 ở màn chuẩn bị là CHỈ TIÊU (KPI) —
+ * phục vụ đủ là ĐẠT, khách vẫn vào thêm tới sát giờ đóng nên VƯỢT CHỈ TIÊU là chuyện thường.
  * Khách rải theo ĐƯỜNG CONG QUÁN ĂN TỐI (đông → vừa → vãn) thay vì dồn một cục như trước,
  * để người chơi kịp nấu mà vẫn thấy căng ở cao điểm.
  *
  * Tách riêng khỏi main.js: mọi hàm ở đây THUẦN (không đụng DOM) nên đo được bằng test.
  */
 
-export const SHIFT = { startH: 19, endH: 23, tickMin: 10, tickSec: 8 };
+export const SHIFT = { startH: 19, endH: 22, tickMin: 10, tickSec: 8 };
 
-/* tổng thời gian THẬT của một ca (ms) — 24 nhịp × 8 giây = 192 000 */
+/* tổng thời gian THẬT của một ca (ms) — 18 nhịp × 8 giây = 144 000 */
 export const shiftMs = (sh = SHIFT) =>
   Math.round(((sh.endH - sh.startH) * 60 / sh.tickMin) * sh.tickSec * 1000);
 
-/* đồng hồ trong ca: '19:00' … '23:00' — phút LUÔN làm tròn xuống mốc 10 phút */
+/* đồng hồ trong ca: '19:00' … '22:00' — phút LUÔN làm tròn xuống mốc 10 phút */
 export function clockText(elapsedMs, sh = SHIFT) {
   const total = shiftMs(sh);
   const frac = Math.max(0, Math.min(1, elapsedMs / total));
@@ -36,7 +38,7 @@ export const shiftFrac = (elapsedMs, sh = SHIFT) =>
 export const GUEST_CURVE = [
   { to: 0.375, share: 0.45, jitter: 0.55 },   // 19:00 → 20:30 — đông nhất (45% khách)
   { to: 0.710, share: 0.36, jitter: 0.75 },   // 20:30 → 21:50 — vừa (36%)
-  { to: 1.000, share: 0.19, jitter: 0.95 },   // 21:50 → 23:00 — vãn dần (19%)
+  { to: 1.000, share: 0.19, jitter: 0.95 },   // 21:50 → 22:00 — vãn dần (19%)
 ];
 
 /* Mốc thời gian (ms, tính từ lúc mở cửa) khách ghé trong ca.

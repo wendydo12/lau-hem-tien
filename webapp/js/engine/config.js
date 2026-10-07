@@ -2,10 +2,10 @@
 export const GAME_VERSION = '0.1.13';
 
 export const DEFAULT_CONFIG = {
-  /* CA TỐI (yêu cầu thiết kế 07/10/2026): quán chỉ mở 19:00 → 23:00, đồng hồ nhảy từng 10 phút
+  /* CA TỐI (yêu cầu chủ dự án 08/10/2026 tối): quán mở 19:00 → 22:00, ĐÓNG ĐÚNG 22:00; chỉ tiêu khách là mức mềm (đạt là xong, vượt càng tốt) — đồng hồ nhảy từng 10 phút
    * kiểu Stardew Valley. Nhịp thật 8 giây/nhịp → cả ca 192 giây. Khách rải theo đường cong
    * quán ăn tối (xem engine/shift.js) nên người chơi kịp nấu mà vẫn căng lúc cao điểm. */
-  shift: { startH: 19, endH: 23, tickMin: 10, tickSec: 8 },
+  shift: { startH: 19, endH: 22, tickMin: 10, tickSec: 8 },
   cfgVer: 1,
   dayMin: 3.2,               // phút thật cho 1 ca bán — suy từ cfg.shift (24 nhịp × 8 giây = 192s)
   autoCloseSec: 15,          // ĐỦ TRẦN KHÁCH + quán trống liên tục bấy nhiêu giây → tự đóng cửa (chốt 06/10: 15 giây)

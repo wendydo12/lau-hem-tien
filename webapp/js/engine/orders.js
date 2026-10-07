@@ -1,9 +1,9 @@
 /* engine/orders.js — sinh đơn hàng theo cấp độ, so khớp nồi, tính sao. Tính theo công thức của dự án. */
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, SIZES, PERSONA, XPERSONA, NM_HO, NM_NU, NM_NAM, NM_BE, NM_TIEN, NM_TIEN_DANH, SLOW_KEYS, slowN } from './data.js?v=53';
-import { qty } from './stock.js?v=53';
-import { addOk, addSkip, lChance, priceIdx, orderPricey, overCap } from './economy.js?v=53';
-import { wpick } from './rng.js?v=53';
-import { patMul, bratMul } from './cult.js?v=53';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, SIZES, PERSONA, XPERSONA, NM_HO, NM_NU, NM_NAM, NM_BE, NM_TIEN, NM_TIEN_DANH, SLOW_KEYS, slowN } from './data.js?v=54';
+import { qty } from './stock.js?v=54';
+import { addOk, addSkip, lChance, priceIdx, orderPricey, overCap } from './economy.js?v=54';
+import { wpick } from './rng.js?v=54';
+import { patMul, bratMul } from './cult.js?v=54';
 
 export const levelOf = (day, cfg) => day >= cfg.levels.l4 ? 4 : day >= cfg.levels.l3 ? 3 : day >= cfg.levels.l2 ? 2 : 1;
 
@@ -21,7 +21,7 @@ export function maxTops(day, cfg) {
 /* ---------- LEO THANG ĐƠN HÀNG THEO NGÀY (yêu cầu thiết kế 07/10/2026) ----------
  * "yêu cầu add-ons của khách tăng từ từ => người chơi hứng thú, balance everything".
  * Nguyên tắc: ngày đầu chỉ đơn trơn (1 nồi, cỡ nhỏ, chưa chấm chưa cay), rồi mỗi thứ mở dần
- * theo bảng — không nhảy bậc. Số liệu cân với ca tối 19:00-23:00 (xem engine/shift.js). */
+ * theo bảng — không nhảy bậc. Số liệu cân với ca tối 19:00-22:00 (xem engine/shift.js). */
 
 /* số NỒI khách gọi cùng lúc — trọng số theo ngày */
 const POT_MIX = [

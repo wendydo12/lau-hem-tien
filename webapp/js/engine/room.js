@@ -12,7 +12,7 @@
  *   3. TRẦN theo bộ: chạm trần thì phần dư bị cắt. Trần đặt sao cho cả bộ vừa đủ
  *      chạm trần, không hơn.
  */
-import { ROOM } from './data.js?v=53';
+import { ROOM } from './data.js?v=54';
 
 /* trần hiệu ứng mỗi bộ — cả bộ mua đủ thì tổng đúng bằng trần */
 export const TRAN_PHONG = {

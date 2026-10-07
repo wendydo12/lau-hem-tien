@@ -47,7 +47,10 @@ for (let day = 1; day <= N; day++) {
   /* ---- CHUẨN BỊ: nhập hàng cho số khách dự kiến ---- */
   const b = cfg.balance || {};
   const soft = Math.round((b.guestSoftBase ?? 13) + (S.day - 1) * (b.guestSoftPerDay ?? 0.45));
-  const cap = Math.max(3, Math.min(Math.round(traffic(S, cfg, evMul(S)) * (b.guestCapMul ?? 12) * (1 + (P.eff.khach || 0) / 100)), soft));
+  /* 08/10 tối (KPI mềm): chỉ tiêu = dự báo (không trần mềm); mô phỏng người chơi biết việc
+   * phục vụ được chỉ tiêu + ~15% khách vượt (những ai tới đúng giờ). */
+  const chiTieu = Math.max(6, Math.round(traffic(S, cfg, evMul(S)) * (b.guestCapMul ?? 12) * (1 + (P.eff.khach || 0) / 100)));
+  const cap = chiTieu + Math.round(chiTieu * 0.15);
   /* Người chơi biết việc: mua trong phạm vi tiền đang có, ưu tiên nồi rẻ trước,
    * mua đủ cho số khách dự kiến chứ không ôm cả 12 loại nồi. */
   let spend = 0;
@@ -65,13 +68,13 @@ for (let day = 1; day <= N; day++) {
   if (qty(S, 'sup') < needSup) mua('sup', needSup - qty(S, 'sup'));
   /* rồi tới vài loại nồi chính, rẻ trước, mỗi loại chia đều phần còn thiếu */
   const keys = POT_KEYS.filter(k => S.unlocked[k]).sort((a, b) => costOf(cfg, a) - costOf(cfg, b)).slice(0, 4);
-  const canMua = Math.ceil(cap * 1.15);
+  const canMua = Math.ceil(chiTieu * 1.05);   /* mua theo CHỈ TIÊU +5% dự phòng (không theo cap toàn bộ) */
   const per = Math.ceil(canMua / Math.max(1, keys.length));
   keys.forEach(k => { const q = Math.max(0, per - qty(S, k)); if (q) mua(k, q); });
   /* nước chấm + vài topping cơ bản */
   ['d_muoi_ot', 'd_chao', 't_bo_vien', 't_rau_muong', 't_mi_goi'].forEach(k => {
     if (!ITEMS[k]) return;
-    const q = Math.max(0, Math.ceil(cap * 1.1) - qty(S, k));
+    const q = Math.max(0, Math.ceil(chiTieu * 1.05) - qty(S, k));
     if (q) mua(k, q);
   });
   S.money -= spend;
@@ -80,7 +83,7 @@ for (let day = 1; day <= N; day++) {
   /* ---- MỞ QUÁN ---- */
   const R = initRuntime(S, cfg, slotCount(S, cfg));
   R.running = true;
-  R.today.cap = cap;
+  R.today.cap = cap;   /* 08/10 tối: cap = chỉ tiêu + phần vượt (khách vào thêm) */
   const ctx = { R, S, cfg, rng };
   startDay(ctx);
   let arrivals = 0;

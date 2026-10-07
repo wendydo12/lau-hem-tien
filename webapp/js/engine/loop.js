@@ -1,15 +1,15 @@
 /* engine/loop.js — vòng lặp ngày: spawn khách (thường/tiên/đại năng/hạc), serve, tổng kết. Vòng lặp ngày của dự án. */
-import { ITEMS, UPG, PERSONA, XPERSONA, STARS } from './data.js?v=53';
-import { levelOf, genOrder, matches, wrongKinds, maxPat, stars, pickBrat, makeNameGen, potCount } from './orders.js?v=53';
-import { qty, take, expireStock } from './stock.js?v=53';
-import { price, priceLS, sv, unitCost, recSale, recRev, recCost, traffic, pricyItems, orderPricey, priceIdx, wageDay, fixed, dayTax, payDayLoan, resolveDebts } from './economy.js?v=53';
-import { addReview } from './reviews.js?v=53';
-import { ev, evIs, evMul, rollDay, badCheck, takeGift, mkBadPlan } from './events.js?v=53';
-import { newRec, newPot, save, autoBak } from './state.js?v=53';
-import { makeRNG } from './rng.js?v=53';
-import { addExp, EXP, fireZone, tipMul, lsMul, wasteMul } from './cult.js?v=53';
-import { ruinUpdate } from './ruin.js?v=53';
-import { collectPending } from './surprise.js?v=53';
+import { ITEMS, UPG, PERSONA, XPERSONA, STARS } from './data.js?v=54';
+import { levelOf, genOrder, matches, wrongKinds, maxPat, stars, pickBrat, makeNameGen, potCount } from './orders.js?v=54';
+import { qty, take, expireStock } from './stock.js?v=54';
+import { price, priceLS, sv, unitCost, recSale, recRev, recCost, traffic, pricyItems, orderPricey, priceIdx, wageDay, fixed, dayTax, payDayLoan, resolveDebts } from './economy.js?v=54';
+import { addReview } from './reviews.js?v=54';
+import { ev, evIs, evMul, rollDay, badCheck, takeGift, mkBadPlan } from './events.js?v=54';
+import { newRec, newPot, save, autoBak } from './state.js?v=54';
+import { makeRNG } from './rng.js?v=54';
+import { addExp, EXP, fireZone, tipMul, lsMul, wasteMul } from './cult.js?v=54';
+import { ruinUpdate } from './ruin.js?v=54';
+import { collectPending } from './surprise.js?v=54';
 
 export const FACES = ['🧑','👩','👨','👧','🧔','👩‍🦰','👵','🧑‍🎓','👦','👱‍♀️','🧑‍💼','👴','👩‍💻','🧑‍🔧','👩‍🎓','👨‍🍳','👩‍🎨','🧑‍🎤','👱','👩‍🦱','👨‍🦱','🧕','👲','🧒','👸','🤵','👷‍♀️','🧑‍🚀','🥷','🧑‍🌾'];
 export const XFACE = ['🧙','🧝','🧚','⚔️','🌙','✨','🔥','❄️'];

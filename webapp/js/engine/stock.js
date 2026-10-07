@@ -1,5 +1,5 @@
 /* engine/stock.js — kho theo mẻ có hạn dùng  */
-import { ITEMS } from './data.js?v=53';
+import { ITEMS } from './data.js?v=54';
 
 /* thêm q phần nguyên liệu k vào kho, mẻ hạn dùng tính từ ngày hiện tại */
 export function addStock(S, k, q, cfg) {

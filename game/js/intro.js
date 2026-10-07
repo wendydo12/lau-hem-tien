@@ -10,11 +10,11 @@
  *
  * Tất cả câu chữ phụ đề: SÁNG TÁC GỐC của dự án.
  */
-import { playIntroSfx, setBgm } from './audio.js?v=53';
-import { ownerSprite } from './creator.js?v=53';
+import { playIntroSfx, setBgm } from './audio.js?v=54';
+import { ownerSprite } from './creator.js?v=54';
 
 const B = A + 'intro-tao/v2/';   // nền cảnh v2 (meowa đồng bộ)
-import { A } from './assets.js?v=53';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { A } from './assets.js?v=54';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
 const KEY = ['lhTien', 'Intro'].join('');   // nối chuỗi để tránh bộ lọc che secret ghi đè literal
 
 /* ===== 6 CẢNH =====
