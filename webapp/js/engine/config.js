@@ -1,5 +1,5 @@
 /* engine/config.js — CFG mặc định của chủ game (người chơi không sửa được). Số liệu cân theo Lẩu Hẻm Tiên. */
-export const GAME_VERSION = '0.1.12';
+export const GAME_VERSION = '0.1.13';
 
 export const DEFAULT_CONFIG = {
   /* CA TỐI (yêu cầu thiết kế 07/10/2026): quán chỉ mở 19:00 → 23:00, đồng hồ nhảy từng 10 phút
@@ -8,7 +8,7 @@ export const DEFAULT_CONFIG = {
   shift: { startH: 19, endH: 23, tickMin: 10, tickSec: 8 },
   cfgVer: 1,
   dayMin: 3.2,               // phút thật cho 1 ca bán — suy từ cfg.shift (24 nhịp × 8 giây = 192s)
-  autoCloseSec: 20,          // ĐỦ TRẦN KHÁCH + quán trống liên tục bấy nhiêu giây → tự đóng cửa
+  autoCloseSec: 15,          // ĐỦ TRẦN KHÁCH + quán trống liên tục bấy nhiêu giây → tự đóng cửa (chốt 06/10: 15 giây)
   startMoney: 500000,        // vốn ban đầu (VNĐ) — cốt truyện intro: nghỉ việc, còn đúng 500k
   storyDebt: { amount: 2000000, dueDay: 7 }, // NỢ PHÒNG TRỌ theo cốt truyện: 2 triệu, hạn trả trong 7 ngày
   /* GATE PHA TU TIÊN (yêu cầu thiết kế 25/09): sau ngày 7 + trả hết nợ phòng + dư 1 triệu

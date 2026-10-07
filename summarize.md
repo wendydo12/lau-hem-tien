@@ -115,7 +115,7 @@ Cốt truyện: Minh 26 tuổi, nhân viên văn phòng → bị sếp mắng �
 - maxPat mới: +18%/món nhúng, món lâu chín (tôm/mực/nghêu/cá/dê/dược/secret) +20%/món
   → đơn phức tạp khách chờ lâu hơn, không bỏ về oan.
 
-### 4. Composite nồi lẩu (yêu cầu thiết kế: "bỏ topping nào lẩu hiện đúng topping đó kiểu trà sữa")
+### 4. Composite nồi lẩu (yêu cầu thiết kế: "bỏ topping nào lẩu hiện đúng topping đó")
 - renderPotVisual: thả icon topping vào elip miệng nồi, xếp vòng theo mặt nước,
   animation dropIn (rơi-tõm nảy), món secret phát sáng tím, nồi L topping to hơn.
 - QA screenshot: cải cúc nằm gọn lòng nồi. Không tốn credit meowa.

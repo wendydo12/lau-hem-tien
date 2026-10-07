@@ -180,7 +180,9 @@ Số dư trước đợt: 885 credit.
 | 07/10 | job_874df536 | object_2 | 5 pháp bảo tiên gia (tụ linh trận, an thần trận, lò địa hỏa, hộ pháp, biển cầm đồ) + 3 món để dành | 20 | 580 | ✅ 8/8 đúng — 5 ô đầu dùng, 3 ô dư giữ ở `_meowa/du-phong-xian_*.png` |
 | 07/10 | job_fb275a33 | food | Bộ rau thêm (cải ngọt + 7 loại rau củ) | 20 | 560 | ⚠️ meowa tự đổi đề: ra bộ rau chung (bắp cải, bông cải, cà rốt…). Ô 7 là bó cải ngọt → lọc tia sáng, dùng làm `mon-an/cai_ngot.png` |
 
-**Tổng cả ngày 07/10: 315 credit. Số dư còn lại: 570 credit.**
+| 07/10 | job_1db566c4 | food | Bộ rau chốt: cải ngọt (vẽ lại đúng kiểu cuống dài), cải bẹ xanh, bắp chuối + 5 ô rau dự phòng | 20 | 550 | ✅ 8/8 đúng — 3 ô đầu vào game, 5 ô dư giữ ở `_nguon-anh-meowa/rau-2026-10-07/` |
+
+**Tổng cả ngày 07/10: 335 credit. Số dư còn lại: 550 credit.**
 
 Ghi chú quan trọng: với template sprite-pack, meowa ĐỔI ĐỀ nếu chỉ liệt kê tên món theo nhóm chủ đề
 (bảo "trang bị quán lẩu" → trả một bộ đồ bếp bất kỳ). Công thức đúng là khai từng ô "cell 1 … cell 8 …",

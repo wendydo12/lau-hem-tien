@@ -1,29 +1,29 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=44';
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR, TOP_SECTIONS } from './engine/data.js?v=44';
-import { fresh, load, save, newPot } from './engine/state.js?v=44';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=44';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=44';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=44';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=44';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=44';
-import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals } from './engine/shift.js?v=44';   /* CA TỐI 19:00-23:00 */
-import { makeRNG } from './engine/rng.js?v=44';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=44';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=44';
-import { planShift, drawEvent, resolve as surpriseResolve, capBad } from './engine/surprise.js?v=44';   /* SỰ KIỆN BẤT NGỜ TRONG CA (07/10) */
-import { RUIN_TIERS } from './engine/ruin.js?v=44';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=44';
-import { UPG } from './engine/data.js?v=44';
-import { SPRITES } from './manifest.js?v=44';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=44';
-import { playIntro, introSeen } from './intro.js?v=44';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=44';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=45';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR, TOP_SECTIONS } from './engine/data.js?v=45';
+import { fresh, load, save, newPot } from './engine/state.js?v=45';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=45';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=45';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=45';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=45';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=45';
+import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals } from './engine/shift.js?v=45';   /* CA TỐI 19:00-23:00 */
+import { makeRNG } from './engine/rng.js?v=45';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=45';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=45';
+import { planShift, drawEvent, resolve as surpriseResolve, capBad } from './engine/surprise.js?v=45';   /* SỰ KIỆN BẤT NGỜ TRONG CA (07/10) */
+import { RUIN_TIERS } from './engine/ruin.js?v=45';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=45';
+import { UPG } from './engine/data.js?v=45';
+import { SPRITES } from './manifest.js?v=45';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=45';
+import { playIntro, introSeen } from './intro.js?v=45';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=45';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
-import { A } from './assets.js?v=44';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { A } from './assets.js?v=45';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
 let S, R, rng, ctx, names;
 let pot = newPot();
 /* debug/QA handle (26/09): phơi R/S/ctx ra console để test tự động được — không ảnh hưởng gameplay */
@@ -622,6 +622,10 @@ function startSell() {
  * ngược vài giây rồi TỰ ĐÓNG CỬA tổng kết. Nút "🌙 Đóng cửa hôm nay" trong menu tạm
  * dừng vẫn giữ nguyên để chủ dự án chủ động đóng bất cứ lúc nào. */
 
+/* chống dội thông báo hết hàng: một khách = một lần biết, không spam liên tục (yêu cầu 06/10) */
+const SOLD_TOAST_MS = 12000;
+let lastSoldToast = -Infinity;
+
 /* quán còn nấu được nồi nào không? cần bộ nồi chén + ít nhất một món chính đang mở và còn hàng */
 function canCook() {
   if (qty(S, 'sup') <= 0) return false;
@@ -707,9 +711,15 @@ function scheduleSpawns() {
         else if (res.c.xian) { sfx('xian'); toast('🔮 ' + res.c.name + ' đáp xuống từ khe không gian...', '', 3000); secretOpenCheck(); }
         else { sfx('bell'); if (res.c.brat) toast('⚠️ ' + res.c.name + ' có vẻ khó ở...', 'bad', 2000); }
       } else if (res.kind === 'soldout') {
-        /* MỖI KHÁCH BỊ HẾT HÀNG CHỈ BÁO MỘT LẦN (yêu cầu thiết kế 06/10) — không dội lại liên tục */
+        /* MỖI KHÁCH BỊ HẾT HÀNG CHỈ BÁO MỘT LẦN (yêu cầu thiết kế 06/10) — không dội lại liên tục.
+         * Dải nhắc (soWarnOn) là thứ báo chính và nằm im trên màn; còn toast thì CHỐNG DỘI:
+         * hết hàng liên tiếp cả chục khách cũng chỉ hiện tối đa 1 toast mỗi SOLD_TOAST_MS. */
         soWarnOn(res.item);
-        toast('🚫 Hết ' + iname(res.item).toLowerCase() + ' — khách bỏ về', 'bad');
+        const nay = performance.now();
+        if (nay - lastSoldToast > SOLD_TOAST_MS) {
+          lastSoldToast = nay;
+          toast('🚫 Hết ' + iname(res.item).toLowerCase() + ' — khách bỏ về', 'bad');
+        }
       }
       else if (res.kind === 'pricy') toast('💸 Khách xem menu chê đắt, bỏ về', 'bad');
     }
@@ -1024,7 +1034,7 @@ function renderPotVisual() {
     v.innerHTML = '';
     const im = img(A + SPRITES.pot[pot.base]);
     v.appendChild(im);
-    /* ---- COMPOSITE TOPPING TRONG NỒI (25/09 — yêu cầu: "bỏ topping nào lẩu phải hiện đúng topping đó, kiểu trà sữa") ----
+    /* ---- COMPOSITE TOPPING TRONG NỒI (25/09 — yêu cầu: "bỏ topping nào lẩu phải hiện đúng topping đó") ----
      * Không vẽ thêm asset: thả chính icon topping đã có vào vùng miệng nồi (elip x18-82% y18-58% của sprite),
      * xếp dọc theo mặt nước, kèm animation rơi tõm vào nồi. Món tiên giới (secret) phát sáng tím. */
     if (pot.tops.length) {

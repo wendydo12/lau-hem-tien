@@ -35,7 +35,8 @@ export const SPRITES = {
     t_bach_tuoc: 'mon-an/bach_tuoc.png', t_ca_hoi: 'mon-an/ca_hoi.png', t_tom_vien: 'mon-an/tom_vien.png',
     t_thanh_cua: 'mon-an/thanh_cua.png', t_xuc_xich: 'mon-an/xuc_xich.png',
     t_khoai_mon: 'mon-an/khoai_mon.png', t_bap_ngot: 'mon-an/bap_ngot.png',
-    t_cai_ngot: 'mon-an/cai_ngot.png',   /* 08/10: thêm cho đủ bộ rau */
+    t_cai_ngot: 'mon-an/cai_ngot.png', t_cai_be_xanh: 'mon-an/cai_be_xanh.png',
+    t_bap_chuoi: 'mon-an/bap_chuoi.png',   /* 08/10: chốt đủ bộ rau theo ảnh mẫu */
     t_ca_dieu: 'mon-an/ca_dieu_lat.png', t_ca_vien_chien: 'mon-an/new1_04.png', t_dau_hu_non: 'mon-an/new1_05.png',
     t_chan_vit: 'mon-an/new1_06.png', t_cai_thia: 'mon-an/new1_07.png',
     d_mix: 'mon-an/new2_00.png', t_cu_sen: 'mon-an/new2_01.png', du_nam_bung_de: 'mon-an/new2_04.png',
