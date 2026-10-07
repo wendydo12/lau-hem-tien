@@ -1,30 +1,30 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=49';
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR, TOP_SECTIONS } from './engine/data.js?v=49';
-import { fresh, load, save, newPot } from './engine/state.js?v=49';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=49';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=49';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=49';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=49';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=49';
-import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals, MIN_GAP_MS as MIN_GAP_KHACH } from './engine/shift.js?v=49';   /* CA TỐI 19:00-23:00 + khe khách */
-import { makeRNG } from './engine/rng.js?v=49';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=49';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=49';
-import { planShift, drawEvent, resolve as surpriseResolve, capBad } from './engine/surprise.js?v=49';   /* SỰ KIỆN BẤT NGỜ TRONG CA (07/10) */
-import { RUIN_TIERS } from './engine/ruin.js?v=49';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=49';
-import { UPG } from './engine/data.js?v=49';
-import { SPRITES } from './manifest.js?v=49';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=49';
-import { playIntro, introSeen } from './intro.js?v=49';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=49';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=50';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR, TOP_SECTIONS } from './engine/data.js?v=50';
+import { fresh, load, save, newPot } from './engine/state.js?v=50';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=50';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=50';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=50';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=50';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=50';
+import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals, MIN_GAP_MS as MIN_GAP_KHACH } from './engine/shift.js?v=50';   /* CA TỐI 19:00-23:00 + khe khách */
+import { makeRNG } from './engine/rng.js?v=50';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=50';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=50';
+import { planShift, drawEvent, resolve as surpriseResolve, capBad } from './engine/surprise.js?v=50';   /* SỰ KIỆN BẤT NGỜ TRONG CA (07/10) */
+import { RUIN_TIERS } from './engine/ruin.js?v=50';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=50';
+import { UPG } from './engine/data.js?v=50';
+import { SPRITES } from './manifest.js?v=50';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=50';
+import { playIntro, introSeen } from './intro.js?v=50';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=50';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
-import { A } from './assets.js?v=49';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
-import { esc, cleanName } from './safe.js?v=49';   /* 08/10: vá XSS qua tên quán người chơi nhập */
+import { A } from './assets.js?v=50';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { esc, cleanName } from './safe.js?v=50';   /* 08/10: vá XSS qua tên quán người chơi nhập */
 let S, R, rng, ctx, names;
 let pot = newPot();
 /* DẤU KHỞI ĐỘNG (08/10): ghi lại "lần cuối mã game chạy được" vào localStorage.

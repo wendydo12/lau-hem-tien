@@ -46,14 +46,17 @@ export const itemPricey = (S, k, cfg) => k === 'L' ? lPricey(S, cfg)
   : ITEMS[k] && ITEMS[k].type === 'base' ? S.sell[k] >= cfg.potCap
   : S.sell[k] / BASE_PRICE[k] > 1.3;
 export const lPricey = (S, cfg) => S.sell.L > cfg.sizeWarn;
-/* CỠ NỒI L (yêu cầu thiết kế 07/10): trước đây 35% đơn là nồi lớn NGAY TỪ NGÀY 1 → sốc.
- * Nay leo thang: ngày 1-3 chưa có nồi lớn, rồi 10% → 20% → 28% → 35%. Giữ luật "đắt quá thì
- * gần như không ai gọi" (lPricey → 3,5%). */
+/* CỠ NỒI L (yêu cầu thiết kế 07/10, chỉnh lại 08/10 theo phản hồi chủ dự án "sao ta ko thấy khách
+ * order nồi lớn"): bản 07/10 để ngày 1-3 ăn 0% nồi lớn cho khỏi sốc, nhưng như vậy người chơi mới
+ * mấy ngày đầu KHÔNG BAO GIỜ gặp nồi lớn nên tưởng game thiếu tính năng.
+ * Nay: nồi lớn có NGAY TỪ NGÀY 1 nhưng HIẾM (6% ≈ 1 trong 16 ly), rồi leo đều
+ * 12% → 20% → 28% → 35%. Vẫn giữ luật "đắt quá thì gần như không ai gọi" (lPricey → 3,5%)
+ * và "chạm trần phụ thu thì không ai gọi" (>= sizeCap → 0). */
 export const lChance = (S, cfg) => {
   if (S.sell.L >= cfg.sizeCap) return 0;
   if (lPricey(S, cfg)) return .035;
   const d = S.day || 1;
-  return d <= 3 ? 0 : d <= 7 ? .10 : d <= 15 ? .20 : d <= 29 ? .28 : .35;
+  return d <= 3 ? .06 : d <= 7 ? .12 : d <= 15 ? .20 : d <= 29 ? .28 : .35;
 };
 export const pricyItems = (S, cfg) => [...POT_KEYS.filter(k => S.unlocked[k] && itemPricey(S, k, cfg)), ...(S.sell.L >= cfg.sizeCap ? ['L'] : [])];
 export function orderPricey(o, S, cfg) {
