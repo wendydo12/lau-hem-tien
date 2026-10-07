@@ -61,6 +61,31 @@ Thêm hai thứ chỉnh riêng:
   mới mất phòng. Nhờ vậy người chơi mới không bị đá khỏi game vì lỡ một tuần đầu, mà vẫn có sức ép.
 - Hạn kỳ sau = ngày trả kỳ trước + 30 ngày (tự động).
 
+## 5b. Nhịp khách: "khách vào liên tục" (yêu cầu chủ dự án 08/10/2026)
+
+Yêu cầu: *"cho khách tần suất vào liên tục"*. Trước đây khách rải theo đường cong với khe ~15-20 giây
+(khách thưa, quán vắng ở giữa ca).
+
+Cách làm — **không đổi tổng số khách, chỉ đổi nhịp**:
+- Lịch nền (`engine/shift.js`): khe tối đa ở phần đầu ca co từ ~20 giây xuống **KHE_NEN_MS = 18 giây**
+  (nén 3 lượt, không kéo dây chuyền), cuối ca vẫn vãn dần.
+- Cách mời (`main.js`): khách chỉ ghé khi **còn chỗ ngồi trống**, và được **đẩy nhanh tối đa
+  `balance.moiNhanhNhat = 3` lần** so với nhịp nền (không dưới `MIN_GAP_MS = 2,5 giây`). Chủ quán
+  phục vụ kịp → khách vào sớm nhất mỗi **KHE_LIEN_TUC_MS = 6 giây**; phục vụ chậm → khách vẫn tới
+  theo nhịp nền rồi ngồi chờ như thường.
+
+Đo bằng `tools/do-nhip-khach.mjs` (mô phỏng đúng vòng lặp mời khách, không đụng DOM):
+
+| tình huống | khách tới | khe trung bình | khe xa nhất |
+|---|---|---|---|
+| trần 12 khách · phục vụ 20s/chỗ | 12/12 | 6,4s | 10,8s |
+| trần 20 khách · phục vụ 20s/chỗ | 20/20 | 6,5s | 15,0s |
+| trần 26 khách · phục vụ 20s/chỗ | 26/26 | 6,6s | 15,3s |
+| trần 20 khách · phục vụ 35s/chỗ (chậm) | 18/20 | 10,7s | 30,0s |
+
+Kinh tế KHÔNG đổi: tổng khách vẫn đúng trần hôm nay, nên chạy lại hai lệnh đo ở mục 6 ra đúng bảng số
+cũ (lãi ngày 1 = 59.000đ; chơi lơ đễnh ngày 30: lãi 442.242đ, khách bỏ về 50,6%).
+
 ## 6. Đo lại thế nào
 
 ```

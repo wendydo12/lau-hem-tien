@@ -35,7 +35,9 @@ export const DEFAULT_CONFIG = {
     guestCapMul: 12,          // nền khách/ngày = nền khách × 12 (trước là ×14)
     guestSoftBase: 13,        // TRẦN MỀM số khách/ngày: 13 khách + mỗi ngày thêm 0,45
     guestSoftPerDay: 0.45,    // (ngày 30 ≈ 26 khách, ngày 60 ≈ 40) — quán hẻm không thể đông vô hạn
-    utilPerGuest: 1500        // điện nước/nấu nướng tính theo khách thật đã phục vụ
+    utilPerGuest: 1500,       // điện nước/nấu nướng tính theo khách thật đã phục vụ
+    moiNhanhNhat: 3           // KHÁCH VÀO LIÊN TỤC (08/10): cho phép mời khách sớm nhất bằng 1/3
+                              // nhịp nền khi còn chỗ ngồi trống — quán luôn có khách, tổng không đổi
   },
   taxThreshold: 120000000,   // ngưỡng doanh thu NĂM miễn thuế — 120 triệu (thuế bắt đầu ăn từ khoảng ngày 35-40)
   vat: 4, pit: 2,            // % GTGT + TNCN trên doanh thu (tổng 6%)

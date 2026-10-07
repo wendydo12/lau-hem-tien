@@ -1,30 +1,30 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=47';
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR, TOP_SECTIONS } from './engine/data.js?v=47';
-import { fresh, load, save, newPot } from './engine/state.js?v=47';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=47';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=47';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=47';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=47';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=47';
-import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals } from './engine/shift.js?v=47';   /* CA TỐI 19:00-23:00 */
-import { makeRNG } from './engine/rng.js?v=47';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=47';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=47';
-import { planShift, drawEvent, resolve as surpriseResolve, capBad } from './engine/surprise.js?v=47';   /* SỰ KIỆN BẤT NGỜ TRONG CA (07/10) */
-import { RUIN_TIERS } from './engine/ruin.js?v=47';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=47';
-import { UPG } from './engine/data.js?v=47';
-import { SPRITES } from './manifest.js?v=47';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=47';
-import { playIntro, introSeen } from './intro.js?v=47';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=47';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=48';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR, TOP_SECTIONS } from './engine/data.js?v=48';
+import { fresh, load, save, newPot } from './engine/state.js?v=48';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=48';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=48';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=48';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=48';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=48';
+import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals, MIN_GAP_MS as MIN_GAP_KHACH } from './engine/shift.js?v=48';   /* CA TỐI 19:00-23:00 + khe khách */
+import { makeRNG } from './engine/rng.js?v=48';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=48';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=48';
+import { planShift, drawEvent, resolve as surpriseResolve, capBad } from './engine/surprise.js?v=48';   /* SỰ KIỆN BẤT NGỜ TRONG CA (07/10) */
+import { RUIN_TIERS } from './engine/ruin.js?v=48';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=48';
+import { UPG } from './engine/data.js?v=48';
+import { SPRITES } from './manifest.js?v=48';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=48';
+import { playIntro, introSeen } from './intro.js?v=48';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=48';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
-import { A } from './assets.js?v=47';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
-import { esc, cleanName } from './safe.js?v=47';   /* 08/10: vá XSS qua tên quán người chơi nhập */
+import { A } from './assets.js?v=48';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { esc, cleanName } from './safe.js?v=48';   /* 08/10: vá XSS qua tên quán người chơi nhập */
 let S, R, rng, ctx, names;
 let pot = newPot();
 /* DẤU KHỞI ĐỘNG (08/10): ghi lại "lần cuối mã game chạy được" vào localStorage.
@@ -710,7 +710,18 @@ function scheduleSpawns() {
       setTimeout(trySpawn, 1500);
       return;
     }
-    if (el < moc) { setTimeout(trySpawn, Math.max(120, Math.min(1000, moc - el))); return; }
+    /* KHÁCH VÀO LIÊN TỤC (yêu cầu chủ dự án 08/10/2026):
+     * Nhịp nền (R.arrivals) vẫn là ĐƯỜNG CONG của ca tối, nhưng khách chỉ ghé khi CÒN CHỖ NGỒI và
+     * được phép đẩy nhanh tối đa `moiNhanhNhat` lần so với nhịp nền. Nhờ vậy:
+     *   - chủ quán phục vụ nhanh → chỗ trống có người mới ngồi ngay, quán luôn có khách;
+     *   - chủ quán chậm → khách vẫn tới đúng nhịp nền rồi ngồi chờ như thường;
+     *   - TỔNG khách vẫn đúng trần hôm nay nên kinh tế không đổi. */
+    const nhipNen = moc / Math.max(1, cfg.balance?.moiNhanhNhat ?? 3);   /* sớm nhất có thể */
+    const somNhat = Math.min(moc, nhipNen);
+    if (el < somNhat) { setTimeout(trySpawn, Math.max(120, Math.min(1000, somNhat - el))); return; }
+    const conCho = R.slots.some(c => !c);                                /* còn chỗ ngồi trống */
+    const duGian = el - (R.lastArrivalAt ?? -1e9) >= MIN_GAP_KHACH;       /* không dồn cục */
+    if (!conCho || !duGian) { setTimeout(trySpawn, 350); return; }
     /* đã đủ trần khách hôm nay → thôi mời khách, phục vụ nốt người đang ngồi */
     if (R.today.arrived >= R.today.cap) {
       if (!R.capTold) {
@@ -722,6 +733,7 @@ function scheduleSpawns() {
       return;
     }
     R.spawnIdx++;
+    R.lastArrivalAt = el;          /* mốc khách vừa ghé — dùng cho khe tối thiểu */
     const res = spawn(ctx);
     if (res) {
       R.today.arrived++;   /* mỗi lượt khách ghé đều tính vào trần hôm nay (kể cả người bỏ về) */

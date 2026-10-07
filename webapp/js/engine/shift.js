@@ -44,7 +44,18 @@ export const GUEST_CURVE = [
  * - đã sắp xếp tăng dần, không ai cách nhau dưới 2,5 giây (khỏi dồn cục)
  * - có nhiễu ngẫu nhiên nên ngày nào cũng khác nhau, nhưng vẫn theo đường cong. */
 export const MIN_GAP_MS = 2500;
-export function buildArrivals(cap, total = shiftMs(), rng, curve = GUEST_CURVE) {
+
+/* KHE LIÊN TỤC (yêu cầu chủ dự án 08/10/2026: "cho khách tần suất vào liên tục")
+ * Khách không được thưa quá `khe` giây trong PHẦN ĐẦU ca — lúc quán đông khách nhất; về cuối ca
+ * vẫn vãn dần để chủ quán dọn hàng. TỔNG SỐ KHÁCH KHÔNG ĐỔI (vẫn đúng trần hôm nay) nên kinh tế
+ * giữ nguyên, chỉ đổi NHỊP phân bố.
+ * Cách kéo: soi từng khe một theo mốc GỐC, khe nào xa quá `khe` thì kéo mốc sau về; KHÔNG kéo
+ * dây chuyền (nếu kéo dây chuyền thì cả ca dồn vào một phút đầu rồi bỏ trống nửa sau).
+ * Lịch nền giữ khe tối đa KHE_NEN_MS (18 giây) — khi chủ quán phục vụ kịp, main.js còn đẩy nhanh
+ * gấp `moiNhanhNhat` lần (3) nên khách thực tế vào sớm nhất mỗi KHE_LIEN_TUC_MS (6 giây). */
+export const KHE_LIEN_TUC_MS = 6000;    /* khe MỤC TIÊU khi chủ quán phục vụ kịp (đẩy nhanh 3×) */
+export const KHE_NEN_MS = 18000;         /* khe TỐI ĐA của lịch nền ở phần đầu ca = 3 × khe mục tiêu */
+export function buildArrivals(cap, total = shiftMs(), rng, curve = GUEST_CURVE, khe = KHE_NEN_MS, den = 0.75) {
   const out = [];
   let from = 0, con = cap;
   curve.forEach((seg, i) => {
@@ -61,6 +72,17 @@ export function buildArrivals(cap, total = shiftMs(), rng, curve = GUEST_CURVE) 
   });
   while (out.length < cap) out.push(total * (0.85 + rng.next() * 0.1));   // chống lệch làm tròn
   out.sort((a, b) => a - b);
+  /* nén khe ở phần đầu ca (khách vào liên tục); cuối ca giữ nhịp thưa.
+   * Chạy 3 lượt liên tiếp để khe nào cũng co lại, nhưng mỗi lượt chỉ soi khe GỐC của lượt đó
+   * nên không dồn dây chuyền (không kéo cả ca vào một phút đầu). */
+  for (let luot = 0; luot < 3; luot++) {
+    const goc = out.slice();
+    for (let i = 1; i < out.length; i++) {
+      const kheThat = goc[i] - goc[i - 1];
+      if (kheThat > khe && goc[i - 1] < total * den) out[i] = goc[i - 1] + khe;
+    }
+    out.sort((a, b) => a - b);
+  }
   for (let i = 1; i < out.length; i++) if (out[i] - out[i - 1] < MIN_GAP_MS) out[i] = out[i - 1] + MIN_GAP_MS;
   return out.slice(0, cap).map(t => Math.max(0, Math.min(total, Math.round(t))));
 }
