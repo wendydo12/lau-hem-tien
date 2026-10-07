@@ -18,6 +18,66 @@ export function maxTops(day, cfg) {
   return 5;                                   // ngày 60+: 5 món — cao thủ lẩu
 }
 
+/* ---------- LEO THANG ĐƠN HÀNG THEO NGÀY (lệnh phu quân 07/10/2026) ----------
+ * "yêu cầu add-ons của khách tăng từ từ => người chơi hứng thú, balance everything".
+ * Nguyên tắc: ngày đầu chỉ đơn trơn (1 nồi, cỡ nhỏ, chưa chấm chưa cay), rồi mỗi thứ mở dần
+ * theo bảng — không nhảy bậc. Số liệu cân với ca tối 19:00-23:00 (xem engine/shift.js). */
+
+/* số NỒI khách gọi cùng lúc — trọng số theo ngày */
+const POT_MIX = [
+  { day: 5,  n: [1],         w: [1] },                                   // 1-5: học việc
+  { day: 9,  n: [1, 2],      w: [.90, .10] },                            // 6-9
+  { day: 15, n: [1, 2],      w: [.78, .22] },                            // 10-15
+  { day: 29, n: [1, 2, 3],   w: [.62, .30, .08] },                       // 16-29
+  { day: 45, n: [1, 2, 3, 4, 5], w: [.45, .30, .15, .07, .03] },         // 30-45
+  { day: 59, n: [1, 2, 3, 4, 5], w: [.35, .28, .20, .11, .06] },         // 46-59
+  { day: 1e9, n: [1, 2, 3, 4, 5], w: [.25, .25, .22, .17, .11] },        // 60+
+];
+export const potCount = (day, rng, { weekend = false } = {}) => {
+  const row = POT_MIX.find(r => day <= r.day) || POT_MIX[POT_MIX.length - 1];
+  let n = wpick(rng, row.n, row.w);
+  if (weekend && day >= 6 && n < 5 && rng.chance(.20)) n++;   // cuối tuần/lễ: thêm 1 nồi (20%)
+  return n;
+};
+
+/* nước chấm: từ ngày 6 mới bắt đầu có, và cũng leo thang chứ không bật 60% một cái */
+export const dipChance = (day, cfg) => {
+  const lv = levelOf(day, cfg);
+  if (lv < 2) return 0;
+  if (day <= 9) return .30;
+  if (day <= 15) return .45;
+  if (day <= 29) return .60;
+  if (day <= 45) return .65;
+  if (day <= 59) return .70;
+  return .75;
+};
+
+/* độ cay: TRƯỚC ĐÂY từ ngày 6 là MỌI khách đòi cay (kể cả "không cay") → sốc.
+ * Nay chỉ một phần khách đòi, và mức cay cũng nặng dần theo ngày. */
+export const spicyChance = (day, cfg) => {
+  const lv = levelOf(day, cfg);
+  if (lv < 2) return 0;
+  if (day <= 9) return .25;
+  if (day <= 15) return .40;
+  if (day <= 29) return .55;
+  if (day <= 45) return .70;
+  if (day <= 59) return .80;
+  return .90;
+};
+const SPICY_W = [
+  { day: 9,   w: [.30, .60, .10, .00] },   // ngày 6-9: chủ yếu "cay vừa"
+  { day: 15,  w: [.25, .50, .22, .03] },
+  { day: 29,  w: [.20, .45, .27, .08] },
+  { day: 45,  w: [.16, .40, .30, .14] },
+  { day: 59,  w: [.14, .36, .32, .18] },
+  { day: 1e9, w: [.12, .33, .33, .22] },
+];
+export function spicyForDay(day, cfg, rng) {
+  if (!rng.chance(spicyChance(day, cfg))) return null;         // không đòi cay → để trống
+  const row = SPICY_W.find(r => day <= r.day) || SPICY_W[SPICY_W.length - 1];
+  return wpick(rng, SPICY, row.w);
+}
+
 /* tên khách thường  */
 export function makeNameGen(S, rng) {
   const HN = L => rng.pick(NM_HO) + ' ' + rng.pick(L);
@@ -58,7 +118,7 @@ export function genOrder(S, cfg, rng, lv = levelOf(S.day, cfg), opts = {}) {
   const want = ks => { const k = rng.pick(ks); if (has(k)) return k; const av = ks.filter(has); if (av.length && rng.chance(.5)) return rng.pick(av); so = so || k; return k; };
   const dipPool = lv >= 2 ? DIP_KEYS.filter(un).filter(k => addOk(S, k, cfg) && has(k)) : [];
   const base = want(bases);
-  let dip = dipPool.length && rng.chance(.6) ? rng.pick(dipPool) : null;
+  let dip = dipPool.length && rng.chance(dipChance(S.day, cfg)) ? rng.pick(dipPool) : null;
   if (dip && addSkip(S, dip, cfg, rng)) dip = null;
 
   const isXian = !!opts.xian;
@@ -94,7 +154,7 @@ export function genOrder(S, cfg, rng, lv = levelOf(S.day, cfg), opts = {}) {
     /* BUGFIX 26/09 (review: "recipe lỗi, chọn đúng bị sai"): UI quầy chỉ hiện độ cay từ level 2 (ngày 6+),
      * nhưng code cũ sinh đơn cay từ lv>=2 — ngày 1-5 khách gọi cay mà người chơi KHÔNG THỂ nêm → luôn "sai món" oan.
      * Giờ: đơn chỉ gọi cay khi UI cho nêm cay. */
-    spicy: lv >= 2 ? wpick(rng, SPICY, [.15, .3, .35, .2]) : null
+    spicy: spicyForDay(S.day, cfg, rng)
   };
 }
 
@@ -165,11 +225,15 @@ export function stars(c, S, cfg, rng, online = false) {
  * TU VI Hợp Thể lẩu đạo: khí chất chủ quán át vía → giảm 40% tổng xác suất */
 export function pickBrat(S, cfg, rng) {
   if (S.day < 10) return null;
+  /* 07/10 (lệnh phu quân): tổng xác suất khách hâm LEO NHẸ theo ngày — 4,5% ở ngày 10 → ~9%
+   * ở ngày 40, trần 12%. Giữ nguyên hình dạng phân bố (hâm kiểu nào) của bản cũ, chỉ đổi tổng. */
+  const tong = Math.min(.12, .045 + (S.day - 10) * .0012);
+  const he = tong / .095;
   const r = rng.next() / bratMul(S);
-  if (r >= 1) return null;
-  if (r < .04) return 'hoi';
-  if (r < .07) return 'doi';
-  if (r < .09) return 'mac';
-  if (r < .095) return 'bung';
+  if (r >= he) return null;
+  if (r < .04 * he) return 'hoi';
+  if (r < .07 * he) return 'doi';
+  if (r < .09 * he) return 'mac';
+  if (r < .095 * he) return 'bung';
   return null;
 }

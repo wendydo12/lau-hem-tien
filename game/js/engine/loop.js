@@ -1,6 +1,6 @@
 /* engine/loop.js — vòng lặp ngày: spawn khách (thường/tiên/đại năng/hạc), serve, tổng kết. Vòng lặp ngày của dự án. */
 import { ITEMS, UPG, PERSONA, XPERSONA, STARS } from './data.js';
-import { levelOf, genOrder, matches, wrongKinds, maxPat, stars, pickBrat, makeNameGen } from './orders.js';
+import { levelOf, genOrder, matches, wrongKinds, maxPat, stars, pickBrat, makeNameGen, potCount } from './orders.js';
 import { qty, take, expireStock } from './stock.js';
 import { price, priceLS, sv, unitCost, recSale, recRev, recCost, traffic, pricyItems, orderPricey, priceIdx, wageDay, fixed, dayTax, payDayLoan, resolveDebts } from './economy.js';
 import { addReview } from './reviews.js';
@@ -70,9 +70,9 @@ export function spawn(ctx) {
   if (S.day < 3 || !S.xianUnlock) tienChance = 0;
   const xian = rng.chance(tienChance);
 
-  /* số nồi mỗi khách (dựng lại: lv3+ có thể 1-5) */
-  const nc = lv >= 3 ? (function () { const r = rng.next(); return r < .45 ? 1 : r < .7 ? 2 : r < .85 ? 3 : r < .95 ? 4 : 5; })
-    : ((evIs(S, 'weekend') || evIs(S, 'holiday')) && lv >= 2 && rng.chance(.3) ? 2 : 1);
+  /* 07/10 (lệnh phu quân): số nồi mỗi khách LEO THANG theo ngày (orders.js potCount) — trước
+   * đây tới ngày 30 mới nhảy một cái thành 1-5 nồi nên khách sốc. */
+  const nc = potCount(S.day, rng, { weekend: evIs(S, 'weekend') || evIs(S, 'holiday') });
 
   const cups = [];
   for (let k = 0; k < nc; k++) {

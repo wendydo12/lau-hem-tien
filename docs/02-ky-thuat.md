@@ -63,3 +63,31 @@ màn mở đầu (nút "Bỏ qua ⏭") → đặt tên quán (nút "Giữ ...") 
   tên hàm trong `__lht`) chỉ hiện ở trình duyệt, test node vẫn xanh 90/90.
   Mẹo: `Page.addScriptToEvaluateOnNewDocument` gắn `window.addEventListener('error', ...)`
   trước khi nạp trang để bắt lỗi nạp module.
+
+## Ca tối 19:00–23:00 (chốt 07/10/2026)
+- `game/js/engine/shift.js`: CA = 19:00→23:00, đồng hồ nhảy từng 10 phút; nhịp thật 8 giây/10 phút
+  → cả ca 192 giây. Hàm thuần (`shiftMs`, `clockText`, `shiftFrac`, `buildArrivals`) nên test được:
+  `game/tests/shift.test.js` (7 test).
+- Khách KHÔNG còn dồn cục theo nhịp cứng: `buildArrivals(cap, …)` rải `cap` khách theo ĐƯỜNG CONG
+  quán ăn tối — 45% (19:00-20:30) · 36% (20:30-21:50) · 19% (21:50-23:00), có nhiễu nên mỗi ngày
+  một khác, khoảng cách tối thiểu 2,5 giây. Lịch dựng ở `startSell` (`R.arrivals`) và dựng lại khi
+  vào giữa ca (`resumeSell`).
+- Tự đóng cửa: CHỈ khi đã đủ trần khách hôm nay + quán trống liên tục `cfg.autoCloseSec` (20) giây;
+  chưa đủ trần thì cứ bán tới 23:00. Nút "Đóng cửa hôm nay" trong menu tạm dừng vẫn giữ.
+- Tạm dừng giờ ĐỨNG YÊN thật (`R.pauseMs` được gán khi pause — trước đây quên nên đồng hồ vẫn chạy).
+- Đo thật trên Chrome (ca ngày 1, trần 11 khách): nhịp khách thực tế 7-12 giây lúc cao điểm; đồng hồ
+  19:00→19:10→19:20… mỗi ~8 giây; thanh tiến độ ca chạy trên HUD.
+
+## Leo thang đơn hàng theo ngày (chốt 07/10/2026)
+Bảng đo thật (`game/tests/ramp.test.js`, 400 đơn/ngày) — mỗi ngày một nhích, không nhảy bậc:
+```
+ngày | đòi-thêm/đơn | %chấm | %cay | %nồi-lớn | nồi/khách | trần nhúng
+   1 |         1.00 |    0% |   0% |       0% |      1.00 |   1
+   6 |         1.99 |   31% |  27% |       8% |      1.10 |   2
+  15 |         3.00 |   47% |  42% |      22% |      1.20 |   3
+  30 |         3.47 |   62% |  65% |      35% |      1.94 |   3
+  50 |         4.25 |   70% |  83% |      31% |      2.16 |   4
+  60 |         5.01 |   73% |  93% |      34% |      2.70 |   5
+```
+Trước 07/10: ngày 1 đã có 35% nồi lớn, ngày 6 là 100% khách đòi cay, ngày 30 nhảy phát thành 1-5 nồi.
+Nay: `potCount` · `dipChance` · `spicyChance` · `lChance` · `pickBrat` đều leo thang theo ngày.

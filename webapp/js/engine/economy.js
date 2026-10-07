@@ -45,7 +45,15 @@ export const itemPricey = (S, k, cfg) => k === 'L' ? lPricey(S, cfg)
   : ITEMS[k] && ITEMS[k].type === 'base' ? S.sell[k] >= cfg.potCap
   : S.sell[k] / BASE_PRICE[k] > 1.3;
 export const lPricey = (S, cfg) => S.sell.L > cfg.sizeWarn;
-export const lChance = (S, cfg) => S.sell.L >= cfg.sizeCap ? 0 : lPricey(S, cfg) ? .035 : .35;
+/* CỠ NỒI L (lệnh phu quân 07/10): trước đây 35% đơn là nồi lớn NGAY TỪ NGÀY 1 → sốc.
+ * Nay leo thang: ngày 1-3 chưa có nồi lớn, rồi 10% → 20% → 28% → 35%. Giữ luật "đắt quá thì
+ * gần như không ai gọi" (lPricey → 3,5%). */
+export const lChance = (S, cfg) => {
+  if (S.sell.L >= cfg.sizeCap) return 0;
+  if (lPricey(S, cfg)) return .035;
+  const d = S.day || 1;
+  return d <= 3 ? 0 : d <= 7 ? .10 : d <= 15 ? .20 : d <= 29 ? .28 : .35;
+};
 export const pricyItems = (S, cfg) => [...POT_KEYS.filter(k => S.unlocked[k] && itemPricey(S, k, cfg)), ...(S.sell.L >= cfg.sizeCap ? ['L'] : [])];
 export function orderPricey(o, S, cfg) {
   return overCap(o, S, cfg) || [o.base, ...(o.dip ? [o.dip] : []), ...o.tops, ...(o.size === 'L' ? ['L'] : [])].some(k => itemPricey(S, k, cfg));
