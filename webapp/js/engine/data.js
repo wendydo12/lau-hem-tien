@@ -92,7 +92,7 @@ T('t_khoai_mon', 'Khoai môn cắt lát', 'Khoai môn', '#c8a8d8', 3, 4000, 8000
 T('t_bap_ngot', 'Bắp ngọt cắt khúc', 'Bắp ngọt', '#f2d24e', 3, 3000, 7000, 60000);
 T('t_cai_ngot', 'Cải ngọt', 'Cải ngọt', '#8ac05a', 1, 2500, 6000, 70000);
 T('t_cai_be_xanh', 'Cải bẹ xanh', 'Cải bẹ', '#7fb84a', 1, 2500, 6000, 70000);
-T('t_bap_chuoi', 'Bắp chuối', 'Bắp chuối', '#8e5b8a', 1, 3000, 6500, 80000);
+T('t_bap_chuoi', 'Bắp chuối bào', 'Bắp chuối bào', '#8e5b8a', 1, 3000, 6500, 80000);
 
 /* --- DƯỢC THIỆN (duoc — cao cấp, khách thường đôi khi gọi) --- */
 const D = mk('duoc', 'duoc');

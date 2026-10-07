@@ -182,7 +182,12 @@ Số dư trước đợt: 885 credit.
 
 | 07/10 | job_1db566c4 | food | Bộ rau chốt: cải ngọt (vẽ lại đúng kiểu cuống dài), cải bẹ xanh, bắp chuối + 5 ô rau dự phòng | 20 | 550 | ✅ 8/8 đúng — 3 ô đầu vào game, 5 ô dư giữ ở `_nguon-anh-meowa/rau-2026-10-07/` |
 
-**Tổng cả ngày 07/10: 335 credit. Số dư còn lại: 550 credit.**
+| 07/10 | job_a74aec28 | food | Bắp chuối BÀO SỢI (vẽ lại — bản trước ra nguyên củ, sai ý) + 7 ô rau dự phòng | 20 | 530 | ✅ ô 1 đúng: đống sợi trắng ngà trên mẹt tre + hai bẹ tím |
+
+**Tổng cả ngày 07/10: 355 credit. Số dư còn lại: 530 credit.**
+
+Bài học (đã ghi vào skill meowa-pixel-gen): ảnh 64px khó đọc nên KHI SOI phải phóng to từng ô một
+(10x, nền kem) mới phán đúng. Máy soi ở lưới 8 ô dễ đọc nhầm đống sợi bào thành "bánh cuốn trong rổ".
 
 Ghi chú quan trọng: với template sprite-pack, meowa ĐỔI ĐỀ nếu chỉ liệt kê tên món theo nhóm chủ đề
 (bảo "trang bị quán lẩu" → trả một bộ đồ bếp bất kỳ). Công thức đúng là khai từng ô "cell 1 … cell 8 …",

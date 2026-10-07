@@ -3,7 +3,7 @@
 import sys, os
 from PIL import Image, ImageDraw
 
-d = os.path.expanduser("~/projects/laudem-tien/_meowa/in-20261007-rau2")
+d = os.path.expanduser("~/projects/laudem-tien/_meowa/in-20261007-bapchuoi")
 tag = sys.argv[1] if len(sys.argv) > 1 else "rau"
 cells = [Image.open(f"{d}/{tag}_{str(i).zfill(2)}.png").convert("RGBA") for i in range(8)]
 UP, GAP, PAD = 5, 24, 34
