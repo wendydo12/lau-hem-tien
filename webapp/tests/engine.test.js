@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeCFG, DEFAULT_CONFIG } from '../js/engine/config.js';
-import { ITEMS, POT_KEYS, TOP_KEYS, DIP_KEYS, DUOC_KEYS, SECRET_KEYS, XTOP_KEYS, BASE_PRICE, UPG } from '../js/engine/data.js';
+import { ITEMS, POT_KEYS, TOP_KEYS, DIP_KEYS, DUOC_KEYS, SECRET_KEYS, XTOP_KEYS, BASE_PRICE, UPG, TOP_SECTIONS } from '../js/engine/data.js';
 import { fresh, loadFrom, newPot, sanitize } from '../js/engine/state.js';
 import { addStock, qty, take, expireStock } from '../js/engine/stock.js';
 import { price, unitCost, traffic, rating, takeLoan, payDayLoan, sellLS, buyLS, rollLSRate, addDebt, resolveDebts, cheatHit, dayTax, recRev, recCost, priceLS, pricyItems } from '../js/engine/economy.js';
@@ -22,10 +22,26 @@ function seededState(seed = 12345) {
 }
 
 /* ============ 1. DATA ============ */
-test('ITEMS: đủ 9 nồi lẩu theo brief (7 gốc + 2 miền Tây)', () => {
+test('ITEMS: đủ 11 nồi lẩu (7 gốc + 2 miền Tây + 2 nồi mới 07/10: bò, dê)', () => {
   const pots = POT_KEYS;
-  assert.equal(pots.length, 9);
-  ['ca_chua', 'nam', 'suon', 'canh_chua', 'thai', 'mam', 'suki', 'dong_trung', 'tu_xuyen'].forEach(k => assert.ok(ITEMS[k], 'thiếu nồi ' + k));
+  assert.equal(pots.length, 11);
+  ['ca_chua', 'nam', 'suon', 'canh_chua', 'thai', 'mam', 'suki', 'dong_trung', 'tu_xuyen', 'bo', 'de'].forEach(k => assert.ok(ITEMS[k], 'thiếu nồi ' + k));
+  /* 2 nồi mới: mở khoá chia theo mức tiến trình, giá bán cao hơn nồi gốc */
+  assert.equal(ITEMS.bo.n, 'Lẩu bò');
+  assert.equal(ITEMS.de.n, 'Lẩu dê');
+  assert.ok(ITEMS.bo.unlock >= 200000 && ITEMS.de.unlock >= 400000, 'hai nồi mới phải nằm ở mốc mở khoá về sau');
+  assert.ok(ITEMS.bo.sell > ITEMS.suon.sell && ITEMS.de.sell > ITEMS.bo.sell, 'nồi càng về sau bán càng cao');
+});
+
+test('màn chuẩn bị: đồ nhúng được chia mục, mọi món đều có mục, không món nào bị bỏ sót', () => {
+  const trongMuc = TOP_SECTIONS.flatMap(s => s.ks);
+  assert.equal(new Set(trongMuc).size, trongMuc.length, 'một món không được nằm ở hai mục');
+  trongMuc.forEach(k => assert.ok(ITEMS[k], 'mục nhắc tới món không tồn tại: ' + k));
+  const thieu = TOP_KEYS.filter(k => !trongMuc.includes(k));
+  assert.deepEqual(thieu, [], 'Món chưa được xếp mục: ' + thieu.join(', '));
+  assert.ok(TOP_SECTIONS.length >= 5, 'phải có ít nhất 5 mục');
+  assert.ok(TOP_SECTIONS.some(s => s.ks.includes('t_de')) && TOP_SECTIONS.some(s => s.ks.includes('t_bo_tai')),
+    'thịt bò tái và thịt dê phải nằm trong mục thịt');
   /* 3 nồi đầu miễn phí */
   assert.equal(ITEMS.ca_chua.unlock, 0);
   assert.equal(ITEMS.nam.unlock, 0);

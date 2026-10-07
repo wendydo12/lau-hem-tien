@@ -14,7 +14,10 @@ import path from 'node:path';
 import { SPRITES } from '../js/manifest.js';
 
 const GAME = new URL('..', import.meta.url).pathname;              // .../game/
-const ASSETS = path.join(GAME, '..', 'webapp', 'assets');          // bản app đang phục vụ
+/* Trang game nằm ở /webapp/index.html nên đường dẫn ảnh "../assets/..." trỏ về assets/ ở GỐC KHO
+ * — đó mới là kho ảnh app phục vụ. webapp/assets là bản sao để đóng gói (tools/dong-bo.py giữ khớp). */
+const ASSETS = path.join(GAME, '..', 'assets');
+const ASSETS_WEB = path.join(GAME, '..', 'webapp', 'assets');
 
 /* gom mọi đường dẫn tệp trong manifest (lồng bao nhiêu tầng cũng lấy) */
 function pathsOf(obj, acc = []) {
@@ -67,6 +70,17 @@ test('nhân vật và nồi lẩu: tệp phải đúng cỡ 64x64 pixel (không 
 test('đường dẫn trong manifest là đường dẫn TƯƠNG ĐỐI, không có ../ hay ổ đĩa', () => {
   const xau = pathsOf(SPRITES).filter(p => p.startsWith('/') || p.includes('..') || /^[a-zA-Z]:/.test(p));
   assert.deepEqual(xau, [], 'Đường dẫn tuyệt đối sẽ vỡ khi chạy trong app: ' + xau.join(', '));
+});
+
+test('kho ảnh: assets/ (app phục vụ) và webapp/assets (bản sao) phải có cùng bộ tệp', () => {
+  const gom = dir => new Set([...fs.readdirSync(dir, { recursive: true })]
+    .filter(x => String(x).endsWith('.png'))
+    .map(x => String(x).replace(/\\/g, '/'))
+    .filter(x => !x.startsWith('icon/')));
+  const a = gom(ASSETS), b = gom(ASSETS_WEB);
+  const thieu = [...a].filter(x => !b.has(x));
+  const la = [...b].filter(x => !a.has(x));
+  assert.deepEqual({ thieu, la }, { thieu: [], la: [] }, 'hai kho ảnh lệch nhau — chạy tools/dong-bo.py');
 });
 
 test('game/ và webapp/ khai báo cùng một bộ hình (không lệch tên tệp)', () => {

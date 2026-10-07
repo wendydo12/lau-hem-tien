@@ -17,6 +17,11 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "game"
+# ảnh: nguồn chân lý là assets/ ở gốc kho (trang game nằm ở /webapp/ nên "../assets/..." trỏ về đây).
+# webapp/assets là bản sao để app đóng gói; thư mục icon/ giữ riêng vì bộ icon hai bên khác nhau có chủ đích.
+ASSETS_SRC = ROOT / "assets"
+ASSETS_DST = ROOT / "webapp/assets"
+ASSETS_BO_QUA = {"icon"}
 # các thư mục đích nhận bản sao của game/js, game/css, index.html, tests
 DEST = [
     ROOT / "webapp",
@@ -45,6 +50,22 @@ def copy_all(src: pathlib.Path, dst: pathlib.Path):
             dem += 1
     return dem
 
+def sync_assets():
+    """chép ảnh từ assets/ gốc sang webapp/assets (bỏ qua icon/) và trả về số tệp đã chép"""
+    n = 0
+    for f in sorted(ASSETS_SRC.rglob("*")):
+        if not f.is_file():
+            continue
+        rel = f.relative_to(ASSETS_SRC)
+        if rel.parts and rel.parts[0] in ASSETS_BO_QUA:
+            continue
+        dst = ASSETS_DST / rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        if not dst.exists() or not filecmp.cmp(f, dst, shallow=False):
+            shutil.copy2(f, dst); n += 1
+    return n
+
+
 def main():
     tong = 0
     for d in DEST:
@@ -61,6 +82,24 @@ def main():
                 n += copy_all(SRC / t, d / t)
         print(f"→ {d.relative_to(ROOT)}: chép {n} tệp")
         tong += n
+    # ảnh: assets gốc → webapp/assets
+    if ASSETS_SRC.exists() and ASSETS_DST.exists():
+        na = sync_assets()
+        print(f"→ ảnh assets/ → webapp/assets: chép {na} tệp")
+        lech = []
+        for f in ASSETS_SRC.rglob("*"):
+            if not f.is_file():
+                continue
+            rel = f.relative_to(ASSETS_SRC)
+            if rel.parts and rel.parts[0] in ASSETS_BO_QUA:
+                continue
+            q = ASSETS_DST / rel
+            if not q.exists() or not filecmp.cmp(f, q, shallow=False):
+                lech.append(str(rel))
+        if lech:
+            print("ẢNH LỆCH SAU ĐỒNG BỘ:", lech[:10])
+            return 1
+        print("ảnh: assets/ và webapp/assets đã giống nhau từng tệp (không tính icon/)")
     # tự kiểm tra: game/ phải giống webapp/ từng tệp một
     loi = []
     for nhom in NHOM:

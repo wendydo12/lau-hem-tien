@@ -1,29 +1,29 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=40';
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR } from './engine/data.js?v=40';
-import { fresh, load, save, newPot } from './engine/state.js?v=40';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=40';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=40';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=40';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=40';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=40';
-import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals } from './engine/shift.js?v=40';   /* CA TỐI 19:00-23:00 */
-import { makeRNG } from './engine/rng.js?v=40';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=40';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=40';
-import { planShift, drawEvent, resolve as surpriseResolve, capBad } from './engine/surprise.js?v=40';   /* SỰ KIỆN BẤT NGỜ TRONG CA (07/10) */
-import { RUIN_TIERS } from './engine/ruin.js?v=40';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=40';
-import { UPG } from './engine/data.js?v=40';
-import { SPRITES } from './manifest.js?v=40';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=40';
-import { playIntro, introSeen } from './intro.js?v=40';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=40';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=41';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR, TOP_SECTIONS } from './engine/data.js?v=41';
+import { fresh, load, save, newPot } from './engine/state.js?v=41';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=41';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=41';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=41';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=41';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=41';
+import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals } from './engine/shift.js?v=41';   /* CA TỐI 19:00-23:00 */
+import { makeRNG } from './engine/rng.js?v=41';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=41';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=41';
+import { planShift, drawEvent, resolve as surpriseResolve, capBad } from './engine/surprise.js?v=41';   /* SỰ KIỆN BẤT NGỜ TRONG CA (07/10) */
+import { RUIN_TIERS } from './engine/ruin.js?v=41';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=41';
+import { UPG } from './engine/data.js?v=41';
+import { SPRITES } from './manifest.js?v=41';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=41';
+import { playIntro, introSeen } from './intro.js?v=41';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=41';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
-import { A } from './assets.js?v=40';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { A } from './assets.js?v=41';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
 let S, R, rng, ctx, names;
 let pot = newPot();
 /* debug/QA handle (26/09): phơi R/S/ctx ra console để test tự động được — không ảnh hưởng gameplay */
@@ -418,7 +418,12 @@ function renderPrep() {
   };
   h += grp('🍲 NỒI & NỒI CHÉN', [...POT_KEYS, 'sup']);
   h += grp('🥣 NƯỚC CHẤM', DIP_KEYS);
-  h += grp('🥩 ĐỒ NHÚNG LẨU', [...TOP_KEYS, ...DUOC_KEYS]);
+  /* 07/10: đồ nhúng chia theo từng mục; món nào chưa xếp mục thì gom vào "Món khác" */
+  const daXep = new Set(TOP_SECTIONS.flatMap(s => s.ks));
+  TOP_SECTIONS.forEach(s => { h += grp(s.l, s.ks); });
+  const conLai = TOP_KEYS.filter(k => !daXep.has(k));
+  if (conLai.length) h += grp('🍲 Món khác', conLai);
+  h += grp('✨ Dược liệu tiên', DUOC_KEYS);
   /* công thức chưa mở — 1 khối riêng gọn (fix 25/09: trả phí để học) */
   const locked = keys.filter(k => !S.unlocked[k]);
   if (locked.length) {

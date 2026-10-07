@@ -101,3 +101,20 @@ Bốn ảnh tham khảo là sản phẩm của một trang bán tiểu cảnh Vi
 hình ảnh, mô hình, hay tệp nào của họ. Thứ dự án lấy là **đặc trưng văn hoá của đồ vật đời thường
 Việt Nam** (rèm hoa, tủ gỗ nhiều ô, TV ăng-ten râu, phích nước…) — đó là kiến thức chung, không
 ai độc quyền. Toàn bộ sprite sẽ do dự án tự gọi meowa vẽ theo cẩm nang này.
+
+
+## 9. TÌNH TRẠNG: ĐÃ VẼ XONG (07/10/2026)
+
+Cả hai bộ đã vẽ xong bằng meowa, kiểm từng ô, và nằm trong `assets/do-vat/`:
+
+- **Bộ B — Động Tiên (16 món)**: `tt_binh_phong`, `tt_an_thu`, `tt_ke_go`, `tt_ghe_go`, `tt_ban_tra`,
+  `tt_binh_lam`, `tt_den_long`, `tt_ruong_go`, `tt_bo_doan`, `tt_lu_huong`, `tt_gia_kiem`,
+  `tt_guong_dong`, `tt_den_luu_ly`, `tt_tranh_truc`, `tt_tham`, `tt_de_go`.
+- **Bộ A — Hẻm Việt (16 món)**: `hv_rem_hoa`, `hv_tv_crt`, `hv_dai_cassette`, `hv_may_khau`,
+  `hv_tu_nhieu_o`, `hv_ban_tho`, `hv_loc_lich`, `hv_bang_khen`, `hv_tranh_son_mai`, `hv_phich_nuoc`,
+  `hv_am_tich`, `hv_quat_cay`, `hv_chieu_coi`, `hv_dep_nhua`, `hv_o_cam`, `hv_chau_kien`.
+- **Nền phòng**: `assets/canh-nen/phong-tro-tu-tien.png` (tường vàng + xanh ngọc, sàn gạch bông).
+- Khai báo trong `game/js/manifest.js` ở mục `SPRITES.room` (hemViet / dongTien / nen) — màn "Phòng ở"
+  chỉ việc đọc từ đó.
+- Xem ảnh: mở `assets/gallery.html` (đã thêm 2 mục "Bộ nội thất ĐỘNG TIÊN" và "HỘI... HẺM VIỆT").
+- Sổ chi phí: `credits-log/credits.md` mục Phase 7 (7 job, 145 credit).

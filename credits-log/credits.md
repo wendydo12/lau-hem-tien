@@ -153,3 +153,23 @@ trước khi phát hành chính thức.
 Game lấy cảm hứng thể loại từ một game quản lý quán trà nổi tiếng trong cộng đồng Việt Nam.
 Dự án ghi nhận điều đó ở đây và ở `docs/01-tong-quan.md`; nháp thư gửi tác giả:
 `docs/04-xin-phep-tac-gia.md`.
+
+## Phase 7 — NỘI THẤT PHÒNG Ở + THỰC ĐƠN MỚI (07/10/2026)
+
+Mục đích: 2 bộ đồ trang trí cho màn "Phòng ở" (bộ A Hẻm Việt kiểu nhà xưa Việt Nam,
+bộ B Động Tiên kiểu thư phòng tu tiên) và nhóm món mới cho thực đơn (lẩu bò, lẩu dê, thịt dê, chao vàng).
+Số dư trước đợt: 885 credit.
+
+| Ngày | Job | Template | Nội dung | Cost | Số dư | Kết quả |
+|---|---|---|---|---|---|---|
+| 07/10 | job_2c2eae68 | object_2 | 8 món Động Tiên phần 1 (bình phong, án thư, kệ, ghế, bàn trà, bình lam, đèn lồng, rương) | 20 | 865 | ✅ QA đọc từng ô: 8/8 đúng thứ tự |
+| 07/10 | job_a3c94f8d | object_2 | 8 món Động Tiên phần 2 (bồ đoàn, lư hương, giá kiếm, gương đồng, đèn lưu ly, tranh trúc, thảm, bệ gỗ) | 20 | 845 | ✅ QA 8/8 |
+| 07/10 | job_26af83cb | object_2 | 8 món Hẻm Việt phần 1 (rèm hoa, TV CRT, đài cassette, máy khâu, tủ nhiều ô, bàn thờ, lốc lịch, bằng khen) | 20 | 825 | ✅ QA 8/8 |
+| 07/10 | job_2afd6b80 | object_2 | 8 món Hẻm Việt phần 2 (tranh sơn mài, phích nước, ấm tích, quạt cây, chiếu cói, dép nhựa, ổ cắm, chậu kiểng) | 20 | 805 | ✅ QA 8/8 (ảnh trả về 32x32 → phóng ×2 giữ nét) |
+| 07/10 | job_afc350b3 | food | 8 món ăn mới (lẩu bò, nồi dê, chao vàng, bò tái, thịt dê, đùi, bò cuộn, sụn) | 20 | 785 | ⚠️ 4/8 dùng được — nhóm thịt dê chưa rõ → vẽ lại |
+| 07/10 | job_98556ef2 | xlarge_4_3 | Nền phòng trọ (tường vàng + xanh ngọc, sàn gạch bông) | 25 | 760 | ✅ dùng làm nền màn Phòng ở |
+| 07/10 | job_59ed449d | food | VẼ LẠI nhóm thịt dê (nồi dê, thịt dê tái, đùi nướng, sụn, chao vàng, hũ chao, dê luộc, cháo dê) | 20 | 740 | ✅ QA đọc từng ô — thứ tự khác mô tả, đã gán lại theo ảnh thật |
+
+**Tổng đợt này: 145 credit.** Số dư còn lại: **740 credit**.
+Bài học lặp lại: meowa trả thứ tự ô KHÁC mô tả → luôn dựng bảng kiểm có số rồi đọc từng ô trước khi gán tên.
+Ảnh thô giữ ở `_nguon-anh-meowa/` (ngoài thư mục assets để không bị đóng gói).

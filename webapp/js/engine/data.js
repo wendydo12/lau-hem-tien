@@ -29,11 +29,15 @@ P('mam', 'Lẩu mắm', 'Mắm', '#6b4a2a', 2, 13000, 55000, 300000);
 P('suki', 'Lẩu sukiyaki', 'Sukiyaki', '#7a4a2a', 2, 15000, 65000, 250000);
 P('dong_trung', 'Lẩu đông trùng hạ thảo', 'Đông trùng', '#d4a017', 2, 25000, 95000, 600000);
 P('tu_xuyen', 'Lẩu Tứ Xuyên', 'Tứ Xuyên', '#c1121f', 3, 14000, 70000, 400000);
+/* 07/10: 2 nồi mới theo yêu cầu — mở khoá chia theo mức tiến trình */
+P('bo', 'Lẩu bò', 'Bò', '#d94f2b', 3, 16000, 75000, 200000);
+P('de', 'Lẩu dê', 'Dê', '#7a5c3a', 2, 18000, 85000, 450000);
 
 /* --- NƯỚC CHẤM (dip) --- */
 const C = mk('dip', 'dip');
 C('d_muoi_ot', 'Muối ớt xanh', '', '#9fbf3a', 7, 0, 5000, 0);
 C('d_chao', 'Chao', '', '#e8c9a8', 7, 0, 5000, 0);
+C('d_chao_vang', 'Chao vàng', 'Chao vàng', '#e8c93c', 7, 0, 7000, 60000);
 C('d_sa_te', 'Sa tế', '', '#d4501e', 7, 0, 6000, 120000);
 C('d_sot_me', 'Sốt me', '', '#9c6b3c', 7, 0, 6000, 150000);
 C('d_mix', 'Nước chấm mix', 'Chấm mix', '#6b4a2a', 7, 0, 8000, 200000); // tương+dầu hào+bơ đậu phộng+dầu mè+hành tỏi đậu phộng
@@ -72,6 +76,11 @@ T('t_mien', 'Miến', 'Miến', '#c8c8c0', 7, 2000, 5000, 0);
 T('t_bun', 'Bún tươi', 'Bún', '#fbf8f0', 1, 2000, 4000, 0);
 T('t_udong', 'Mì udon', 'Udon', '#f4efe4', 3, 3000, 6000, 150000);
 T('t_trung', 'Trứng gà', 'Trứng', '#f7d56b', 3, 3000, 7000, 0);
+/* 07/10: nhóm thịt bò / thịt dê — mở khoá rải đều để người chơi leo dần */
+T('t_bo_tai', 'Thịt bò tái', 'Bò tái', '#c85a4a', 1, 9000, 17000, 120000);
+T('t_bo_cuon', 'Bò cuộn', 'Bò cuộn', '#b0503f', 1, 9500, 18000, 180000);
+T('t_de_luoc', 'Thịt dê luộc', 'Dê luộc', '#d8c0a8', 1, 8000, 15000, 260000);
+T('t_dui_de', 'Đùi dê', 'Đùi dê', '#8f4a3a', 1, 10000, 19000, 320000);
 
 /* --- DƯỢC THIỆN (duoc — cao cấp, khách thường đôi khi gọi) --- */
 const D = mk('duoc', 'duoc');
@@ -96,6 +105,17 @@ export const POT_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'base')
 export const DIP_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'dip');
 export const TOP_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'top');
 export const DUOC_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'duoc');
+
+/* 07/10: CHIA ĐỒ NHÚNG THÀNH TỪNG MỤC cho dễ nhìn (yêu cầu thiết kế).
+ * Món nào không nằm trong danh sách này sẽ tự rơi vào mục "Món khác" ở màn chuẩn bị. */
+export const TOP_SECTIONS = [
+  { l: '🥩 Thịt bò · thịt dê', ks: ['t_bo', 't_bo_tai', 't_bo_cuon', 't_gau', 't_sun', 't_ba_chi', 't_cuu', 't_de', 't_de_luoc', 't_dui_de'] },
+  { l: '🦐 Hải sản', ks: ['t_tom', 't_muc', 't_ngheu', 't_ca_dieu'] },
+  { l: '🍢 Viên · đậu · trứng', ks: ['t_bo_vien', 't_ca_vien', 't_ca_vien_chien', 't_dau_hu_ky', 't_dau_hu_non', 't_trung'] },
+  { l: '🥬 Rau · củ', ks: ['t_rau_muong', 't_cai_cuc', 't_chan_vit', 't_cai_thia', 't_cu_sen'] },
+  { l: '🍄 Nấm', ks: ['t_kim_cham', 't_dong_co', 't_dui_ga'] },
+  { l: '🍜 Bún · miến · mì', ks: ['t_mi_goi', 't_mien', 't_bun', 't_udong'] }
+];
 export const SECRET_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'secret');
 export const XTOP_KEYS = SECRET_KEYS.filter(k => ITEMS[k].sell <= 10);  // bán bằng linh thạch
 
