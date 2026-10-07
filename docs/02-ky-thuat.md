@@ -42,7 +42,11 @@ Nguyên tắc ấm-áp-đồ-ăn là kiến thức thể loại chung; mọi gi�
 - PWA manifest để cài vào máy.
 
 ## Kiểm thử nhanh trên trình duyệt (QA)
-Mở `python3 -m http.server 8793` rồi vào `http://127.0.0.1:8793/game/index.html`. Trình duyệt sạch
+Mở `python3 -m http.server 8794` (CỔNG 8794 — TUYỆT ĐỐI KHÔNG dùng 8793: đó là cổng server
+nhúng của app macOS Lẩu Hẻm Tiên; chiếm cổng 8793 là app hiện "Directory listing for /" và
+KHÔNG vào được game, lại còn phơi danh sách tệp của dự án ra mạng LAN) rồi vào
+`http://127.0.0.1:8794/game/index.html`.
+Xong việc PHẢI tắt server test (`pkill -f "http.server 8794"`). Trình duyệt sạch
 (chưa có save) sẽ đi qua: splash → `#btnPlay` → lớp tạo nhân vật → nút "🍲 Bắt đầu câu chuyện" →
 màn mở đầu (nút "Bỏ qua ⏭") → đặt tên quán (nút "Giữ ...") → màn chuẩn bị.
 - Màn chuẩn bị: nút nhập hàng có `data-inc="<mã nguyên liệu>"` (ví dụ `ca_chua`, `sup`); mỗi lần
