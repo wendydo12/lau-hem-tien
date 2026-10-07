@@ -53,6 +53,10 @@ lại thành bảng dưới đây để lúc vẽ không bị lạc sang kiểu 
 
 ## 5. Bộ A — Hẻm Việt: 14 món (đã chỉnh theo ảnh tham khảo)
 
+> **Cập nhật 08/10/2026:** bảng giá dưới đây là bản nháp (chỉ 14 món, có món không còn sprite).
+> Bảng chính thức cho đủ 16 món + 16 món bộ B: **`docs/11-gia-noi-that.md`**;
+> nguồn sự thật trong mã: `ROOM` ở `game/js/engine/data.js`.
+
 | món | giá | hiệu ứng trong game |
 |---|---|---|
 | Tủ thờ ông địa (kèm lư hương) | 1.200.000 | mở sự kiện ông địa ghé thăm |

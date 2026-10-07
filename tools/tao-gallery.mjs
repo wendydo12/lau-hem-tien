@@ -9,7 +9,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { SPRITES } from '../game/js/manifest.js';
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, UPG } from '../game/js/engine/data.js';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, UPG, ROOM } from '../game/js/engine/data.js';
+import { hieuUngPhong, TRAN_PHONG, giaBo } from '../game/js/engine/room.js';
 
 const ROOT = path.join(import.meta.dirname, '..');
 const ASSETS = path.join(ROOT, 'assets');
@@ -60,14 +61,43 @@ if (props.length) {
   parts.push(grid(props.map(([k, f]) => card(f, k))));
 }
 
+/* ---- NỘI THẤT: hiện GIÁ + HIỆU ỨNG (định giá 08/10) ---- */
+const fmtV = n => n.toLocaleString('vi-VN') + 'đ';
+const TRUC_PHAN_TRAM = ['kienNhan', 'khach', 'khachTuTien', 'khachDem', 'daoTam', 'nhanhPhucVu', 'vachCanhLua'];
+const moTruc = (e = {}) => Object.entries(e).map(([t, v]) => {
+  const ten = NHAN_TRUC[t] || t;
+  if (typeof v !== 'number') return ten;
+  if (TRUC_PHAN_TRAM.includes(t)) return `${ten} +${v}%`;
+  if (t === 'uyTin') return `${ten} +${v}`;
+  if (t === 'giamPhat' || t === 'giamTrom') return `${ten} còn ${Math.round(v * 100)}%`;
+  return `${ten} +${v}`;
+}).join(' · ');
+const NHAN_TRUC = {
+  kienNhan: 'kiên nhẫn', khach: 'khách', khachTuTien: 'khách tu tiên', khachDem: 'khách đêm',
+  daoTam: 'đạo tâm', uyTin: 'uy tín', nhanhPhucVu: 'bưng bê', vachCanhLua: 'canh lửa',
+  moSuKien: 'mở sự kiện', boQuaThanhTra: 'bỏ qua lỗi nhỏ', boQuyt: 'chống quỵt', giamTrom: 'giảm mất trộm',
+  giamPhat: 'giảm tiền phạt', moDoDien: 'mở đồ điện'
+};
 if (SPRITES.room) {
   const r = SPRITES.room;
-  parts.push(h2(`🏮 Nội thất ĐỘNG TIÊN — ${Object.keys(r.dongTien).length} món`, 'thư phòng · thiền thất tu tiên'));
-  parts.push(note('Dùng cho bộ B của màn "Phòng ở". Vẽ mới 07/10, đọc từng ô khi kiểm.'));
-  parts.push(grid(Object.entries(r.dongTien).map(([k, f]) => card(f, k))));
-  parts.push(h2(`🏠 Nội thất HẺM VIỆT — ${Object.keys(r.hemViet).length} món`, 'phòng trọ Việt Nam thập niên 80–2000'));
-  parts.push(note('Dùng cho bộ A của màn "Phòng ở": rèm hoa đỏ, TV ăng-ten râu, máy khâu, bằng khen…'));
-  parts.push(grid(Object.entries(r.hemViet).map(([k, f]) => card(f, k))));
+  const bangBo = (style, tieuDe, badge, ghiChu) => {
+    const ds = Object.entries(r[style]);
+    const g = giaBo(style);
+    const u = hieuUngPhong(ds.reduce((o, [k]) => (o[k] = true, o), {}), style).so;
+    const tong = moTruc(u);
+    const tran = moTruc(TRAN_PHONG[style]);
+    parts.push(h2(`${tieuDe} — ${ds.length} món`, badge));
+    parts.push(note(`${ghiChu} Tổng bộ: ${g.vnd ? fmtV(g.vnd) : g.ls + ' linh thạch'}` +
+      `${g.vnd && g.ls ? ' + ' + g.ls + ' LS' : ''}. Mua đủ bộ được: ${tong} (trần mỗi trục: ${tran}).`));
+    parts.push(grid(ds.sort((a, b) => (a[1].p || a[1].pls * 50000) - (b[1].p || b[1].pls * 50000))
+      .map(([k, f]) => card(f, ROOM[style][k].n,
+        (ROOM[style][k].p ? fmtV(ROOM[style][k].p) : ROOM[style][k].pls + ' LS') + ' — ' + moTruc(ROOM[style][k].e)))));
+  };
+  bangBo('dongTien', '🏮 Nội thất ĐỘNG TIÊN', 'thư phòng · thiền thất tu tiên',
+    'Trả bằng LINH THẠCH (xa hoa, để dành cuối game). Hiệu ứng thiên về khách tu tiên.');
+  bangBo('hemViet', '🏠 Nội thất HẺM VIỆT', 'phòng trọ Việt Nam thập niên 80–2000',
+    'Trả bằng TIỀN MẶT (đời thường, mua sớm được). Hiệu ứng thiên về kiên nhẫn của khách.');
+  parts.push(note('Luật cân bằng: chỉ BỘ ĐANG BÀY có hiệu lực (hai bộ không cộng dồn); cùng một trục thì cộng dồn giảm dần ×0.8 và bị cắt trần — chi tiết ở docs/11-gia-noi-that.md.'));
 }
 
 parts.push(h2(`⚡ Trang bị nâng cấp — ${UPG.length} món`, 'đích tiêu tiền trong game'));

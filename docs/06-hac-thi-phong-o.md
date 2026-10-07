@@ -2,6 +2,10 @@
 
 Ngày 07/10/2026 · trạng thái: **đề xuất, chưa code, chưa tiêu credit nào** · người viết: dự án
 
+> **Cập nhật 08/10/2026:** bảng giá trong tài liệu này là bản nháp đầu và **đã bị thay** —
+> bảng giá chính thức (đủ 32 món, có neo giá trị và số đo cân bằng) nằm ở
+> **`docs/11-gia-noi-that.md`**, còn nguồn sự thật trong mã là `ROOM` ở `data.js`.
+
 ## 1. Vì sao có màn này
 
 Cốt truyện đã có **nợ phòng trọ 2 triệu, hạn 7 ngày** (`cfg.storyDebt`). Vậy chỗ ở của chủ quán

@@ -605,3 +605,58 @@ export const BRATS = {
   mac: { n: 'Khách kỳ kèo', d: 'Nhận nồi rồi mới nài giá, chỉ chịu trả 80%' },
   bung: { n: 'Khách bùng', d: 'Ôm nồi chạy mất hút, không trả một đồng' }
 };
+
+/* ===== NỘI THẤT PHÒNG Ở (định giá 08/10/2026) =====
+ * Hai bộ, mỗi bộ 16 món — ĐÚNG BẰNG số sprite đang có trong assets/do-vat/ (hv_* và tt_*).
+ * Bảng giá cũ trong docs/08 chỉ phủ 14 món và có món không còn tệp; bảng này là nguồn duy nhất.
+ *
+ * LUẬT ĐỊNH GIÁ (chi tiết + số đo ở docs/11-gia-noi-that.md):
+ *  · neo giá trị: 1% hiệu ứng mạnh (khách / kiên nhẫn) ≈ 45.000đ hoặc ≈ 1 linh thạch
+ *    — so với nâng cấp: bảng neon 800k cho +20% khách = 40k/1%, ghế nhựa 1tr cho +25% kiên nhẫn = 40k/1%.
+ *    Nội thất để 45k/1% (nhích hơn một chút) vì hiệu ứng bị CHẶN TRẦN, không cộng vô hạn.
+ *  · món MỞ NỘI DUNG (sự kiện, bỏ phạt, chống trộm, canh lửa) đắt hơn % thuần vì mở ra lối chơi mới.
+ *  · bộ Hẻm Việt trả bằng TIỀN MẶT (đời thường, rẻ, mua sớm được);
+ *    bộ Động Tiên trả bằng LINH THẠCH (xa hoa, mạnh hơn, để dành cuối game).
+ *  · mỗi món cùng trục cộng dồn GIẢM DẦN ×0.8 và bị cắt trần — xem engine/room.js.
+ *  · hai bộ KHÔNG cộng dồn: chỉ bộ đang bày trong phòng có hiệu lực.
+ */
+export const ROOM = {
+  /* ---------- Bộ A — Hẻm Việt: 16 món, tổng 4.200.000đ ---------- */
+  hemViet: {
+    dep_nhua:    { n: 'Đôi dép nhựa trước cửa',        p: 80000,    e: { uyTin: 1 },                   d: 'Cởi dép trước cửa — đời thường chân thật' },
+    tu_nhieu_o:  { n: 'Tủ gỗ nhiều ô',                 p: 120000,   e: { kienNhan: 3, uyTin: 1 },      d: 'Chén bát xếp gọn, nhìn là thấy đàng hoàng' },
+    o_cam:       { n: 'Ổ cắm + dây điện chân tường',   p: 120000,   e: { moDoDien: true },             d: 'Điện đi đâu ra đó — đồ điện trong phòng mới chạy được' },
+    phich_nuoc:  { n: 'Phích nước nóng',               p: 120000,   e: { kienNhan: 3 },                d: 'Rót nước mời khách đang chờ' },
+    chau_kien:   { n: 'Chậu kiểng',                    p: 130000,   e: { khach: 3 },                   d: 'Cây xanh trước quán, khách ghé nhiều hơn' },
+    tranh_son_mai:{ n: 'Tranh sơn mài đỏ son',         p: 150000,   e: { khachTuTien: 5 },             d: 'Khách tu tiên thấy "có gu"' },
+    bang_khen:   { n: 'Bằng khen "Người tốt việc tốt"', p: 150000,  e: { boQuaThanhTra: 1 },           d: 'Thanh tra vệ sinh dễ bỏ qua lỗi nhỏ' },
+    chieu_coi:   { n: 'Chiếu cói',                     p: 160000,   e: { kienNhan: 4 },                d: 'Trải chiếu, khách đợi có chỗ ngồi tử tế' },
+    am_tich:     { n: 'Ấm tích + chén trà',            p: 160000,   e: { kienNhan: 4 },                d: 'Bộ ấm chén bày sẵn, khách tự rót' },
+    loc_lich:    { n: 'Lốc lịch + cụm khung ảnh',      p: 200000,   e: { uyTin: 1 },                   d: 'Ngày tháng treo tường, quán ra dáng' },
+    quat_cay:    { n: 'Quạt cây cũ',                   p: 200000,   e: { kienNhan: 5 },                d: 'Ngày nóng bớt cằn nhằn' },
+    dai_cassette:{ n: 'Đài cassette đỏ',               p: 240000,   e: { kienNhan: 6 },                d: 'Nhạc chờ rè rè, khách bớt sốt ruột' },
+    rem_hoa:     { n: 'Rèm hoa đỏ',                    p: 250000,   e: { uyTin: 2 },                   d: 'Rèm hoa thắt dây, quán "có hồn" hơn' },
+    tv_crt:      { n: 'TV CRT ăng-ten râu',            p: 320000,   e: { kienNhan: 8 },                d: 'Khách trẻ ngồi xem TV, đợi lâu hơn' },
+    may_khau:    { n: 'Máy khâu đen + bàn gỗ',         p: 600000,   e: { giamPhat: 0.5 },              d: 'Hàng xóm quý: tiền phạt phàn nàn còn một nửa' },
+    ban_tho:     { n: 'Bàn thờ ông địa + lư hương',    p: 1200000,  e: { moSuKien: 'ong_dia' },        d: 'Hương khói quanh năm — mở sự kiện ông địa ghé thăm' }
+  },
+  /* ---------- Bộ B — Động Tiên: 16 món, tổng 124 linh thạch ---------- */
+  dongTien: {
+    de_go:       { n: 'Đế gỗ kê nồi',                  pls: 4, e: { vachCanhLua: 5 },            d: 'Nồi kê cao đúng tầm mắt — canh lửa dễ hơn' },
+    tham:        { n: 'Thảm cỏ đan',                   pls: 4, e: { kienNhan: 3 },              d: 'Khách tu tiên ngồi thiền trên thảm, đợi lâu hơn' },
+    bo_doan:     { n: 'Bồ đoàn cũ',                    pls: 8, e: { nhanhPhucVu: 8 },           d: 'Chủ quán ngồi thiền đỡ mệt: bưng bê nhanh hơn' },
+    binh_lam:    { n: 'Bình lam gốm',                  pls: 6, e: { uyTin: 2 },                 d: 'Bình gốm lam để góc phòng, khách thấy thanh tịnh' },
+    lu_huong:    { n: 'Lư hương đồng',                 pls: 9, e: { khachTuTien: 7 },           d: 'Khói hương dẫn linh khí — khách tu tiên nghe mùi mà tới' },
+    den_long:    { n: 'Đèn lồng đỏ',                   pls: 4, e: { khach: 3 },                 d: 'Đèn lồng sáng đêm, khách ghé nhiều hơn' },
+    binh_phong:  { n: 'Bình phong gỗ',                 pls: 5, e: { khachTuTien: 3, uyTin: 2 }, d: 'Che tầm mắt, phòng ra dáng thư phòng' },
+    ke_go:       { n: 'Kệ gỗ nhiều tầng',              pls: 5, e: { kienNhan: 4 },              d: 'Đồ đạc xếp tầng, khách đợi không thấy bừa' },
+    tranh_truc:  { n: 'Tranh trúc sơn thuỷ',           pls: 5, e: { khachTuTien: 4 },           d: 'Tranh trúc treo tường, khách tu tiên ưa' },
+    den_luu_ly:  { n: 'Đèn lưu ly',                    pls: 6, e: { khachDem: 5 },              d: 'Ánh lưu ly xanh ngọc, quán sáng về đêm' },
+    ban_tra:     { n: 'Bàn trà đá',                    pls: 6, e: { kienNhan: 5 },              d: 'Bàn đá rót trà mời khách chờ' },
+    an_thu:      { n: 'Án thư gỗ mun',                 pls: 6, e: { khachTuTien: 5 },           d: 'Án thư đặt giữa phòng: khách tu tiên thấy đồng đạo' },
+    ruong_go:    { n: 'Rương gỗ khoá đồng',            pls: 14, e: { giamTrom: 0.5 },            d: 'Tiền để trong rương có khoá: mất trộm chỉ còn một nửa' },
+    ghe_go:      { n: 'Ghế gỗ chấn song',              pls: 6, e: { kienNhan: 5 },              d: 'Ghế chắc chắn, khách ngồi đợi thoải mái' },
+    guong_dong:  { n: 'Gương đồng soi đạo tâm',        pls: 12, e: { daoTam: 10 },               d: 'Soi gương thấy đạo tâm: khách tu tiên kiên nhẫn hơn hẳn' },
+    gia_kiem:    { n: 'Giá kiếm bảy thanh',            pls: 24, e: { boQuyt: true },             d: 'Kiếm trận dựng góc phòng: khách tu tiên không dám quỵt' }
+  }
+};

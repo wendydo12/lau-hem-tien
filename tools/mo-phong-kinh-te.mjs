@@ -11,6 +11,8 @@
  * Chạy: node tools/mo-phong-kinh-te.mjs [sốNgày]
  */
 import { makeCFG } from '../game/js/engine/config.js';
+import { ROOM } from '../game/js/engine/data.js';
+import { hieuUngPhong } from '../game/js/engine/room.js';
 import { fresh, newPot } from '../game/js/engine/state.js';
 import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, BASE_PRICE } from '../game/js/engine/data.js';
 import { addStock, qty, costOf } from '../game/js/engine/stock.js';
@@ -20,9 +22,23 @@ import { makeRNG } from '../game/js/engine/rng.js';
 import { evMul } from '../game/js/engine/events.js';
 
 const N = Number(process.argv[2] || 20);
-const EFF = Number(process.env.EFF || 1);   // EFF=0.8 → bỏ sót 20% khách (người chơi lơ đễnh)
+const EFF0 = Number(process.env.EFF || 1);   // EFF=0.8 → bỏ sót 20% khách (người chơi lơ đễnh)
+/* FURN=1 (08/10): đo ảnh hưởng của bộ nội thất đang bày lên kinh tế.
+ * HAI GIẢ ĐỊNH đo được, ghi rõ để không tự lừa mình:
+ *   · kiên nhẫn +X% → số khách bị bỏ sót giảm X% của phần đang mất: EFF = EFF0 + (1-EFF0)×X%
+ *   · khách tới +Y%  → trần khách mỗi ca ×(1+Y%)
+ * Chỉ áp hai trục này vì mô phỏng chỉ mô hình được hai trục đó. */
+const FURN = process.env.FURN === '1';
+const FURN_STYLE = process.env.FURN_STYLE || 'hemViet';
 const cfg = makeCFG();
-const rng = makeRNG(20261007);
+/* hiệu ứng bộ nội thất đang bày — chỉ tính khi FURN=1 */
+const muaHetPhong = Object.keys(ROOM[FURN_STYLE]).reduce((o, k) => (o[k] = true, o), {});
+const P = (() => {
+  const u = FURN ? hieuUngPhong(muaHetPhong, FURN_STYLE).so : {};
+  const kn = u.kienNhan || 0, kh = u.khach || 0;
+  return { eff: u, kienNhan: kn, khach: kh, effEFF: Math.min(1, EFF0 + (1 - EFF0) * kn / 100) };
+})();
+const rng = makeRNG(Number(process.env.SEED || 20261007));   /* SEED= để đo nhiều ván, tránh kết luận từ 1 ván */
 const S = fresh(cfg);
 S.shopName = 'Mô phỏng';
 const rows = [];
@@ -31,7 +47,7 @@ for (let day = 1; day <= N; day++) {
   /* ---- CHUẨN BỊ: nhập hàng cho số khách dự kiến ---- */
   const b = cfg.balance || {};
   const soft = Math.round((b.guestSoftBase ?? 13) + (S.day - 1) * (b.guestSoftPerDay ?? 0.45));
-  const cap = Math.max(3, Math.min(Math.round(traffic(S, cfg, evMul(S)) * (b.guestCapMul ?? 12)), soft));
+  const cap = Math.max(3, Math.min(Math.round(traffic(S, cfg, evMul(S)) * (b.guestCapMul ?? 12) * (1 + (P.eff.khach || 0) / 100)), soft));
   /* Người chơi biết việc: mua trong phạm vi tiền đang có, ưu tiên nồi rẻ trước,
    * mua đủ cho số khách dự kiến chứ không ôm cả 12 loại nồi. */
   let spend = 0;
@@ -74,6 +90,7 @@ for (let day = 1; day <= N; day++) {
     arrivals++;
     R.today.arrived++;
     /* người chơi thật không hoàn hảo: EFF<1 thì có khách bị bỏ quên, họ bỏ về */
+    const EFF = P.effEFF;
     if (EFF < 1 && rng.next() > EFF) { R.today.lost++; continue; }
     if (r.kind !== 'ok' && r.kind !== 'star') continue;
     const i = r.slot;
