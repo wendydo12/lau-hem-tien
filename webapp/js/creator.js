@@ -3,7 +3,7 @@
  * Đặc trưng Việt Nam: áo bà ba, tóc đen, da ấm. Nhân vật chọn sẽ thay "Minh" trong intro
  * và hiện làm chủ quán (sprite vn_00 được thay bằng avatar người chơi).
  *
- * Toàn bộ UI + tên gợi ý quán: SÁNG TÁC GỐC của Uyển Nhi.
+ * Toàn bộ UI + tên gợi ý quán: SÁNG TÁC GỐC của dự án.
  */
 import { SPRITES } from './manifest.js?v=39';
 

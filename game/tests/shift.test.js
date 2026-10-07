@@ -1,4 +1,4 @@
-/* tests/shift.test.js — CA TỐI: đồng hồ 10 phút/nhịp + đường cong khách (lệnh phu quân 07/10) */
+/* tests/shift.test.js — CA TỐI: đồng hồ 10 phút/nhịp + đường cong khách (yêu cầu thiết kế 07/10) */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals, GUEST_CURVE, MIN_GAP_MS } from '../js/engine/shift.js';

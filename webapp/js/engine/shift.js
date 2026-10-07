@@ -1,4 +1,4 @@
-/* engine/shift.js — CA TỐI của quán (lệnh phu quân 07/10/2026)
+/* engine/shift.js — CA TỐI của quán (yêu cầu thiết kế 07/10/2026)
  *
  * Quán chỉ mở 19:00 → 23:00, đồng hồ nhảy từng 10 PHÚT kiểu Stardew Valley (19:00, 19:10…).
  * Nhịp thật: 8 giây cho mỗi 10 phút game → cả ca = 24 nhịp = 192 giây ≈ 3 phút 12 giây thật.

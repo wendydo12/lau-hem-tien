@@ -18,7 +18,7 @@ const mk = (type, g) => (k, n, sn, c, life, cost, sell, unlock) => {
   ITEMS[k] = { n, s: sn || n, type, g, c, life, cost, sell, unlock };
 };
 
-/* --- NỒI LẨU (base) — 9 nồi theo brief của phu quân (25/09 thêm 2 món miền Tây) --- */
+/* --- NỒI LẨU (base) — 9 nồi theo brief của chủ dự án (25/09 thêm 2 món miền Tây) --- */
 const P = mk('base', 'pot');
 P('ca_chua', 'Lẩu cà chua', 'Cà chua', '#e8542e', 3, 8000, 35000, 0);
 P('nam', 'Lẩu nấm', 'Nấm', '#c9a86a', 3, 9000, 40000, 0);
@@ -78,7 +78,7 @@ const D = mk('duoc', 'duoc');
 D('du_nam_bung_de', 'Nấm bụng dê', 'Bụng dê', '#8a6a4a', 2, 8000, 16000, 350000);
 
 /* --- THỰC ĐƠN EXTRA BÍ MẬT (secret — CHỈ hiện slot khi có khách tu tiên đang chờ.
- * Khách thường không bao giờ thấy/gọi được. Quy tắc của phu quân 25/09.) --- */
+ * Khách thường không bao giờ thấy/gọi được. Quy tắc của dự án 25/09.) --- */
 const SEC = mk('secret', 'secret');
 SEC('x_linh_chi', 'Linh chi ngàn năm', 'Linh chi', '#8a3a2a', 3, 0, 2, 400000);      // sell = linh thạch hạ phẩm
 SEC('x_huyet_sen', 'Huyết sen', 'Huyết sen', '#d64553', 2, 0, 3, 500000);            // sell = linh thạch
@@ -210,7 +210,7 @@ export const STARS = [
 ];
 
 /* ===== GIỌNG GỌI MÓN ===== (sáng tác gốc) */
-/* PERSONA theo who — khớp sprite/names (sửa 25/09 theo lệnh phu quân):
+/* PERSONA theo who — khớp sprite/names (sửa 25/09 theo yêu cầu thiết kế):
  * who 0 = chị trẻ (vn_06) · 1 = em nữ sinh (vn_02) · 2 = anh văn phòng (vn_03)
  * 3 = bà cụ (vn_04) · 4 = bé trai (vn_05) · 5 = ông/chú lớn tuổi (vn_01) · 6 = anh shipper (vn_07)
  * vn_00 là CHỦ QUÁN — không bao giờ spawn làm khách. */
@@ -229,7 +229,7 @@ export const XPERSONA = [
   {o: ["Ngửi mùi mà tới, bổn tiên muốn", "Cho ta nồi", "Nghe đồn ngon, cho ta"], e: [" ngay.", " nào.", " đi, ta ngồi đây."]}
 ];
 
-/* ===== TÊN KHÁCH ===== (danh sách do Uyển Nhi tự soạn) */
+/* ===== TÊN KHÁCH ===== (danh sách do dự án tự soạn) */
 export const NM_NU = [
     "Ánh Tuyết",
     "Bích Liên",

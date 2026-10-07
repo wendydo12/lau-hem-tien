@@ -1,4 +1,4 @@
-/* tests/ramp.test.js — LEO THANG ĐƠN HÀNG THEO NGÀY (lệnh phu quân 07/10/2026)
+/* tests/ramp.test.js — LEO THANG ĐƠN HÀNG THEO NGÀY (yêu cầu thiết kế 07/10/2026)
  * "yêu cầu add-ons của khách tăng từ từ" — đo bằng số: mỗi ngày một nhích, không nhảy bậc,
  * và ngày đầu phải thật dễ để người chơi vào guồng. */
 import { test } from 'node:test';

@@ -3,7 +3,7 @@
  * Mỗi nồi lẩu hoàn hảo, mỗi khách hài lòng là một chút "đạo vận" tích tụ.
  * Đủ tu vi thì ĐỘT PHÁ cảnh giới → mở buff vĩnh viễn + thoại vị khách tiên đầu tiên nhận ra.
  *
- * Toàn bộ tên cảnh giới + thoại: SÁNG TÁC GỐC của Uyển Nhi cho thế giới lẩu hẻm.
+ * Toàn bộ tên cảnh giới + thoại: SÁNG TÁC GỐC của dự án cho thế giới lẩu hẻm.
  * Cơ chế exp/level là ý tưởng vận hành chung của thể loại — không sao chép biểu đạt.
  */
 

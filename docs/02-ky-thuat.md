@@ -41,12 +41,32 @@ Nguyên tắc ấm-áp-đồ-ăn là kiến thức thể loại chung; mọi gi�
 - Local: python3 -m http.server 8793 (port chốt sau, tránh 8790 FCC/8792 Laya) + token query như FCC.
 - PWA manifest để cài vào máy.
 
-## Kiểm thử nhanh trên trình duyệt (QA)
-Mở `python3 -m http.server 8794` (CỔNG 8794 — TUYỆT ĐỐI KHÔNG dùng 8793: đó là cổng server
-nhúng của app macOS Lẩu Hẻm Tiên; chiếm cổng 8793 là app hiện "Directory listing for /" và
-KHÔNG vào được game, lại còn phơi danh sách tệp của dự án ra mạng LAN) rồi vào
-`http://127.0.0.1:8794/game/index.html`.
-Xong việc PHẢI tắt server test (`pkill -f "http.server 8794"`). Trình duyệt sạch
+## Kiểm thử nhanh trên trình duyệt (QA) — đọc kỹ, đã từng gây lỗi thật (07/10/2026)
+
+**Luật 1 — cổng**: dùng cổng 8794. TUYỆT ĐỐI KHÔNG dùng 8793: đó là cổng server nhúng của app
+macOS Lẩu Hẻm Tiên; chiếm cổng 8793 là app hiện "Directory listing for /", không vào được game và
+phơi danh sách tệp dự án ra mạng LAN.
+
+**Luật 2 — gốc máy chủ phải là GỐC KHO, không phải thư mục `game/`.** Ảnh (nhân vật, khách, đồ ăn,
+nồi lẩu) nằm ở `webapp/assets/`; thư mục `game/` **cố ý không có assets** để khỏi nhân đôi 235 tệp
+ảnh. Nếu trỏ máy chủ vào `game/` rồi mở `game/index.html` thì mọi đường dẫn ảnh `nhan-vat/...`,
+`mon-an/...` đều 404 → **toàn bộ hình trong game vỡ thành ô trắng**, y như lỗi đã xảy ra ngày
+07/10/2026. Cách đúng (giống hệt cách app macOS chạy):
+
+```
+cd ~/projects/laudem-tien && python3 -m http.server 8794 --bind 127.0.0.1
+# rồi mở:  http://127.0.0.1:8794/webapp/index.html
+```
+
+Trước khi kết luận "game lỗi ảnh", hãy tự kiểm: mở trang bằng `/webapp/index.html` và đếm ảnh vỡ
+(`[...document.querySelectorAll('img')].filter(i=>i.complete&&i.naturalWidth===0).length` phải = 0),
+đồng thời `npm test` có tệp `sprite.test.js` canh đủ 96 tệp hình.
+
+**Luật 3 — save nằm trong localStorage theo từng origin**: QA trên cổng test sẽ ghi vào save của
+chính origin đó. Xong việc nên `localStorage.clear()` cho origin test để lần sau đọc lại từ đầu,
+tránh nhầm save test với save thật (save thật nằm ở app 8793).
+
+**Luật 4 — dọn dẹp**: xong việc PHẢI tắt server test (`pkill -f "http.server 8794"`). Trình duyệt sạch
 (chưa có save) sẽ đi qua: splash → `#btnPlay` → lớp tạo nhân vật → nút "🍲 Bắt đầu câu chuyện" →
 màn mở đầu (nút "Bỏ qua ⏭") → đặt tên quán (nút "Giữ ...") → màn chuẩn bị.
 - Màn chuẩn bị: nút nhập hàng có `data-inc="<mã nguyên liệu>"` (ví dụ `ca_chua`, `sup`); mỗi lần

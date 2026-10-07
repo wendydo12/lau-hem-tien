@@ -1,6 +1,6 @@
-# Giọng đánh giá khách + màn đáp trả — bản thiết kế (chờ phu quân gật)
+# Giọng đánh giá khách + màn đáp trả — bản thiết kế (chờ chủ dự án gật)
 
-Ngày 07/10/2026 · trạng thái: **đề xuất, chưa code** · người viết: Uyển Nhi
+Ngày 07/10/2026 · trạng thái: **đề xuất, chưa code** · người viết: dự án
 
 ## 1. Kiểm tra hiện trạng (đếm thật trong mã, 07/10)
 
@@ -15,7 +15,7 @@ Ngày 07/10/2026 · trạng thái: **đề xuất, chưa code** · người vi�
   từ 1–2 sao lên; Hài hước 10% thành clip viral (+50k–150k); Cà khịa 18% viral nhưng 30%
   phản tác dụng, riêng cà khịa khách tu tiên thì **luôn** toang. Ô tự viết tay cũng đã có.
 
-**Chưa có (đúng chỗ phu quân muốn đậm hơn)**
+**Chưa có (đúng chỗ chủ dự án muốn đậm hơn)**
 - **Giọng theo tầng khách**: hiện mọi khách nói cùng một giọng. Chưa có chuyện sinh viên trọ
   nói khác shipper, dân văn phòng nói khác bà bán rau.
 - **Giọng genZ** đúng chất (mlem, đỉnh nóc, hết nước chấm, chấm 1 sao, "tus", "flex"…).

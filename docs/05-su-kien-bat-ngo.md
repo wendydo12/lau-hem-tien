@@ -1,6 +1,6 @@
-# Sự kiện bất ngờ TRONG CA — bản thiết kế (chờ phu quân gật)
+# Sự kiện bất ngờ TRONG CA — bản thiết kế (chờ chủ dự án gật)
 
-Ngày 07/10/2026 · trạng thái: **đề xuất, chưa code** · người viết: Uyển Nhi
+Ngày 07/10/2026 · trạng thái: **đề xuất, chưa code** · người viết: dự án
 
 ## 1. Kiểm tra hiện trạng (đo thật trong mã, 07/10)
 
@@ -13,7 +13,7 @@ Ngày 07/10/2026 · trạng thái: **đề xuất, chưa code** · người vi�
 - Chống gian lận: két > 100 triệu trước ngày 30 → mất sạch (chừa 500k).
 - Tiền tip cơ bản: `loop.js` → tip theo độ kiên nhẫn còn lại, ×1.3 nếu có máy đậy nắp.
 
-**Chưa có (đúng thứ phu quân vừa liệt kê)**
+**Chưa có (đúng thứ chủ dự án vừa liệt kê)**
 - Sự kiện nổ **ngay lúc đang bán**, khách đang ngồi trong quán.
 - Khách **quỵt tiền** (ăn xong bỏ đi).
 - **Thanh tra vệ sinh** đột xuất tại chỗ (khác với đoàn kiểm tra sổ sách).
@@ -23,7 +23,7 @@ Ngày 07/10/2026 · trạng thái: **đề xuất, chưa code** · người vi�
 ## 2. Nguyên tắc cân bằng (để vui chứ không ức chế)
 
 1. **Ngày 1–4 yên ổn tuyệt đối** (chỉ có tin vui); **từ ngày 5–6 mới bắt đầu có sự kiện xui**
-   (lệnh phu quân 07/10/2026). Ngày thứ 5: mở màn bằng đúng 1 sự kiện xui nhẹ cho người chơi
+   (yêu cầu thiết kế 07/10/2026). Ngày thứ 5: mở màn bằng đúng 1 sự kiện xui nhẹ cho người chơi
    biết "đời không như mơ", rồi từ ngày 6 trở đi mới chạy theo tỉ lệ dưới đây.
 2. Mỗi ca tối đa **1 sự kiện xấu**, tối đa 1 sự kiện tốt. Tổng tỉ lệ có sự kiện: ~28%/ca.
 3. Sự kiện xấu **không bao giờ lấy quá 12% tiền đang có** (trừ khi có đồ chống thì ít hơn).
@@ -59,12 +59,13 @@ không phạt; 50–79 → nhắc nhở; <50 → phạt.
   sự kiện xấu không lấy quá 12% tiền; `quyt` có Hộ pháp thu hồi 75%; `ve_sinh` sạch thì miễn.
 - Chạy 400 ca giả lập, in bảng tần suất thật để so với bảng trên (không đoán bằng mắt).
 
-## 6. Luật giọng kể (bài học 07/10 — phu quân bắt được lỗi)
+## 6. Luật giọng kể (bài học 07/10 — chủ dự án bắt được lỗi)
 
-Game là SẢN PHẨM CHO NHIỀU NGƯỜI CHƠI, không phải sổ riêng của ai. Câu chữ trong game chỉ được
-dùng giọng của quán: người kể xưng **"mình"** (chủ quán), gọi người chơi là **"bạn"** khi cần.
-TUYỆT ĐỐI không dùng cách xưng hô riêng của trợ lý (thiếp / phu quân / sư huynh / tên riêng của
-trợ lý) trong câu chữ hiển thị — kể cả trong thoại khách tu tiên.
+Game là SẢN PHẨM RIÊNG, làm cho nhiều người chơi — không phải sổ riêng của người làm ra nó.
+Câu chữ trong game chỉ được dùng giọng của quán: người kể xưng **"mình"** (chủ quán), gọi người
+chơi là **"bạn"** khi cần. Cách xưng hô cá nhân của người làm game bị CẤM ở mọi nơi trong kho:
+câu chữ hiển thị, ghi chú trong mã, và cả tài liệu thiết kế (danh sách từ bị chặn nằm trong
+`game/tests/giong.test.js` — chạy `npm test` là biết ngay có chỗ nào lọt).
 
 Hàng rào tự động: `game/tests/giong.test.js` quét toàn bộ `game/js/**` và `index.html`, bỏ ghi chú
 trong mã rồi soi phần chuỗi còn lại. Ai (kể cả trợ lý) viết lọt giọng là bộ kiểm thử đỏ ngay.

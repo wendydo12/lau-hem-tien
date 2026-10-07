@@ -1,6 +1,6 @@
 # Thư nháp gửi tác giả game tham khảo
 
-> Phu quân đọc, sửa lại giọng cho hợp, rồi gửi qua Facebook/Threads của tác giả.
+> Chủ dự án đọc, sửa lại giọng cho hợp, rồi gửi qua Facebook/Threads của tác giả.
 > Mục đích: nói rõ mình đã làm gì, xin lỗi nếu có chỗ chưa phải, và để họ có tiếng nói.
 
 ---
@@ -32,4 +32,4 @@ mình sửa ngay. Nếu bạn muốn mình dừng phát hành, mình cũng tôn 
 
 Cảm ơn bạn đã làm ra một game để nhiều người học được cách làm game quản lý.
 
-— (tên/ký của phu quân)
+— (tên/ký của chủ dự án)

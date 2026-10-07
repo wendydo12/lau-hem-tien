@@ -21,7 +21,7 @@ Task table:
 | 10 | loop.js — initRuntime, pourResult 3 nhánh (weak/perfect/spill) + lò địa hỏa nới vạch, spawn (thường/tiên/đại năng), serve (VNĐ/LS/brat mac-bung + hộ pháp), timeout, closeDay (thuê+điện+lương+vay+thuế), startDay | ✅ | 7 test tích hợp pass |
 | 11 | tests — 46 test node:test | ✅ | **46/46 PASS, 353ms** |
 
-### QUYẾT ĐỊNH BẢN QUYỀN (lệnh phu quân 25/09)
+### QUYẾT ĐỊNH BẢN QUYỀN (yêu cầu thiết kế 25/09)
 - **Pixel art: 100% sinh mới bằng meowa.ai theo art direction riêng — KHÔNG dùng asset game gốc, KHÔNG sao chép sprite của artist khác.**
 - **Nội dung chữ: viết lại 100% nguyên bản** (đã rewrite toàn bộ TXT/PARTS/LONG/PERSONA/tên khách/GIFTS/BAD/UPG/STAFF mô tả bằng giọng riêng của dự án — file data.js có header tuyên bố bản quyền).
 - Cơ chế/vòng lặp/con số cân bằng: tham khảo thể loại (không được bảo hộ biểu đạt).
@@ -38,8 +38,8 @@ Task table:
 
 ## Phase 2+3 — Meowa assets ✅ (25/09, gộp báo cáo)
 - 17 job / 350cr, còn 865cr. Chi tiết + QA từng job: credits-log/credits.md.
-- Kho: 1 cảnh nền, 8 nồi lẩu, 8 khách Việt, 16 khách tu tiên (64px ĐỒNG BỘ scale khách thường — lệnh phu quân), 41 icon topping/chấm, 16 props, UI kit sheet.
-- 3 vòng sửa theo lệnh phu quân: cá điêu hồng 3 lát, bỏ trùng (bún/kim châm bó/linh chi), thực đơn extra bí mật 8 món type 'secret' (test xác nhận khách thường không bao giờ gọi), gộp 1 menu topping, khách tiên 64px.
+- Kho: 1 cảnh nền, 8 nồi lẩu, 8 khách Việt, 16 khách tu tiên (64px ĐỒNG BỘ scale khách thường — yêu cầu thiết kế), 41 icon topping/chấm, 16 props, UI kit sheet.
+- 3 vòng sửa theo yêu cầu thiết kế: cá điêu hồng 3 lát, bỏ trùng (bún/kim châm bó/linh chi), thực đơn extra bí mật 8 món type 'secret' (test xác nhận khách thường không bao giờ gọi), gộp 1 menu topping, khách tiên 64px.
 - Gallery: assets/gallery.html (mở bằng `open`).
 
 ## Phase 4 — Frontend serve loop ✅ (25/09)
@@ -63,7 +63,7 @@ Task table:
 5. servePot chọn sai khách → ưu tiên khách CÓ ĐƠN KHỚP nồi đang bưng.
 6. Bubble đơn hàng thiếu "chấm X" → orderText hiển thị đủ base/size/cay/chấm/topping.
 
-### Phase 4b — fix theo lệnh phu quân + ÂM THANH ✅ (25/09, commit 6ab85e6)
+### Phase 4b — fix theo yêu cầu thiết kế + ÂM THANH ✅ (25/09, commit 6ab85e6)
 1. Tên-sprite-giọng KHỚP giới tính/tuổi: WHO_SPR=[6,2,3,4,5,1,7] map cố định, manifest.vn đổi thành OBJECT theo số file, PERSONA viết lại 7 giọng đúng vai (chị/em nữ sinh/anh VP/bà cụ/bé trai/ông chú/shipper). vn_00 = chủ quán, không spawn làm khách.
 2. Khách đứng CÙNG mặt đất (bottom 3% cố định, hết lơ lửng).
 3. Hướng dẫn tự hiện lần đầu chơi (lhTienGuide flag).
@@ -76,7 +76,7 @@ Task table:
 ### Phase 5 cần lưu ý (Prep đầy đủ)
 - 5 tab: Kho (xem mẻ + hạn dùng + đổ bỏ), Nâng cấp (6 trang bị VNĐ + 5 trang bị LINH THẠCH — chưa mua được tới Phase 6), Giá bán (sửa giá + cảnh báo đắt theo ngưỡng cfg), Đánh giá (danh sách review + ô trả lời như game gốc), Tổng kết (lịch sử ngày/tuần).
 - Đặt tên quán (modal input), đổi 12 theme (CSS vars có sẵn trong data THEMES).
-- Tiền hiển thị fmtD (tiền giấy VN: 400.000đ) — lệnh phu quân 25/09. Linh thạch quy đổi do engine quyết định (1💎≈50k, drift ±8%/ngày).
+- Tiền hiển thị fmtD (tiền giấy VN: 400.000đ) — yêu cầu thiết kế 25/09. Linh thạch quy đổi do engine quyết định (1💎≈50k, drift ±8%/ngày).
 - Engine đã có đủ hàm cho Phase 5: recRev/recCost, LOANS/takeLoan, rollLSRate, addDebt/resolveDebts, UPG/STAFF.
 - NHỚ: browser cache module JS rất dai — test thay đổi engine phải reload hard + đổi query string.
 
@@ -89,7 +89,7 @@ Task table:
 
 ## Phase 4c (25/09) — INTRO MOVIE + cốt truyện nợ + difficulty ramp + composite nồi lẩu
 
-### 1. Pixel movie intro (kiểu Stardew Valley — lệnh phu quân)
+### 1. Pixel movie intro (kiểu Stardew Valley — yêu cầu thiết kế)
 Cốt truyện: Minh 26 tuổi, nhân viên văn phòng → bị sếp mắng → stress đêm mưa → nghỉ việc
 (còn đúng 500k) → phòng trọ nợ 2 triệu hạn 7 ngày → đẩy xe lẩu đêm → mở quán LẨU HẺM TIÊN.
 - 6 cảnh: 14 job meowa xlarge_3_4 (350cr, balance 865→515). Meowa trả cutout thiếu nền
@@ -109,13 +109,13 @@ Cốt truyện: Minh 26 tuổi, nhân viên văn phòng → bị sếp mắng �
 - Engine: cfg.storyDebt + S.debtRoom + roomDebt/payRoomDebt/roomDebtOverdue (loop.js).
 - Debug hook ?testday=8&testmoney=300000 để test không phải chơi 7 ngày.
 
-### 3. Difficulty ramp (lệnh phu quân: tăng topping từ từ + balance kiên nhẫn)
+### 3. Difficulty ramp (yêu cầu thiết kế: tăng topping từ từ + balance kiên nhẫn)
 - maxTops(day) dùng CHUNG engine+UI: ngày 1-2:1 → 3-5:2 → 6-12:2 → 13-29:3 → 30-45:3
   → 46-59:4 → 60+:5. Phân phối đơn lệch dần về trần.
 - maxPat mới: +18%/món nhúng, món lâu chín (tôm/mực/nghêu/cá/dê/dược/secret) +20%/món
   → đơn phức tạp khách chờ lâu hơn, không bỏ về oan.
 
-### 4. Composite nồi lẩu (lệnh phu quân: "bỏ topping nào lẩu hiện đúng topping đó kiểu trà sữa")
+### 4. Composite nồi lẩu (yêu cầu thiết kế: "bỏ topping nào lẩu hiện đúng topping đó kiểu trà sữa")
 - renderPotVisual: thả icon topping vào elip miệng nồi, xếp vòng theo mặt nước,
   animation dropIn (rơi-tõm nảy), món secret phát sáng tím, nồi L topping to hơn.
 - QA screenshot: cải cúc nằm gọn lòng nồi. Không tốn credit meowa.
@@ -139,7 +139,7 @@ Cốt truyện: Minh 26 tuổi, nhân viên văn phòng → bị sếp mắng �
    người chơi chọn ghép canvas lúc chạy (pixel-perfect, bóng tiếp xúc). Tên nhân vật thay "Minh"
    trong phụ đề (xưng cậu/cô theo giới tính).
 3. **Đặt tên quán** sau intro (12 tên gợi ý thuần Việt + 🎲 + ô tự viết).
-4. **GATE pha tu tiên ngày 7** (lệnh phu quân): ngày ≥8 + trả hết nợ phòng + dư ≥1 triệu
+4. **GATE pha tu tiên ngày 7** (yêu cầu thiết kế): ngày ≥8 + trả hết nợ phòng + dư ≥1 triệu
    mới mở khách tu tiên/đại năng/thực đơn bí mật. Kèm lễ "thức tỉnh" 7 dòng cốt truyện
    (mưa sao băng → cứu tu sĩ → được tặng linh thạch + tụ linh trận). Banner tiến độ 3 ✅/⬜ ở màn chuẩn bị.
 5. **Hệ tu vi 9 cảnh giới** (engine/cult.js): Phàm nhân nấu lẩu → Sơ nhập hỏa đạo → Trúc Cơ vị giác
@@ -149,7 +149,7 @@ Cốt truyện: Minh 26 tuổi, nhân viên văn phòng → bị sếp mắng �
    Exp từ: bưng đúng +2/nồi, lửa chuẩn +1, 5 sao +3, khách tiên +4, đại năng +15, hộ pháp tóm bùng +3,
    trọn ngày lãi +5; nghiệp: khách bỏ về -2, sai món -2, 1 sao -1. Đột phá có màn lễ riêng + thoại sáng tác.
    Khách tiên Kim Đan+ có 40% "nhận ra cảnh giới" trong review.
-6. **Tường đánh giá** (ảnh chàng gửi làm mẫu): card review có avatar, tên, ngày, sao, chữ,
+6. **Tường đánh giá** (ảnh tham khảo làm mẫu): card review có avatar, tên, ngày, sao, chữ,
    HÌNH NỒI LẨU khách đã gọi bên phải, ô "Phản hồi của quán". Phản hồi = lượt chơi chiến lược:
    3 tông (Dịu dàng 0% rủi ro, Hài hước 10% viral +50-150k, Cà khịa 30% phản tác dụng ăn 1 sao bóc phốt,
    viral +100-300k; cà khịa khách tiên 85% toang; khách chê vô lý thì risk -15%).

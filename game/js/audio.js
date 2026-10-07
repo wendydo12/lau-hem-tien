@@ -336,7 +336,7 @@ export function playIntroSfx(name, vol = 0.5, durSec = 8) {
 }
 
 /* ============ BGM — nhạc nền xuyên suốt game (Pixabay Content License, free thương mại, không cần ghi công — vẫn ghi nguồn credits-log) ============
- * bgm_prep.mp3  = "Asian Lofi" (ZephiraMusic)            → màn chuẩn bị / tổng kết: lofi Á đông chill, gần vibe Mitsukiyo phu quân chọn
+ * bgm_prep.mp3  = "Asian Lofi" (ZephiraMusic)            → màn chuẩn bị / tổng kết: lofi Á đông chill, gần vibe Mitsukiyo đã chọn
  * bgm_shop.mp3  = "Chinese Dining Atmosphere" (SounovaMusic) → giờ bán hàng: không khí tiệm ăn Á đông ấm cúng
  * bgm_alley.mp3 = "Moonlit Whispers" (kaazoom)           → hẻm đêm / lễ thức tỉnh: nhạc cụ truyền thống tĩnh lặng
  * game_over.mp3 = "Âm thanh thất bại trong trò chơi" (tiengdong.com) → game over

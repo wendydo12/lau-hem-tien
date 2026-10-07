@@ -29,7 +29,7 @@ Tổng chi cả dự án tới nay: 270cr / 13 job. Còn lại: 945cr.
 
 Tổng chi sau job cá: 290cr / 14 job. Còn lại: 925cr.
 
-## ÂM THANH (25/09 — theo link phu quân đưa)
+## ÂM THANH (25/09 — theo link chủ dự án đưa)
 | File | Nguồn | Dùng cho |
 |---|---|---|
 | assets/snd/street_buzz.mp3 (248s, mono) | https://tiengdong.com/tieng-on-ao-o-nha-hang-duong-pho | Ambience nền đường phố suốt giờ bán (loop, vol 0.3) |
@@ -39,14 +39,14 @@ tiengdong.com = thư viện sound effect miễn phí. Đã ghi nguồn tại đ�
 
 Tổng chi sau 3 job nước chấm+khách tiên: 350cr / 17 job. Còn lại: 865cr.
 
-## LỆNH PHU QUÂN 25/09 (đợt sửa asset lần 2)
+## YÊU CẦU THIẾT KẾ 25/09 (đợt sửa asset lần 2)
 1. Bún tươi: chỉ giữ bản mới (new3_02) — bản topping3_06 xóa khỏi gallery.
 2. Cá điêu hồng: bỏ nguyên con, dùng bản 3 lát cắt trên đĩa (ca_dieu_lat.png).
 3. Kim châm bó (topping2_06): loại vì trùng kim châm thường.
 4. Linh chi đỏ: có 2 bản (topping_05 + topping2_07) → giữ topping_05, loại topping2_07.
 5. THỰC ĐƠN EXTRA BÍ MẬT: 6 món (linh chi, huyết sen, thịt linh thú, băng tằm, nhân sâm ngàn năm, đông trùng tiên) = type 'secret' trong engine — khách thường KHÔNG BAO GIỜ gọi được (test xác nhận 100 đơn thường không lọt món secret); UI sẽ chỉ mở slot bí mật khi có khách tu tiên đang chờ (Phase 4).
 
-## SỬA NHÃN 25/09 (phu quân phát hiện khi xem gallery)
+## SỬA NHÃN 25/09 (chủ dự án phát hiện khi xem gallery)
 - topping2_00..07 = muối ớt xanh, chao, sa tế đen, sốt me, udon, cải cúc, kim châm bó, linh chi đỏ
 - topping3_00..07 = mực, nghêu, cá viên xiên, tàu hũ ky, rau muống, mì gói, bún, trứng
 - Bài học: sheet meowa có thể trả thứ tự KHÁC prompt → luôn QA "đọc từng ô" trước khi gán nhãn, không gán theo thứ tự prompt.
@@ -76,7 +76,7 @@ magic-glow accents, flat 2-3 tone shading, crisp pixels no anti-aliasing, NO TEX
 | 3 | regen lần 2 (ép OPAQUE full-canvas) | xlarge_3_4 | 100cr | s1 (50% opaque) dùng được với composite; còn lại chọn bản cũ tốt nhất |
 Tổng intro: 350cr. Balance: 865 → **515cr**.
 
-Composite (assets/intro/compose.py — tự thiếp viết, không tốn credit):
+Composite (assets/intro/compose.py — tự dự án viết, không tốn credit):
 nền pixel tự vẽ PIL (văn phòng ngày/đêm mưa, phố VN ngày, hẻm đêm đèn lồng) +
 cutout meowa grade màu theo ánh sáng cảnh + bóng tiếp xúc dính chân + Ken Burns trong game.
 QA bộ 6 cảnh final: **8.5/10**.
@@ -90,7 +90,7 @@ QA bộ 6 cảnh final: **8.5/10**.
 | motorbike_alley.mp3 (50s) | /tieng-rat-nhieu-xe-may-chay-tren-duong | 3 + 5 — phố/hẻm |
 | count_money.mp3 (23s) | /tieng-dem-tien | 4 — đếm vốn phòng trọ |
 
-## 25/09 (tối) — CREATOR SPRITES + INTRO v2 (đồng bộ nhân vật theo lệnh phu quân)
+## 25/09 (tối) — CREATOR SPRITES + INTRO v2 (đồng bộ nhân vật theo yêu cầu thiết kế)
 | Job | Template | Nội dung | Cost |
 |---|---|---|---|
 | job_d6d12dc4 | general_character_64px | 8 chủ quán NAM (4 diện mạo × đứng) — áo thun trắng/sơ mi xanh/bà ba/flannel | 20 |
@@ -114,7 +114,7 @@ Bài học: xlarge_3_4 perfect-pixel LUÔN cắt nội thất thành fragment tr
 | assets/snd/bgm_shop.mp3 | Pixabay "Chinese Dining Atmosphere" — SounovaMusic | Pixabay Content License | giờ bán hàng + intro cảnh 5-6 |
 | assets/snd/bgm_alley.mp3 | Pixabay "Moonlit Whispers" — kaazoom | Pixabay Content License | lễ thức tỉnh pha tu tiên (đêm mưa sao băng) |
 | assets/snd/game_over.mp3 | tiengdong.com "Âm thanh thất bại trong trò chơi" | free SFX (như 2 file street/kitchen đã dùng) | game over nợ phòng + phá sản |
-Ghi chú: phu quân gửi 2 track Spotify Mitsukiyo (ようこそトロイメへ / ユメの喫茶店) làm gu tham khảo — Spotify CÓ BẢN QUYỀN, không embed được; thiếp phân tích audio features (tempo/rms/centroid/chroma) rồi chọn 3 track Pixabay gần vibe nhất (Asian Lofi khoảng cách 1.16, Dining 1.48 — thang 0-4). Đã tải file gốc từ CDN Pixabay + fade in/out + chuẩn hóa 112kbps.
+Ghi chú: người đặt hàng gửi 2 track Spotify Mitsukiyo (ようこそトロイメへ / ユメの喫茶店) làm gu tham khảo — Spotify CÓ BẢN QUYỀN, không embed được; dự án phân tích audio features (tempo/rms/centroid/chroma) rồi chọn 3 track Pixabay gần vibe nhất (Asian Lofi khoảng cách 1.16, Dining 1.48 — thang 0-4). Đã tải file gốc từ CDN Pixabay + fade in/out + chuẩn hóa 112kbps.
 
 ## Phase 5b — 2 nồi lẩu miền Tây (25/09)
 | Ngày | Job | Template | Chi | Số dư | Kết quả |

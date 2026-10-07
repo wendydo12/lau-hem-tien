@@ -4,7 +4,7 @@
  * của con hẻm, đưa ra 2-3 CÁCH XỬ LÝ, người chơi chọn rồi chịu hậu quả thật (tiền, linh thạch,
  * tu vi, lượng khách ngày mai, sổ nợ khách ghi lại). Không có lựa chọn nào ăn chắc.
  *
- * LUẬT CÂN BẰNG (lệnh phu quân 07/10/2026):
+ * LUẬT CÂN BẰNG (yêu cầu thiết kế 07/10/2026):
  *  1. Ngày 1-4 yên ổn tuyệt đối — không sự kiện xấu.
  *  2. Ngày 5: đúng MỘT sự kiện xấu nhẹ cho biết mùi đời. Từ ngày 6 trở đi mới theo tỉ lệ.
  *  3. Mỗi ca tối đa 1 sự kiện xấu + 1 sự kiện tốt. Mỗi sự kiện chỉ nổ một lần.
@@ -13,7 +13,7 @@
  *
  * Toàn bộ câu chữ, tên sự kiện, cách xử lý: SÁNG TÁC GỐC của dự án (hẻm nhỏ Sài Gòn + tu tiên).
  * GIỌNG KỂ: người kể trong game xưng "mình" (chủ quán), gọi người chơi là "bạn" ở chỗ cần —
- * TUYỆT ĐỐI không dùng giọng cá nhân của trợ lý (thiếp/phu quân/chàng) trong câu chữ trong game.
+ * TUYỆT ĐỐI không dùng giọng cá nhân của trợ lý (dự án/chủ dự án/chủ dự án) trong câu chữ trong game.
  */
 import { ITEMS, POT_KEYS } from './data.js';
 import { qty, addStock } from './stock.js';

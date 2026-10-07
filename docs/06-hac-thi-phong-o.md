@@ -1,6 +1,6 @@
-# Hắc thị + Phòng ở (2 bộ style: Hẻm Việt · Động Tiên) — bản thiết kế (chờ phu quân gật)
+# Hắc thị + Phòng ở (2 bộ style: Hẻm Việt · Động Tiên) — bản thiết kế (chờ chủ dự án gật)
 
-Ngày 07/10/2026 · trạng thái: **đề xuất, chưa code, chưa tiêu credit nào** · người viết: Uyển Nhi
+Ngày 07/10/2026 · trạng thái: **đề xuất, chưa code, chưa tiêu credit nào** · người viết: dự án
 
 ## 1. Vì sao có màn này
 
@@ -20,7 +20,7 @@ Hai bộ style đối lập nhau, người chơi tự chọn hướng:
 
 ## 3. Bộ A — Hẻm Việt (14 món, giá tính bằng tiền mặt)
 
-Sau khi đọc 4 ảnh nội thất phu quân gửi hôm 07/10, thiếp đã chỉnh lại danh sách cho đúng
+Sau khi đọc 4 ảnh nội thất người đặt hàng gửi hôm 07/10, dự án đã chỉnh lại danh sách cho đúng
 chất phòng trọ Việt: đổi sang **14 món** và cập nhật nét nhận dạng cho từng món.
 **Danh sách chính thức + bảng màu + cách vẽ nằm ở `docs/08-noi-that-phong-tro.md`.**
 Tóm tắt: tủ thờ ông địa, rèm hoa đỏ, TV CRT ăng-ten râu, đài cassette đỏ, máy khâu đen + bàn gỗ,
@@ -83,10 +83,10 @@ Giá quy đổi tạm: 1 linh thạch = 50.000 VNĐ (theo `cfg.ls.rate`), tỷ g
 - Nhớ luật đã ghi trong skill: đồ vật nhỏ **QA bằng đếm pixel**, không tin mắt mô hình;
   nền meowa hay dính màu phẳng → tách bằng flood-fill từ viền ảnh.
 
-## 9. Tiền trọ 2 triệu MỖI THÁNG (lệnh phu quân 07/10/2026)
+## 9. Tiền trọ 2 triệu MỖI THÁNG (yêu cầu thiết kế 07/10/2026)
 
 Hiện tại game chỉ có **một món nợ phòng duy nhất 2 triệu, hạn ngày 7** (`cfg.storyDebt`) — trả xong là hết.
-Phu quân chốt: tiền trọ là **chi phí cố định 2.000.000 mỗi tháng**, trả đều đặn suốt game.
+Chủ dự án chốt: tiền trọ là **chi phí cố định 2.000.000 mỗi tháng**, trả đều đặn suốt game.
 
 - Chu kỳ 30 ngày. Mốc thu: **ngày 7** (món đầu, theo cốt truyện), rồi **ngày 37, 67, 97…**
   (tức cứ 30 ngày một lần, không phải ngày 30-60-90 để không đè lên mốc lễ và mốc lên cấp).
@@ -101,10 +101,10 @@ Phu quân chốt: tiền trọ là **chi phí cố định 2.000.000 mỗi thán
   **mặt bằng ngoài hẻm** (hằng ngày) và **phòng trọ của mình** (hằng tháng). Đây cũng là lý do
   màn "Phòng ở" ở mục 6 có nghĩa: nhà mình thì mình sửa.
 
-## 10. Việc còn chờ phu quân
+## 10. Việc còn chờ chủ dự án
 
 1. Gật hướng thiết kế này (nhất là: 12+12 món, luật style 60%, giá).
-2. Hai ảnh chàng gửi hôm nay **đã bị macOS xoá** (thư mục tạm của công cụ chụp hình tự dọn) —
-   thiếp không đọc được. Chàng lưu lại vào Desktop rồi cho thiếp đường dẫn nhé.
-3. "spirit gen" chàng nói là công cụ nào — phải ý chàng là mục **Sprite packs** trên meowa,
-   hay một trang khác? Thiếp chưa rõ nên chưa dám tiêu credit.
+2. Hai ảnh tham khảo hôm nay **đã bị macOS xoá** (thư mục tạm của công cụ chụp hình tự dọn) —
+   dự án không đọc được. Chủ dự án lưu lại vào Desktop rồi cho dự án đường dẫn nhé.
+3. "spirit gen" chủ dự án nói là công cụ nào — phải ý chủ dự án là mục **Sprite packs** trên meowa,
+   hay một trang khác? Dự án chưa rõ nên chưa dám tiêu credit.

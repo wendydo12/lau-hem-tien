@@ -29,7 +29,7 @@ Phần hiểu biết về thể loại đã được ghi lại bằng chữ củ
 - Bảng nhận diện ý trong câu review đã viết mới (`Y_REVIEW` trong `engine/reviews.js`).
 - Tên biến nội bộ vay mượn đã đổi: `POT_KEYS`, `BASE_PRICE`, `chiSoGia`, `Y_REVIEW`.
 
-## Việc còn lại (cần phu quân quyết)
+## Việc còn lại (cần chủ dự án quyết)
 
 1. Gửi tin nhắn ghi nhận tới tác giả game tham khảo (bản nháp ở `docs/04-xin-phep-tac-gia.md`).
 2. Kiểm giấy phép 2 nguồn ngoài: âm thanh tiengdong.com và ảnh pixel meowa.ai.
@@ -54,7 +54,7 @@ tải lại bản gốc từ nguồn cũ (xem `vet-xoa.txt` để đối chiếu
 ## Rà soát lại lần 2 — 07/10/2026 (sau khi thêm ca tối + leo thang đơn hàng)
 
 Bối cảnh: hôm 07/10 dự án được sửa nhiều (ca tối 19:00–23:00 với `engine/shift.js`, khách rải
-theo đường cong, đơn hàng leo thang theo ngày, nút hướng dẫn, sửa sân khấu). Phu quân yêu cầu
+theo đường cong, đơn hàng leo thang theo ngày, nút hướng dẫn, sửa sân khấu). Chủ dự án yêu cầu
 "rà soát lại xem hết giống game Tiệm Trà Nhỏ chưa".
 
 Đã kiểm những gì (và kết quả thật):

@@ -7,7 +7,7 @@ import { patMul, bratMul } from './cult.js';
 
 export const levelOf = (day, cfg) => day >= cfg.levels.l4 ? 4 : day >= cfg.levels.l3 ? 3 : day >= cfg.levels.l2 ? 2 : 1;
 
-/* ---- DIFFICULTY RAMP (25/09 — lệnh phu quân: "tăng độ khó từ từ, dần tăng nhiều topping, balance với thời gian chờ") ----
+/* ---- DIFFICULTY RAMP (25/09 — yêu cầu thiết kế: "tăng độ khó từ từ, dần tăng nhiều topping, balance với thời gian chờ") ----
  * Trần số món nhúng theo ngày — dùng CHUNG cho cả engine (sinh đơn) lẫn UI (chọn món nấu),
  * để đơn gọi mấy món thì người chơi được phép bỏ đúng bấy nhiêu. Bậc thang mượt: 1→2→3→4→5. */
 export function maxTops(day, cfg) {
@@ -18,7 +18,7 @@ export function maxTops(day, cfg) {
   return 5;                                   // ngày 60+: 5 món — cao thủ lẩu
 }
 
-/* ---------- LEO THANG ĐƠN HÀNG THEO NGÀY (lệnh phu quân 07/10/2026) ----------
+/* ---------- LEO THANG ĐƠN HÀNG THEO NGÀY (yêu cầu thiết kế 07/10/2026) ----------
  * "yêu cầu add-ons của khách tăng từ từ => người chơi hứng thú, balance everything".
  * Nguyên tắc: ngày đầu chỉ đơn trơn (1 nồi, cỡ nhỏ, chưa chấm chưa cay), rồi mỗi thứ mở dần
  * theo bảng — không nhảy bậc. Số liệu cân với ca tối 19:00-23:00 (xem engine/shift.js). */
@@ -225,7 +225,7 @@ export function stars(c, S, cfg, rng, online = false) {
  * TU VI Hợp Thể lẩu đạo: khí chất chủ quán át vía → giảm 40% tổng xác suất */
 export function pickBrat(S, cfg, rng) {
   if (S.day < 10) return null;
-  /* 07/10 (lệnh phu quân): tổng xác suất khách hâm LEO NHẸ theo ngày — 4,5% ở ngày 10 → ~9%
+  /* 07/10 (yêu cầu thiết kế): tổng xác suất khách hâm LEO NHẸ theo ngày — 4,5% ở ngày 10 → ~9%
    * ở ngày 40, trần 12%. Giữ nguyên hình dạng phân bố (hâm kiểu nào) của bản cũ, chỉ đổi tổng. */
   const tong = Math.min(.12, .045 + (S.day - 10) * .0012);
   const he = tong / .095;

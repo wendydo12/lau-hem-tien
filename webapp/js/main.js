@@ -90,7 +90,7 @@ function boot() {
   if (!S.badPlan) S.badPlan = mkBadPlan(S.day, makeRNG(S.seed));
   rng = makeRNG(S.seed);
   /* mới vô game (chưa có save) → nút chính là "Mở quán" (new game);
-   * có save rồi mới hiện "Đi tiếp" + "Quán mới" (lệnh phu quân 25/09) */
+   * có save rồi mới hiện "Đi tiếp" + "Quán mới" (yêu cầu thiết kế 25/09) */
   const hasSave = !!r.loaded && (S.day > 1 || S.midDay || Object.keys(S.stock).some(k => (S.stock[k] || []).length));
   const btnPlay = $('btnPlay');
   btnPlay.textContent = hasSave ? 'Chơi tiếp (Ngày ' + S.day + ')' : '🍲 Mở quán';
@@ -134,7 +134,7 @@ function boot() {
       });
     }, true]]);
   $('btnGuide').onclick = showGuide;
-  /* 06/10 (phu quân: "hướng dẫn lúc trước hiện sao giờ mất tiêu") — nút ❔ trên HUD để mở
+  /* 06/10 (yêu cầu: "hướng dẫn lúc trước hiện sao giờ mất tiêu") — nút ❔ trên HUD để mở
    * lại hướng dẫn bất cứ lúc nào, không phụ thuộc việc "chỉ hiện một lần" nữa. */
   const gh = $('btnGuideHud');
   if (gh) gh.onclick = showGuide;
@@ -163,7 +163,7 @@ function firstGuide() {
     setTimeout(showGuide, 400);
   } catch (e) { showGuide(); }
 }
-/* 07/10 (phu quân: "sau khi xong phần story intro vẫn không hiện hướng dẫn") — đi hết cốt truyện
+/* 07/10 (yêu cầu: "sau khi xong phần story intro vẫn không hiện hướng dẫn") — đi hết cốt truyện
  * là MỞ HƯỚNG DẪN LUÔN, không phụ thuộc cờ "đã xem một lần" lưu trong máy nữa. Cốt truyện chỉ
  * chạy khi mở quán mới / làm lại cuộc đời / xem lại chuyện, nên hiện hướng dẫn ở đây không phiền. */
 function guideAfterIntro() { setTimeout(showGuide, 500); }
@@ -201,7 +201,7 @@ function updateHud() {
   const rt = rating(S);
   $('hudStars').textContent = starStr(rt);
   $('hudRating').textContent = rt.toFixed(1).replace('.', ',') + ' · ' + (S.reviews.length) + ' đánh giá';
-  /* TRẦN KHÁCH HÔM NAY (lệnh phu quân 06/10): ngoài màn bán hiện số đã tới / trần;
+  /* TRẦN KHÁCH HÔM NAY (yêu cầu thiết kế 06/10): ngoài màn bán hiện số đã tới / trần;
    * ở màn chuẩn bị (chưa có runtime) hiện mức ước lượng ~X khách cho chủ quán liệu hàng */
   const gEl = $('hudGuests');
   if (gEl) {
@@ -224,7 +224,7 @@ const plan = {};   // {key: qty} nhập hàng
 function enterPrep() {
   /* QUÁ HẠN NỢ PHÒNG TRỌ (ngày 8 chưa trả đủ 2 triệu) → game over theo cốt truyện */
   if (roomDebtOverdue(S, cfg)) { gameOverDebt(); return; }
-  /* SAVEPOINT (lệnh phu quân 25/09): reload giữa ngày bán → hỏi chơi tiếp hay đóng sớm,
+  /* SAVEPOINT (yêu cầu thiết kế 25/09): reload giữa ngày bán → hỏi chơi tiếp hay đóng sớm,
    * tiền/kho/ngày giữ nguyên từ lần tự lưu gần nhất */
   if (S.midDay && S.midSnap) { askResumeMidDay(); return; }
   showScreen('prep');
@@ -376,7 +376,7 @@ function renderPrep() {
         <small>${T.d} — khách ngày mai còn ${Math.round(T.traffic * 100)}%. ${S.ruin >= 3 ? 'Không gượng dậy nổi là mất quán!' : 'Bán có lãi để xóa tin đồn!'}</small></div>
     </div>`;
   }
-  /* ---- GATE PHA TU TIÊN (lệnh phu quân): ngày 1-7 lo trả nợ + tích 1 triệu ---- */
+  /* ---- GATE PHA TU TIÊN (yêu cầu thiết kế): ngày 1-7 lo trả nợ + tích 1 triệu ---- */
   if (!S.xianUnlock) {
     const g = cfg.xianGate;
     const okDay = S.day >= g.fromDay, okDebt = !!(rd.paid), okMoney = S.money >= g.surplus;
@@ -509,7 +509,7 @@ function showGift(gift) {
   modal(`<div class="big-ico">🎁</div><h2>${gift.n}</h2><p>${gift.d}</p><p class="lvup">+${fmtD(gift.v)}</p>`, [['Tuyệt quá', () => updateHud(), true]]);
 }
 
-/* ---- LỄ THỨC TỈNH PHA TU TIÊN (gate ngày 7 — lệnh phu quân) ----
+/* ---- LỄ THỨC TỈNH PHA TU TIÊN (gate ngày 7 — yêu cầu thiết kế) ----
  * Kể chuyện bằng chữ + hiệu ứng ánh sáng (không cần asset mới): đêm mưa sao băng,
  * tu sĩ trọng thương được cứu bằng nồi lẩu, tặng linh thạch + vẽ tụ linh trận. */
 function xianAwakenScene(onDone) {
@@ -556,14 +556,14 @@ function startSell() {
   R.running = true;
   R.today.cap = guestCapFor(S, cfg, rng);
   R.today.arrived = 0;
-  /* CA TỐI (lệnh phu quân 07/10): dựng sẵn LỊCH KHÁCH cho cả ca theo đường cong quán ăn tối
+  /* CA TỐI (yêu cầu thiết kế 07/10): dựng sẵn LỊCH KHÁCH cho cả ca theo đường cong quán ăn tối
    * (19:00-20:30 đông → 20:30-21:50 vừa → 21:50-23:00 vãn). Cả ca 192 giây, đồng hồ nhảy 10 phút. */
   R.shiftMs = shiftMs();
   R.started = performance.now();
   R.pauseMs = 0; R.pauseAt = 0;
   R.arrivals = buildArrivals(R.today.cap, R.shiftMs, rng);
   R.spawnIdx = 0;
-  /* SỰ KIỆN BẤT NGỜ (lệnh phu quân 07/10): ngày 1-4 yên ổn, ngày 5 có 1 sự kiện xấu nhẹ,
+  /* SỰ KIỆN BẤT NGỜ (yêu cầu thiết kế 07/10): ngày 1-4 yên ổn, ngày 5 có 1 sự kiện xấu nhẹ,
    * từ ngày 6 trở đi mới rải theo tỉ lệ. Cả ca tối đa 1 xấu + 1 tốt, mỗi cái báo một lần. */
   R.surprisePlan = planShift(S, R, cfg, rng, R.shiftMs);
   R.surpriseFired = [];
@@ -608,19 +608,19 @@ function startSell() {
   scheduleSpawns();
 }
 
-/* ---------- HẾT NGUYÊN LIỆU & TỰ ĐÓNG CỬA (lệnh phu quân 06/10) ----------
+/* ---------- HẾT NGUYÊN LIỆU & TỰ ĐÓNG CỬA (yêu cầu thiết kế 06/10) ----------
  * Chuyện thật ngoài quán: hết sạch nguyên liệu thì khách ghé cũng chỉ để bỏ về.
  * Trước đây mỗi lượt mời khách lại bắn thêm một thông báo "Hết …" nên màn hình nhặng xị.
  * Nay: hết nguyên liệu → thôi mời khách, báo đúng một lần; mọi chỗ ngồi trống thì đếm
  * ngược vài giây rồi TỰ ĐÓNG CỬA tổng kết. Nút "🌙 Đóng cửa hôm nay" trong menu tạm
- * dừng vẫn giữ nguyên để chàng chủ động đóng bất cứ lúc nào. */
+ * dừng vẫn giữ nguyên để chủ dự án chủ động đóng bất cứ lúc nào. */
 
 /* quán còn nấu được nồi nào không? cần bộ nồi chén + ít nhất một món chính đang mở và còn hàng */
 function canCook() {
   if (qty(S, 'sup') <= 0) return false;
   return POT_KEYS.some(k => S.unlocked[k] && qty(S, k) > 0);
 }
-/* TRẦN KHÁCH MỘT NGÀY (lệnh phu quân 06/10): mức ước lượng "👥 ~X khách" ở màn chuẩn bị là
+/* TRẦN KHÁCH MỘT NGÀY (yêu cầu thiết kế 06/10): mức ước lượng "👥 ~X khách" ở màn chuẩn bị là
  * mức trần. Số thật dao động nhẹ ±15% nên ngày nào cũng hơi khác, không phải lúc nào cũng
  * đúng y con số. Khách tới đủ trần → thôi mời khách. */
 function guestCapFor(S0, cfg0, rng0) {
@@ -648,7 +648,7 @@ function autoCloseCheck() {
   if (R.today.arrived < R.today.cap) { R.emptySince = null; return; }
   if (!R.emptySince) { R.emptySince = performance.now(); return; }
   if (performance.now() - R.emptySince < (cfg.autoCloseSec ?? 20) * 1000) return;
-  /* QUÁN TRỐNG LIÊN TỤC ĐỦ LÂU = HẾT KHÁCH (lệnh phu quân 06/10): hết trần khách hôm nay,
+  /* QUÁN TRỐNG LIÊN TỤC ĐỦ LÂU = HẾT KHÁCH (yêu cầu thiết kế 06/10): hết trần khách hôm nay,
    * hoặc hết đồ nên khách ghé rồi bỏ đi hết → tự đóng cửa tổng kết, khỏi phải ngồi đợi 22:00.
    * Nút "🌙 Đóng cửa hôm nay" trong menu tạm dừng vẫn giữ để chủ quán tự đóng bất cứ lúc nào. */
   toast('🌙 Hết khách — tự đóng cửa, tổng kết hôm nay', 'good', 2200);
@@ -657,7 +657,7 @@ function autoCloseCheck() {
 
 /* (07/10) nhịp khách do LỊCH của ca tối quyết định (engine/shift.js) — hàm spawnRate cũ đã bỏ. */
 function scheduleSpawns() {
-  /* 07/10 (lệnh phu quân): khách tới theo LỊCH đã dựng (R.arrivals) — rải theo đường cong cả ca,
+  /* 07/10 (yêu cầu thiết kế): khách tới theo LỊCH đã dựng (R.arrivals) — rải theo đường cong cả ca,
    * nhịp ~14-16 giây lúc cao điểm, thưa dần về cuối ca; không còn dồn cục như trước. */
   const trySpawn = () => {
     if (!R || !R.running || R.paused) { setTimeout(trySpawn, 500); return; }
@@ -695,7 +695,7 @@ function scheduleSpawns() {
         else if (res.c.xian) { sfx('xian'); toast('🔮 ' + res.c.name + ' đáp xuống từ khe không gian...', '', 3000); secretOpenCheck(); }
         else { sfx('bell'); if (res.c.brat) toast('⚠️ ' + res.c.name + ' có vẻ khó ở...', 'bad', 2000); }
       } else if (res.kind === 'soldout') {
-        /* MỖI KHÁCH BỊ HẾT HÀNG CHỈ BÁO MỘT LẦN (lệnh phu quân 06/10) — không dội lại liên tục */
+        /* MỖI KHÁCH BỊ HẾT HÀNG CHỈ BÁO MỘT LẦN (yêu cầu thiết kế 06/10) — không dội lại liên tục */
         soWarnOn(res.item);
         toast('🚫 Hết ' + iname(res.item).toLowerCase() + ' — khách bỏ về', 'bad');
       }
@@ -745,10 +745,10 @@ function renderLane() {
     el.dataset.slot = i;
     /* vị trí: hàng dưới (gần người xem, TRƯỚC quầy) — CHÂN CHẠM ĐẤT: cùng baseline, so le nhẹ
      * theo slot; bubble nằm trên đầu nên không cần đẩy bottom lên cao (fix khách lơ lửng 25/09) */
-    const left = [28, 50, 72, 38][i % 4];   /* 27/09: mép trái/phải vào trong 6% — bubble "LẨU CÀ" KHÔNG mất chữ L (lệnh phu quân) */
+    const left = [28, 50, 72, 38][i % 4];   /* 27/09: mép trái/phải vào trong 6% — bubble "LẨU CÀ" KHÔNG mất chữ L (yêu cầu thiết kế) */
     el.style.left = left + '%';
     el.style.bottom = '3%';
-    /* 29/09 (lệnh phu quân): khách focus (đang phục vụ) LUÔN nổi trên cùng — hết cảnh
+    /* 29/09 (yêu cầu thiết kế): khách focus (đang phục vụ) LUÔN nổi trên cùng — hết cảnh
      * order khách sau (DOM sau) che mất order khách trước. Khách khác xếp lớp theo slot. */
     el.style.zIndex = R.focus === c.id ? 40 : 10 + i;
     const src = c.star != null ? SPRITES.xian[c.star % 16]
@@ -790,7 +790,7 @@ function orderBubble(o) {
   const sizeTxt = o.size === 'L' ? (nm.includes('lớn') ? '' : ' lớn') : '';
   return `<span class="ob-txt">${nm}${sizeTxt}${txt}</span><span class="ob-icons">${parts.join('')}</span>`;
 }
-/* THÊM ĐỒ (27/09 — lệnh phu quân): cột TRÁI = chính những món CÒN THIẾU trên đơn khách đang focus.
+/* THÊM ĐỒ (27/09 — yêu cầu thiết kế): cột TRÁI = chính những món CÒN THIẾU trên đơn khách đang focus.
  * Chạm 1 cái = bỏ vào nồi (dùng chính logic .ing sẵn có — hết hàng/nồi đầy thì toast nhắc).
  * Đầy đủ rồi thì hiện "✓ Nồi khớp — canh lửa thôi". Không phải tự dò đơn + tự nhớ nữa. */
 function renderNeed() {
@@ -907,7 +907,7 @@ function drawScene() {
     c.imageSmoothingEnabled = false;   // pixel art: nearest-neighbor, nét vuông
     c.clearRect(0, 0, cv.width, cv.height);
     if (!bg.width) return;
-    /* 27/09 (phu quân: "giảm cái cảnh ít bè, full cảnh y vậy") — CONTAIN, không cắt:
+    /* 27/09 (yêu cầu: "giảm cái cảnh ít bè, full cảnh y vậy") — CONTAIN, không cắt:
      * vẽ TOÀN BỘ ảnh nguyên tỉ lệ, viền thừa fill màu TRỜI mẫu từ ảnh → liền mạch. */
     let sky = '#101232';
     try {
@@ -975,7 +975,7 @@ function ingBtn(k, sel, small = false, secret = false) {
   </div>`;
 }
 function bindIngs() {
-  /* FIX 25/09 (lệnh phu quân): nguyên liệu/gia vị ĐÃ bỏ vào nồi thì KHÔNG rút ra được.
+  /* FIX 25/09 (yêu cầu thiết kế): nguyên liệu/gia vị ĐÃ bỏ vào nồi thì KHÔNG rút ra được.
    * Bỏ nhầm → phải 🗑 Đổ bỏ cả nồi rồi chọn lại (mất thời gian, khách vẫn đang chờ).
    * Chỉ cỡ nồi là đổi lại được (cái nồi chưa bỏ gì vào). */
   const LOCK = 'Đã bỏ vào nồi rồi — muốn đổi thì 🗑 Đổ bỏ cả nồi!';
@@ -1012,7 +1012,7 @@ function renderPotVisual() {
     v.innerHTML = '';
     const im = img(A + SPRITES.pot[pot.base]);
     v.appendChild(im);
-    /* ---- COMPOSITE TOPPING TRONG NỒI (25/09 — phu quân: "bỏ topping nào lẩu phải hiện đúng topping đó, kiểu trà sữa") ----
+    /* ---- COMPOSITE TOPPING TRONG NỒI (25/09 — yêu cầu: "bỏ topping nào lẩu phải hiện đúng topping đó, kiểu trà sữa") ----
      * Không vẽ thêm asset: thả chính icon topping đã có vào vùng miệng nồi (elip x18-82% y18-58% của sprite),
      * xếp dọc theo mặt nước, kèm animation rơi tõm vào nồi. Món tiên giới (secret) phát sáng tím. */
     if (pot.tops.length) {
@@ -1077,7 +1077,7 @@ function startFire() {
   const anim = () => {
     if (!pouring) return;
     const f = Math.min(1.15, (performance.now() - start) / dur);
-    /* BUGFIX 25/09 (phu quân báo bấm trúng xanh vẫn khét): trước đây thanh fill vẽ f/1.15
+    /* BUGFIX 25/09 (người kiểm thử báo bấm trúng xanh vẫn khét): trước đây thanh fill vẽ f/1.15
      * nhưng chấm điểm bằng f thật → nửa trên vùng xanh nhìn thấy thực chất là vùng khét.
      * Giờ vẽ 1:1 — thanh tới đâu giá trị tới đó, thấy xanh là xanh thật. */
     fill.style.width = Math.min(100, f * 100) + '%';
@@ -1176,7 +1176,7 @@ function flyMoney(text, ls) {
 }
 
 /* ============ END DAY ============ */
-/* ============ SỰ KIỆN BẤT NGỜ TRONG CA (lệnh phu quân 07/10/2026) ============
+/* ============ SỰ KIỆN BẤT NGỜ TRONG CA (yêu cầu thiết kế 07/10/2026) ============
  * Luật: ngày 1-4 yên ổn · ngày 5 đúng một sự kiện xấu nhẹ · từ ngày 6 rải theo tỉ lệ, mỗi ca
  * tối đa 1 xấu + 1 tốt. Sự kiện là một TÌNH HUỐNG có 2-3 cách xử lý, chủ quán chọn rồi chịu
  * hậu quả thật (engine/surprise.js). Khi đang mở ô chọn thì ĐỒNG HỒ DỪNG — khách không mất
@@ -1364,7 +1364,7 @@ function gameOverBankrupt() {
   }, true]]);
 }
 
-/* ============ MÀN THỐNG KÊ (Theo ngày/Tuần/Tháng — lệnh phu quân 25/09) ============ */
+/* ============ MÀN THỐNG KÊ (Theo ngày/Tuần/Tháng — yêu cầu thiết kế 25/09) ============ */
 let statsBack = 'prep';
 let statsTab = 'day';
 let statsDay = 1;

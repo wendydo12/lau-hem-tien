@@ -2,7 +2,7 @@
 export const GAME_VERSION = '0.1.12';
 
 export const DEFAULT_CONFIG = {
-  /* CA TỐI (lệnh phu quân 07/10/2026): quán chỉ mở 19:00 → 23:00, đồng hồ nhảy từng 10 phút
+  /* CA TỐI (yêu cầu thiết kế 07/10/2026): quán chỉ mở 19:00 → 23:00, đồng hồ nhảy từng 10 phút
    * kiểu Stardew Valley. Nhịp thật 8 giây/nhịp → cả ca 192 giây. Khách rải theo đường cong
    * quán ăn tối (xem engine/shift.js) nên người chơi kịp nấu mà vẫn căng lúc cao điểm. */
   shift: { startH: 19, endH: 23, tickMin: 10, tickSec: 8 },
@@ -11,7 +11,7 @@ export const DEFAULT_CONFIG = {
   autoCloseSec: 20,          // ĐỦ TRẦN KHÁCH + quán trống liên tục bấy nhiêu giây → tự đóng cửa
   startMoney: 500000,        // vốn ban đầu (VNĐ) — cốt truyện intro: nghỉ việc, còn đúng 500k
   storyDebt: { amount: 2000000, dueDay: 7 }, // NỢ PHÒNG TRỌ theo cốt truyện: 2 triệu, hạn trả trong 7 ngày
-  /* GATE PHA TU TIÊN (lệnh phu quân 25/09): sau ngày 7 + trả hết nợ phòng + dư 1 triệu
+  /* GATE PHA TU TIÊN (yêu cầu thiết kế 25/09): sau ngày 7 + trả hết nợ phòng + dư 1 triệu
    * mới mở khách tu tiên / thực đơn bí mật / linh thạch / đại năng — kèm cutscene "Đêm mưa sao băng". */
   xianGate: { fromDay: 8, surplus: 1000000 },
   ruinDeep: 5000000,       // THANG PHÁ SẢN: âm quá mức này + bậc 3 = siết quán → game over

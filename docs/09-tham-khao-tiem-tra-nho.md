@@ -1,7 +1,7 @@
 # Tham khảo game Tiệm Trà Nhỏ — bảng đối chiếu và bản sáng tạo riêng
 
-Ngày 07/10/2026 · người viết: Uyển Nhi · nguồn: 20 ảnh chụp màn hình + 1 video màn hình + 1 mã QR
-(do phu quân gửi trong ~/Downloads). **Cách làm: chỉ nhìn hình người chơi nhìn thấy và đọc chữ trên
+Ngày 07/10/2026 · người viết: dự án · nguồn: 20 ảnh chụp màn hình + 1 video màn hình + 1 mã QR
+(do người đặt hàng gửi trong ~/Downloads). **Cách làm: chỉ nhìn hình người chơi nhìn thấy và đọc chữ trên
 màn hình — tuyệt đối không đọc mã nguồn của họ.**
 
 ## 1. Game tham khảo có gì (ghi lại để so)
@@ -29,7 +29,7 @@ Vòng lặp: **Lobby → Chuẩn bị (mua nguyên liệu, chỉnh menu, định
 
 **Video (đã đọc xong, 51 giây):** đây không phải một mạch chơi liền mạch mà là video cắt ghép
 (montage) của một trang tổng hợp, gồm khoảng 11 clip từ nhiều ván khác nhau (Ngày 02 → Ngày 6 →
-Ngày 21 → Ngày 44 → Ngày 45), có chữ quảng cáo phủ lên. Nhưng nhờ vậy thiếp thấy được thêm mấy thứ
+Ngày 21 → Ngày 44 → Ngày 45), có chữ quảng cáo phủ lên. Nhưng nhờ vậy dự án thấy được thêm mấy thứ
 ảnh tĩnh không có:
 
 - Đơn **nhiều ly trong một lượt** (Ly 1, Ly 2), mỗi ly một yêu cầu riêng, kèm nhắc "Xong ly 1, làm tiếp ly 2".

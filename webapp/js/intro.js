@@ -1,14 +1,14 @@
 /* intro.js — PIXEL MOVIE cốt truyện (v2: ĐỒNG BỘ NHÂN VẬT).
  *
- * Kiến trúc mới 25/09 (lệnh phu quân: "nhân vật chọn phải khớp nhân vật trong intro"):
+ * Kiến trúc mới 25/09 (yêu cầu thiết kế: "nhân vật chọn phải khớp nhân vật trong intro"):
  * - 6 cảnh = NỀN meowa đồng bộ phong cách + SPRITE NHÂN VẬT người chơi chọn (creator)
  *   ghép lúc chạy bằng canvas (pixel-perfect, nearest) — cảnh 1,2,4 có nhân vật chính;
  *   cảnh 3 (Bitexco) + 5 (xe lẩu) + 6 (quán sáng đèn) là cảnh môi trường không người.
- * - Mọi nền vẽ bằng meowa cùng 1 style prompt → đồng bộ màu/nét (lệnh phu quân:
+ * - Mọi nền vẽ bằng meowa cùng 1 style prompt → đồng bộ màu/nét (yêu cầu thiết kế:
  *   "đồng bộ nhân vật đồng bộ cảnh, dùng meowa hết").
  * - Phụ đề render bằng DOM như cũ (không đốt chữ vào ảnh).
  *
- * Tất cả câu chữ phụ đề: SÁNG TÁC GỐC của Uyển Nhi.
+ * Tất cả câu chữ phụ đề: SÁNG TÁC GỐC của dự án.
  */
 import { playIntroSfx, setBgm } from './audio.js?v=39';
 import { ownerSprite } from './creator.js?v=39';

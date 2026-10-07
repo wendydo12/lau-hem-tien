@@ -46,7 +46,7 @@ export const itemPricey = (S, k, cfg) => k === 'L' ? lPricey(S, cfg)
   : ITEMS[k] && ITEMS[k].type === 'base' ? S.sell[k] >= cfg.potCap
   : S.sell[k] / BASE_PRICE[k] > 1.3;
 export const lPricey = (S, cfg) => S.sell.L > cfg.sizeWarn;
-/* CỠ NỒI L (lệnh phu quân 07/10): trước đây 35% đơn là nồi lớn NGAY TỪ NGÀY 1 → sốc.
+/* CỠ NỒI L (yêu cầu thiết kế 07/10): trước đây 35% đơn là nồi lớn NGAY TỪ NGÀY 1 → sốc.
  * Nay leo thang: ngày 1-3 chưa có nồi lớn, rồi 10% → 20% → 28% → 35%. Giữ luật "đắt quá thì
  * gần như không ai gọi" (lPricey → 3,5%). */
 export const lChance = (S, cfg) => {

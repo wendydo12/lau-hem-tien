@@ -6,7 +6,7 @@ Cơ chế thể loại học từ game quản lý quán trà nổi tiếng trong
 Mọi pixel art sinh bằng meowa.ai (skill meowa-pixel-gen). Backend-first: engine thuần Node chạy
 được test headless, frontend chỉ là lớp vẽ.
 
-## Concept chốt (từ brief phu quân)
+## Concept chốt (từ brief chủ dự án)
 - Khách 2 tầng: THƯỜNG (VNĐ, review Google Maps) + TU TIÊN (linh thạch, đạo tâm mỏng, típ khủng, sự kiện nhánh).
 - Tiền tệ: VNĐ (chi phí phàm trần) + LINH THẠCH hạ/trung/thượng (nâng cấp tiên giới). Tiệm cầm đồ đổi 2 chiều, tỷ giá dao động/ngày.
 - Khách tu tiên không có linh thạch → "Từ chối" (giữ an toàn, 10 ngày sau nhánh ẩn) / "Ghi sổ nợ" (nhánh: đại năng trả gấp trăm hoặc mất trắng).
@@ -101,10 +101,10 @@ Save: localStorage key 'lhTienSave' + 3 bản backup + mã 8 số (cơ chế sav
 - P5 Prep UI: 5 tab chuẩn bị + tổng kết ngày. Gate: nhập hàng trừ tiền đúng, giá bán đổi được + cảnh báo đắt, review hiển thị + trả lời được, tổng kết đủ dòng (doanh thu/chi phí/lương/thuế/lãi).
 - P6 Tầng tu tiên: khách tiên, linh thạch, cầm đồ, sổ nợ nhánh, topping tiên giới. Gate: test engine nhánh sổ nợ (đại năng trả/mất trắng), chơi thật thấy khách tiên phát sáng trả linh thạch.
 - P7 Sự kiện/quà/tai họa + âm thanh Web Audio + 12 theme + khách VIP đại năng + hạc online. Gate: seed sự kiện chạy đúng lịch, âm thanh bật/tắt được, đổi theme không vỡ layout.
-- P8 Deploy LAN (python http.server + token như FCC) + QA mobile CDP + docs 04-van-hanh + tổng kết. Gate: điện thoại chàng mở được qua WiFi nhà, cdp_mobile_shot clientWidth==scrollWidth.
+- P8 Deploy LAN (python http.server + token như FCC) + QA mobile CDP + docs 04-van-hanh + tổng kết. Gate: điện thoại chủ dự án mở được qua WiFi nhà, cdp_mobile_shot clientWidth==scrollWidth.
 
 ## Quy tắc sắt (house)
 - KHÔNG skip phase, KHÔNG batch task; mỗi task 1 blockgate; sau mỗi phase: git commit + gitnexus analyze + summarize.md + dừng chờ duyệt.
 - Meowa: mọi job ghi credits-log; không đoán balance — check trước mỗi batch.
-- Engine trước UI sau; không claim chưa chạy; phu quân chấm cuối.
+- Engine trước UI sau; không claim chưa chạy; chủ dự án chấm cuối.
 - Tiếng Việt 100% trong game text; font VT323; palette Chef RPG + linh quang; 60-30-10; max 3 font.

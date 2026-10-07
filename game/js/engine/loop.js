@@ -65,13 +65,13 @@ export function spawn(ctx) {
     return spawnStar(ctx, i, lv);
   }
 
-  /* khách tu tiên? — GATE 25/09 (lệnh phu quân): ngày 1-7 CHỈ khách thường;
+  /* khách tu tiên? — GATE 25/09 (yêu cầu thiết kế): ngày 1-7 CHỈ khách thường;
    * từ ngày 8 + đã trả hết nợ phòng + dư 1 triệu mới có khe không gian mở ra */
   let tienChance = cfg.ls.tienChance + (S.upg.tulin ? .2 : 0) * cfg.ls.tienChance;
   if (S.day < 3 || !S.xianUnlock) tienChance = 0;
   const xian = rng.chance(tienChance);
 
-  /* 07/10 (lệnh phu quân): số nồi mỗi khách LEO THANG theo ngày (orders.js potCount) — trước
+  /* 07/10 (yêu cầu thiết kế): số nồi mỗi khách LEO THANG theo ngày (orders.js potCount) — trước
    * đây tới ngày 30 mới nhảy một cái thành 1-5 nồi nên khách sốc. */
   const nc = potCount(S.day, rng, { weekend: evIs(S, 'weekend') || evIs(S, 'holiday') });
 
@@ -218,7 +218,7 @@ export function finishCustomer(ctx, i, c, isXian) {
   return rv;
 }
 
-/* ---------- THỨ TỰ BƯNG KHAI (lệnh phu quân 06/10) ----------
+/* ---------- THỨ TỰ BƯNG KHAI (yêu cầu thiết kế 06/10) ----------
  * AI ĐẾN TRƯỚC THÌ ĐƯỢC BƯNG TRƯỚC: khi nồi khớp đơn của nhiều khách, luôn chọn người tới
  * sớm nhất (theo c.born) — không chọn theo thứ tự chỗ ngồi cho lung tung. Không ai khớp thì
  * ưu tiên khách đang được chọn (focusId), cuối cùng mới tới người tới sớm nhất còn đơn dở.
@@ -307,7 +307,7 @@ export function startDay(ctx) {
   out.debtEvents = resolveDebts(S, cfg);
   /* SỰ KIỆN BẤT NGỜ: khách quay lại trả khoản ghi sổ hôm trước (engine/surprise.js) */
   out.pending = collectPending(S);
-  /* GATE TU TIÊN (lệnh phu quân): ngày ≥ 8 + trả xong nợ phòng + két dư ≥ 1 triệu
+  /* GATE TU TIÊN (yêu cầu thiết kế): ngày ≥ 8 + trả xong nợ phòng + két dư ≥ 1 triệu
    * → mở pha tu tiên 1 lần duy nhất (kèm cutscene UI). Chưa đủ → im lặng chờ ngày sau. */
   const gate = cfg.xianGate || { fromDay: 8, surplus: 1000000 };
   if (!S.xianUnlock && S.day >= gate.fromDay && S.debtRoom && S.debtRoom.paid && S.money >= gate.surplus) {

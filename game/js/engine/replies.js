@@ -3,7 +3,7 @@
  * Nâng cấp của mình: phản hồi theo 3 TÔNG GIỌNG — mỗi tông có hệ quả thật lên uy tín,
  * biến tường review từ chỗ "đọc cho vui" thành một lượt chơi có chiến lược.
  *
- * Toàn bộ câu chữ phản hồi mẫu + luật tông giọng: SÁNG TÁC GỐC của Uyển Nhi.
+ * Toàn bộ câu chữ phản hồi mẫu + luật tông giọng: SÁNG TÁC GỐC của dự án.
  * (Toàn bộ câu chữ phản hồi do dự án tự viết.)
  */
 import { rating } from './economy.js';
@@ -33,7 +33,7 @@ export const TONE_KEYS = ['polite', 'funny', 'savage'];
 /* ===== NGÂN HÀNG CÂU PHẢN HỒI MẪU (sáng tác gốc, lẩu hẻm Sài Gòn) =====
  * {n} = tên khách · {mon} = tên món · {sao} = số sao khách chấm */
 export const REPLY_BANK = {
-  /* 26/09 (lệnh phu quân): xưng "quán"/"mình" — tên chủ quán do người chơi đặt,
+  /* 26/09 (yêu cầu thiết kế): xưng "quán"/"mình" — tên chủ quán do người chơi đặt,
    * KHÔNG cứng "Minh" trong mẫu. Gọi khách {n} (tên thật của khách, mặc định "bạn"). */
   polite: {
     pos: [
@@ -97,7 +97,7 @@ export const bucketOf = s => s >= 4 ? 'pos' : s === 3 ? 'mid' : 'neg';
 export function genReply(rng, tone, s, name, mon) {
   const bank = REPLY_BANK[tone] || REPLY_BANK.polite;
   const arr = bank[bucketOf(s)];
-  /* 26/09 (lệnh phu quân): luôn xưng hô "bạn" — lịch sự, không gọi thẳng tên riêng khách.
+  /* 26/09 (yêu cầu thiết kế): luôn xưng hô "bạn" — lịch sự, không gọi thẳng tên riêng khách.
    * Chủ quán xưng "quán"/"mình" (tên chủ do người chơi đặt, không cứng trong mẫu). */
   return rng.pick(arr).replace(/\{n\}/g, 'bạn')
     .replace(/\{mon\}/g, mon || 'lẩu').replace(/\{sao\}/g, s);

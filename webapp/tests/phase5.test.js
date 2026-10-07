@@ -238,7 +238,7 @@ test('journeyStats: đủ trường cho màn game over', () => {
   assert.ok(j.rating >= 1 && j.rating <= 5);
 });
 
-/* ============ GATE PHA TU TIÊN (lệnh phu quân: ngày 7 + hết nợ + dư 1tr) ============ */
+/* ============ GATE PHA TU TIÊN (yêu cầu thiết kế: ngày 7 + hết nợ + dư 1tr) ============ */
 import { startDay, spawn, initRuntime } from '../js/engine/loop.js';
 import { addStock } from '../js/engine/stock.js';
 
@@ -298,7 +298,7 @@ test('gate: ngày 7 đúng hạn — chưa qua ngày 7 thì chưa mở dù đủ
   assert.equal(S.xianUnlock, false, 'ngày 7 chưa mở — phải SANG ngày 8');
 });
 
-/* ============ THỨ TỰ BƯNG: AI TỚI TRƯỚC ĐƯỢC BƯNG TRƯỚC (lệnh phu quân 06/10) ============ */
+/* ============ THỨ TỰ BƯNG: AI TỚI TRƯỚC ĐƯỢC BƯNG TRƯỚC (yêu cầu thiết kế 06/10) ============ */
 const _donCaChua = () => ({ base: 'ca_chua', dip: null, size: 'N', spicy: null, tops: [] });
 const _noiCaChua = () => ({ base: 'ca_chua', dip: null, size: 'N', spicy: null, tops: [] });
 const _khach = (id, born) => ({ id, born, cups: [_donCaChua()], done: [false], name: 'Khách ' + id });

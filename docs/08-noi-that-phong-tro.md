@@ -1,11 +1,11 @@
 # Nội thất phòng trọ — cẩm nang tạo asset 2 bộ style (Hẻm Việt · Động Tiên)
 
-Ngày 07/10/2026 · dùng cho màn "Phòng ở" (xem `docs/06-hac-thi-phong-o.md`) · người viết: Uyển Nhi
+Ngày 07/10/2026 · dùng cho màn "Phòng ở" (xem `docs/06-hac-thi-phong-o.md`) · người viết: dự án
 
-## 1. Nguồn tham khảo phu quân gửi (đã đọc, 4 ảnh)
+## 1. Nguồn tham khảo người đặt hàng gửi (đã đọc, 4 ảnh)
 
 Bốn ảnh là mô hình tiểu cảnh (diorama) góc phòng kiểu Việt Nam thập niên 80–2000, phối cảnh
-isometric 3/4, đồ gỗ nâu đỏ, nhiều đồ lặt vặt. Rút ra được một bộ "chất Việt" rất rõ — thiếp ghi
+isometric 3/4, đồ gỗ nâu đỏ, nhiều đồ lặt vặt. Rút ra được một bộ "chất Việt" rất rõ — dự án ghi
 lại thành bảng dưới đây để lúc vẽ không bị lạc sang kiểu Nhật/Hàn/Trung.
 
 ## 2. Bảng "chất Việt" — nét nhận diện và cách thể hiện ở sprite 32×32
@@ -97,7 +97,7 @@ Ba lưu ý rút từ kinh nghiệm cũ: (1) luôn ghi rõ "no people" nếu khô
 
 ## 8. Ghi chú bản quyền
 
-Bốn ảnh tham khảo là sản phẩm của một trang bán tiểu cảnh Việt Nam. Thiếp **không** dùng lại
-hình ảnh, mô hình, hay tệp nào của họ. Thứ thiếp lấy là **đặc trưng văn hoá của đồ vật đời thường
+Bốn ảnh tham khảo là sản phẩm của một trang bán tiểu cảnh Việt Nam. Dự án **không** dùng lại
+hình ảnh, mô hình, hay tệp nào của họ. Thứ dự án lấy là **đặc trưng văn hoá của đồ vật đời thường
 Việt Nam** (rèm hoa, tủ gỗ nhiều ô, TV ăng-ten râu, phích nước…) — đó là kiến thức chung, không
-ai độc quyền. Toàn bộ sprite sẽ do thiếp tự gọi meowa vẽ theo cẩm nang này.
+ai độc quyền. Toàn bộ sprite sẽ do dự án tự gọi meowa vẽ theo cẩm nang này.
