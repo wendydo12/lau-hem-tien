@@ -14,6 +14,20 @@ import path from 'node:path';
 import { makeCFG } from '../js/engine/config.js';
 
 const GAME = new URL('..', import.meta.url).pathname;
+
+test('nồi + muỗng + chén KHÔNG tính tiền (yêu cầu chủ dự án 08/10)', async () => {
+  const { makeCFG } = await import('../js/engine/config.js');
+  const { costOf } = await import('../js/engine/stock.js');
+  assert.equal(costOf(makeCFG(), 'sup'), 0, 'nồi + muỗng + chén phải miễn phí (giá nhập 0)');
+});
+
+test('màn chuẩn bị ghi "miễn phí" cho món 0 đồng, không ghi "0đ/phần"', () => {
+  const src = fs.readFileSync(path.join(GAME, 'js', 'main.js'), 'utf8');
+  assert.ok(/miễn phí/.test(src), 'thiếu nhãn "miễn phí" cho món giá 0');
+  assert.ok(/costOf\(cfg, k\) > 0 \? fmtD\(costOf\(cfg, k\)\) \+ '\/phần' : 'miễn phí'/.test(src),
+    'nhãn giá trong màn chuẩn bị chưa xử lý món miễn phí');
+});
+
 const main = fs.readFileSync(path.join(GAME, 'js/main.js'), 'utf8');
 const cfg = makeCFG();
 

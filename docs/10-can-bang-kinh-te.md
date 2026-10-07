@@ -86,6 +86,25 @@ Cách làm — **không đổi tổng số khách, chỉ đổi nhịp**:
 Kinh tế KHÔNG đổi: tổng khách vẫn đúng trần hôm nay, nên chạy lại hai lệnh đo ở mục 6 ra đúng bảng số
 cũ (lãi ngày 1 = 59.000đ; chơi lơ đễnh ngày 30: lãi 442.242đ, khách bỏ về 50,6%).
 
+## 5c. Nồi + muỗng + chén: MIỄN PHÍ (yêu cầu chủ dự án 08/10/2026)
+
+Câu chốt của chủ dự án: *"nồi muỗng chén thì ko tính tiền"*. Đây là ĐỒ DÙNG của quán, không phải
+nguyên liệu mua về → `ITEMS.sup.cost = 0`; màn chuẩn bị ghi **"miễn phí"** thay vì "0đ/phần"; nút ＋
+không bao giờ mờ vì món này (ví sạch tiền vẫn thêm được). Số lượng vẫn tốn kho và vẫn bị `take()`
+khi nấu, nên nhịp phục vụ không đổi.
+
+Số đo trước/sau (cùng hai lệnh ở mục 6):
+
+| chỉ số | TRƯỚC (nồi chén 4.000đ/phần) | SAU (miễn phí) |
+|---|---|---|
+| lãi ngày 1 | 59.000đ | **107.000đ** (bớt ~48.000đ tiền nồi chén mỗi tối) |
+| lãi ngày 20 | 2.234.562đ | 1.431.462đ* |
+| lãi ngày 45 | 2.460.738đ | 2.480.122đ |
+
+*Dòng ngày 20 chênh không phải vì bỏ phí, mà vì mô phỏng rất nhạy: đổi một khoản chi là đổi luôn
+đường tiền → đổi thời điểm mua nâng cấp. Xu hướng đúng cần nhìn là **ngày đầu nhẹ hơn hẳn**, các
+ngày sau tương đương.
+
 ## 6. Đo lại thế nào
 
 ```

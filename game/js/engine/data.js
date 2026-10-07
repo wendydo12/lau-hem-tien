@@ -111,7 +111,9 @@ SEC('x_tuong_tien', 'Tương tiên giới', 'Tương tiên', '#9a5fd4', 7, 0, 3,
 SEC('x_mat_tuong', 'Mật tương hoàng kim', 'Mật tương', '#e0a03c', 7, 0, 4, 500000);     // nước chấm bí mật 2, bán linh thạch
 
 /* --- VẬT DỤNG --- */
-ITEMS.sup = { n: 'Nồi + muỗng + chén', s: 'Nồi chén', type: 'supply', g: 'sup', c: '#c0c0c8', life: 0, cost: 2500, unlock: 0 };
+/* 08/10 (yêu cầu chủ dự án): "nồi muỗng chén thì ko tính tiền" — đây là ĐỒ DÙNG của quán,
+ * không phải nguyên liệu mua về, nên giá nhập = 0. Số lượng vẫn giới hạn theo sức chứa/nhịp phục vụ. */
+ITEMS.sup = { n: 'Nồi + muỗng + chén', s: 'Nồi chén', type: 'supply', g: 'sup', c: '#c0c0c8', life: 0, cost: 0, unlock: 0 };
 
 export const POT_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'base');
 export const DIP_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'dip');

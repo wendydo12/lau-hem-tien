@@ -5,10 +5,10 @@
  *
  * Toàn bộ UI + tên gợi ý quán: SÁNG TÁC GỐC của dự án.
  */
-import { SPRITES } from './manifest.js?v=48';
-import { esc, cleanName } from './safe.js?v=48';   /* 08/10: vá XSS tên nhân vật + tên quán */
+import { SPRITES } from './manifest.js?v=49';
+import { esc, cleanName } from './safe.js?v=49';   /* 08/10: vá XSS tên nhân vật + tên quán */
 
-import { A } from './assets.js?v=48';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { A } from './assets.js?v=49';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
 const PKEY = String.fromCharCode(108, 104, 84, 105, 101, 110) + 'Creator';   // ghép từ mã ký tự để tránh bộ lọc che literal
 
 /* ===== DIỆN MẶO ===== 4 lựa chọn mỗi giới (từ sheet 8 meowa — crop theo ô).
