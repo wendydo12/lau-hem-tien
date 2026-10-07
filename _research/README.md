@@ -61,8 +61,9 @@ theo đường cong, đơn hàng leo thang theo ngày, nút hướng dẫn, sử
 
 1. **Quét dấu vết mã nguồn/câu chữ của bản tham khảo** trên toàn kho (`game/`, `webapp/`, `docs/`,
    `plan.md`): tìm các từ khoá `Tiệm Trà Nhỏ`, `startPour`, `stopPour`, `rót trà`, `port … gốc`,
-   `port cơ chế`, `port UI`. **Kết quả: còn 10 chỗ** (5 chỗ × 2 cây `game/` + `webapp/`, cộng
-   `plan.md` 2 chỗ) — TẤT CẢ đều là **chú thích trong mã**, không phải mã hay câu chữ dùng trong game.
+   `port cơ chế`, `port UI`. **Kết quả: còn 7 chỗ khác nhau** — 5 chỗ trong mã nguồn (mỗi chỗ có ở
+   cả `game/` lẫn bản sao `webapp/`, nên đếm dòng là 10) và 2 chỗ trong `plan.md`. **TẤT CẢ đều là
+   CHÚ THÍCH trong mã**, không phải mã hay câu chữ dùng trong game.
    → Đã dọn sạch cùng ngày: viết lại thành mô tả của dự án ("thiết kế riêng của dự án", "bảng của
    dự án"). Riêng `docs/04-xin-phep-tac-gia.md` giữ nguyên tên game tham khảo — đó là THƯ GỬI TÁC GIẢ,
    cố ý nêu tên.
