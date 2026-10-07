@@ -27,6 +27,22 @@ Vòng lặp: **Lobby → Chuẩn bị (mua nguyên liệu, chỉnh menu, định
 | Tổng kết | tab thống kê theo kỳ, số ly bán, khách bỏ về, đánh giá, dòng món bán chạy |
 | Khác | sửa tên quán, lưu nhiều slot, chia sẻ bằng mã QR dẫn tới web app |
 
+**Video (đã đọc xong, 51 giây):** đây không phải một mạch chơi liền mạch mà là video cắt ghép
+(montage) của một trang tổng hợp, gồm khoảng 11 clip từ nhiều ván khác nhau (Ngày 02 → Ngày 6 →
+Ngày 21 → Ngày 44 → Ngày 45), có chữ quảng cáo phủ lên. Nhưng nhờ vậy thiếp thấy được thêm mấy thứ
+ảnh tĩnh không có:
+
+- Đơn **nhiều ly trong một lượt** (Ly 1, Ly 2), mỗi ly một yêu cầu riêng, kèm nhắc "Xong ly 1, làm tiếp ly 2".
+- **Hướng dẫn theo bước** hiện ngay trong lúc chơi (popup xanh: "Bước 2: nhấn giữ hũ Matcha, thả tay khi trở về vạch xanh").
+- Khách có **cấp độ** (ví dụ "Na Lv 32").
+- **Thanh điều hướng đáy 5 icon** không nhãn: kho · nâng cấp · menu/giá · đánh giá · thống kê.
+- Popup sự kiện bị trộm nguyên văn: `Trộm ghé quán! — Đêm qua trộm cạy két, lấy sạch 1,96 tỷ. Trong két chỉ còn 500k.` + nút `Buồn ghê`.
+- Popup sự kiện tốt: `Trả lại ví cho khách — Bạn nhặt được ví khách để quên và trả lại, khách gửi tiền cảm ơn +120k vào két` + nút `Tuyệt quá`.
+- Màn tổng kết cuối ngày của họ: doanh thu, chi phí chi tiết (lương nhân viên 200k, tăng ca 40k, tip nhân viên giữ 276,9k, 1 ly hỏng 20,5k), danh sách món bán ra, lãi, số dư két.
+- **Lỗ hổng cân bằng của họ:** cho đặt giá vô lý (trong video có món ghi giá 1.000.000k, thậm chí 100.000.000k) rồi tự bán cho mình để kiếm tiền tỷ. Game mình đã có trần giá (`priceCap`) nên không dính lỗi này — mình hơn một bậc ở khoản cân bằng.
+
+
+
 ## 2. Đối chiếu với Lẩu Hẻm Tiên (đo trong mã ngày 07/10)
 
 | tính năng | họ | mình |
