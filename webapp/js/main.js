@@ -1,30 +1,30 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=50';
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR, TOP_SECTIONS } from './engine/data.js?v=50';
-import { fresh, load, save, newPot } from './engine/state.js?v=50';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=50';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=50';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=50';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=50';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=50';
-import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals, MIN_GAP_MS as MIN_GAP_KHACH } from './engine/shift.js?v=50';   /* CA TỐI 19:00-23:00 + khe khách */
-import { makeRNG } from './engine/rng.js?v=50';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=50';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=50';
-import { planShift, drawEvent, resolve as surpriseResolve, capBad } from './engine/surprise.js?v=50';   /* SỰ KIỆN BẤT NGỜ TRONG CA (07/10) */
-import { RUIN_TIERS } from './engine/ruin.js?v=50';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=50';
-import { UPG } from './engine/data.js?v=50';
-import { SPRITES } from './manifest.js?v=50';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=50';
-import { playIntro, introSeen } from './intro.js?v=50';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=50';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=51';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR, TOP_SECTIONS } from './engine/data.js?v=51';
+import { fresh, load, save, newPot } from './engine/state.js?v=51';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=51';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=51';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=51';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=51';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=51';
+import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals, MIN_GAP_MS as MIN_GAP_KHACH } from './engine/shift.js?v=51';   /* CA TỐI 19:00-23:00 + khe khách */
+import { makeRNG } from './engine/rng.js?v=51';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=51';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=51';
+import { planShift, drawEvent, resolve as surpriseResolve, capBad } from './engine/surprise.js?v=51';   /* SỰ KIỆN BẤT NGỜ TRONG CA (07/10) */
+import { RUIN_TIERS } from './engine/ruin.js?v=51';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=51';
+import { UPG } from './engine/data.js?v=51';
+import { SPRITES } from './manifest.js?v=51';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=51';
+import { playIntro, introSeen } from './intro.js?v=51';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=51';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
-import { A } from './assets.js?v=50';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
-import { esc, cleanName } from './safe.js?v=50';   /* 08/10: vá XSS qua tên quán người chơi nhập */
+import { A } from './assets.js?v=51';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { esc, cleanName } from './safe.js?v=51';   /* 08/10: vá XSS qua tên quán người chơi nhập */
 let S, R, rng, ctx, names;
 let pot = newPot();
 /* DẤU KHỞI ĐỘNG (08/10): ghi lại "lần cuối mã game chạy được" vào localStorage.
@@ -182,7 +182,7 @@ function showGuide() {
   <p style="text-align:left">
   1. <b>Chuẩn bị:</b> nhập nguyên liệu (trả tiền trước, có hạn dùng — để lâu là đổ bỏ). Dòng <b>👥 ~X khách</b> báo hôm nay khoảng bao nhiêu người tới — cứ thế mà trữ.<br>
   2. <b>Mở cửa:</b> khách vào hẻm, gọi món trong bong bóng. Thanh màu trên đầu là kiên nhẫn — cạn là họ bỏ về và cho 1 sao. Ai tới trước được bưng trước.<br>
-  2b. <b>Ca tối 19:00–23:00:</b> quán mở một ca tối, đồng hồ nhảy từng 10 phút. Mỗi ngày có một mức khách tối đa (xem 👥 trên HUD). Khách đông nhất lúc 19:00–20:30 rồi vãn dần. Phục vụ hết trần khách, quán vắng liên tục 20 giây → tự đóng cửa; chưa hết khách thì cứ bán tới 23:00.<br>
+  2b. <b>Ca tối 19:00–23:00:</b> quán mở một ca tối, đồng hồ nhảy từng 10 phút. Mỗi ngày có một mức khách tối đa — ĐÚNG con số 👥 ghi ở màn chuẩn bị (trong ca hiện thành x/9). Khách đông nhất lúc 19:00–20:30 rồi vãn dần. Hết khách (mời hết lịch hôm nay), quán vắng liên tục 15 giây → tự đóng cửa tổng kết; còn khách thì cứ bán tới 23:00.<br>
   3. <b>Nấu:</b> chạm khách để xem đơn → chọn nồi → cỡ → độ cay → nước chấm → đồ nhúng → bấm <b>Canh lửa nấu</b>.<br>
   4. <b>Canh lửa:</b> giữ nút, thanh lửa chạy — <b>thả tay đúng vùng CHUẨN xanh lá</b>. Non lửa phải nấu lại, quá lửa khét nồi mất nguyên liệu!<br>
   5. <b>Bưng:</b> bấm "Bưng cho khách" đang chọn. Sai món = đổ bỏ. Thiếu gia vị vào nồi là phải đổ cả nồi — cẩn thận từng lần chạm nhé.<br>
@@ -215,7 +215,7 @@ function updateHud() {
   const gEl = $('hudGuests');
   if (gEl) {
     const est = Math.round(traffic(S, cfg, evMul(S)) * (cfg.balance?.guestCapMul ?? 12));
-    gEl.textContent = R ? '👥 ' + R.today.arrived + '/' + R.today.cap : '👥 ~' + est + ' khách';
+    gEl.textContent = R ? '👥 ' + R.today.arrived + '/' + R.today.cap : '👥 ' + est + ' khách';
   }
   const lsChip = $('hudLS');
   if (S.ls > 0) { lsChip.hidden = false; lsChip.querySelector('b').textContent = S.ls; }
@@ -355,7 +355,7 @@ function renderPrep() {
       <div class="mb-head">🧾 Menu hôm nay — ${esc(S.shopName || 'Lẩu Hẻm Tiên')}</div>
       <div class="mb-grid">${menuBases.map(k =>
         `<span class="mb-item"><img src="${A + (SPRITES.pot[k] || '')}" alt="">${iname(k)} <b>${fmtK(S.sell[k])}</b></span>`).join('')}</div>
-      <div class="mb-forecast">👥 Khoảng <b>~${est}</b> khách · ca tối 19:00–23:00${trendTxt}</div>
+      <div class="mb-forecast">👥 Hôm nay <b>${est}</b> khách · ca tối 19:00–23:00${trendTxt}</div>
       ${bl ? `<div class="mb-best">🔥 Bán chạy 7 ngày qua: ${bl}</div>` : ''}
       <button class="pill small" id="btnStats">📊 Thống kê ngày/tuần/tháng</button>
       <button class="pill small" id="btnGuidePrep">📖 Cách chơi</button>
@@ -663,7 +663,11 @@ function guestCapFor(S0, cfg0, rng0) {
    * sức chứa + tay nghề chủ quán cũng có giới hạn, trần nới rất chậm theo ngày. */
   const soft = Math.round((b.guestSoftBase ?? 13) + (S0.day - 1) * (b.guestSoftPerDay ?? 0.45));
   const est2 = Math.min(est, soft);
-  return Math.max(3, Math.round(est2 * (0.85 + rng0.next() * 0.3)));
+  /* 08/10 (chủ dự án: "số khách là 9 mà serve hết 9 khách khách vẫn vào thêm"): TRẦN KHÁCH giờ
+   * là ĐÚNG con số hiện ở màn chuẩn bị ("👥 ~9 khách" ⇒ trong ca là x/9), không còn nhiễu ±15%
+   * khiến trần thật (10-11) lệch khỏi con số người chơi đọc được. Số khách vẫn khác nhau mỗi ngày
+   * vì nó theo lượng khách của quán (traffic) và trần mềm theo ngày, chỉ bỏ phần ngẫu nhiên. */
+  return Math.max(3, Math.round(est2));
 }
 /* dải nhắc thiếu hàng: khách gọi món quán không có → bỏ về. Chỉ nhắc MỘT dải nhỏ trên màn bán
  * (tự tắt khi có khách ngồi xuống nấu được), thay vì bắn thông báo liên tục gây nhặng xị. */
@@ -682,8 +686,12 @@ function autoCloseCheck() {
   if (!R || !R.running || R.paused) { if (R) R.emptySince = null; return; }
   if (R.slots.some(c => c)) { R.emptySince = null; return; }   /* còn khách ngồi = còn việc làm */
   /* 07/10 (ca tối 19:00-23:00): khách rải cả ca nên quán trống giữa hai lượt là BÌNH THƯỜNG —
-   * chỉ tự đóng khi ĐÃ ĐỦ TRẦN KHÁCH của hôm nay (không đóng giữa ca nữa). */
-  if (R.today.arrived < R.today.cap) { R.emptySince = null; return; }
+   * chỉ tự đóng khi ĐÃ HẾT KHÁCH (không đóng giữa ca nữa).
+   * 08/10: "hết khách" nay tính bằng ĐÃ MỜI HẾT LỊCH của hôm nay (spawnIdx chạm cuối danh sách)
+   * — chắc hơn cách đếm `arrived >= cap`, vì có trường hợp khách ghé mà spawn() không trả về
+   * (hết chỗ, hết hàng) khiến bộ đếm thiếu một hai người và quán phải ngồi đợi hết ca mới đóng. */
+  const hetLich = !R.arrivals || R.arrivals.length === 0 || R.spawnIdx >= R.arrivals.length;
+  if (!hetLich && R.today.arrived < R.today.cap) { R.emptySince = null; return; }
   if (!R.emptySince) { R.emptySince = performance.now(); return; }
   if (performance.now() - R.emptySince < (cfg.autoCloseSec ?? 20) * 1000) return;
   /* QUÁN TRỐNG LIÊN TỤC ĐỦ LÂU = HẾT KHÁCH (yêu cầu thiết kế 06/10): hết trần khách hôm nay,
@@ -702,7 +710,7 @@ function scheduleSpawns() {
     const el = performance.now() - R.started - (R.pauseMs || 0);
     const moc = (R.arrivals || [])[R.spawnIdx];
     if (moc == null || moc > R.shiftMs) {           // hết khách trong lịch
-      if (!R.capTold && R.today.arrived >= R.today.cap) {
+      if (!R.capTold) {
         R.capTold = true;
         updateHud();
         toast('👥 Hết khách hôm nay (' + R.today.arrived + ' khách) — phục vụ nốt rồi đóng cửa nhé!', '', 3200);

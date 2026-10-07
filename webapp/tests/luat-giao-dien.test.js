@@ -15,6 +15,32 @@ import { makeCFG } from '../js/engine/config.js';
 
 const GAME = new URL('..', import.meta.url).pathname;
 
+test('trần khách trong ca PHẢI ĐÚNG con số ghi ở màn chuẩn bị (bỏ nhiễu ±15%)', () => {
+  /* Lỗi chủ dự án bắt 08/10: "số khách là 9 mà serve hết 9 khách khách vẫn vào thêm" —
+   * vì màn chuẩn bị ghi ƯỚC LƯỢNG (traffic × hệ số) còn trần thật lại nhân thêm nhiễu 0,85–1,15
+   * nên thành 10-11. Nay hai con số phải là MỘT. */
+  const src = fs.readFileSync(path.join(GAME, 'js', 'main.js'), 'utf8');
+  assert.ok(!/0\.85 \+ rng/.test(src), 'trần khách còn nhân nhiễu ±15% — sẽ lệch con số ghi ở màn chuẩn bị');
+  assert.ok(/return Math\.max\(3, Math\.round\(est2\)\)/.test(src), 'trần khách phải lấy đúng con số ước lượng');
+});
+
+test('đủ khách là tự đóng: autoCloseCheck phải dựa trên "đã mời hết lịch"', () => {
+  const src = fs.readFileSync(path.join(GAME, 'js', 'main.js'), 'utf8');
+  assert.ok(/hetLich\s*=/.test(src), 'thiếu phép tính "đã mời hết lịch khách hôm nay"');
+  assert.ok(/R\.spawnIdx >= R\.arrivals\.length/.test(src), 'điều kiện hết khách phải so với cuối lịch');
+  assert.ok(/self-dong|hetLich/.test(src) || true);
+  /* thông báo hết khách cũng phải dùng cùng định nghĩa (không còn điều kiện arrived >= cap cũ) */
+  assert.ok(!/capTold && R\.today\.arrived >= R\.today\.cap/.test(src),
+    'thông báo hết khách còn dùng điều kiện arrived >= cap — sẽ không báo khi bộ đếm thiếu');
+});
+
+test('hướng dẫn trong game ghi đúng 15 giây (không còn 20 giây)', () => {
+  const src = fs.readFileSync(path.join(GAME, 'js', 'main.js'), 'utf8');
+  assert.ok(/vắng liên tục 15 giây/.test(src), 'hướng dẫn phải ghi 15 giây cho khớp luật thật');
+  assert.ok(!/vắng liên tục 20 giây/.test(src), 'hướng dẫn còn ghi 20 giây (cũ)');
+});
+
+
 test('nồi + muỗng + chén KHÔNG tính tiền (yêu cầu chủ dự án 08/10)', async () => {
   const { makeCFG } = await import('../js/engine/config.js');
   const { costOf } = await import('../js/engine/stock.js');
