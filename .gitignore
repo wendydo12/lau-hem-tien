@@ -7,3 +7,6 @@ _research/script_*.js
 !_research/README.md
 outputs_tmp/
 qa-*.png
+
+# bộ đệm phân tích mã của gitnexus (36MB, không thuộc kho)
+.gitnexus/

@@ -11,7 +11,10 @@ APP=/Applications/LauHemTien.app
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp LauHemTien "$APP/Contents/MacOS/LauHemTien"
-cp LauHemTien.icns "$APP/Contents/Resources/LauHemTien.icns"
+# ICON: lấy từ assets/icon/LauHemTien.icns — đó mới là bản chính (icon v2 chủ dự án duyệt).
+# Lỗi 08/10/2026: build.sh trước đây chép macos-app/LauHemTien.icns (bản mascot cũ),
+# nên mỗi lần dựng lại là icon trong /Applications bị quay về bản cũ.
+cp "$(dirname "$0")/../assets/icon/LauHemTien.icns" "$APP/Contents/Resources/LauHemTien.icns"
 cat > "$APP/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">

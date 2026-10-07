@@ -29,6 +29,10 @@ DEST = [
     ROOT / "ios/App/App/public",
 ]
 NHOM = ["js", "css", "tests"]
+# 08/10: bộ kiểm thử chỉ có nghĩa trong kho phát triển (nó đọc ../assets, ../webapp, docs/, _research/).
+# Bản nhúng trong app di động không có cấu trúc đó → chép test vào chỉ tạo 9 bài đỏ giả.
+# Vì vậy: test chỉ đồng bộ cho webapp, bản nhúng chỉ nhận js/ css/ index.html + ảnh.
+BAN_NHUNG = [ROOT / "android/app/src/main/assets/public", ROOT / "ios/App/App/public"]
 TEP_LE = ["index.html"]
 
 def copy_all(src: pathlib.Path, dst: pathlib.Path):
@@ -50,8 +54,14 @@ def copy_all(src: pathlib.Path, dst: pathlib.Path):
             dem += 1
     return dem
 
-def sync_assets():
-    """chép ảnh từ assets/ gốc sang webapp/assets (bỏ qua icon/) và trả về số tệp đã chép"""
+def sync_assets(vao=None):
+    """chép ảnh từ assets/ gốc sang một kho đích (bỏ qua icon/); trả về số tệp đã chép.
+
+    08/10/2026: trước đây chỉ chép cho webapp/assets. Rà bảo mật phát hiện bản nhúng android/ios
+    thiếu 73 tệp ảnh (215 so với 288) → các món mới (cải ngọt, cải bẹ xanh, bắp chuối, 13 hình
+    trang bị) sẽ VỠ HÌNH trên app điện thoại. Nay ảnh được chép cho MỌI kho đích.
+    """
+    dich = vao or ASSETS_DST
     n = 0
     for f in sorted(ASSETS_SRC.rglob("*")):
         if not f.is_file():
@@ -59,7 +69,7 @@ def sync_assets():
         rel = f.relative_to(ASSETS_SRC)
         if rel.parts and rel.parts[0] in ASSETS_BO_QUA:
             continue
-        dst = ASSETS_DST / rel
+        dst = dich / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
         if not dst.exists() or not filecmp.cmp(f, dst, shallow=False):
             shutil.copy2(f, dst); n += 1
@@ -73,33 +83,43 @@ def main():
             print("bỏ qua (không có):", d.relative_to(ROOT))
             continue
         n = 0
-        for nhom in NHOM:
+        nhom_cho = ["js", "css"] if d in BAN_NHUNG else NHOM
+        for nhom in nhom_cho:
             base = SRC / nhom
             if base.exists():
                 n += copy_all(base, d / nhom)
+        if d in BAN_NHUNG:
+            # bản nhúng không còn test → xoá bộ test cũ nếu còn sót
+            cu = d / "tests"
+            if cu.exists():
+                shutil.rmtree(cu)
+                print(f"   (đã xoá tests/ khỏi bản nhúng {d.relative_to(ROOT)})")
         for t in TEP_LE:
             if (SRC / t).exists():
                 n += copy_all(SRC / t, d / t)
         print(f"→ {d.relative_to(ROOT)}: chép {n} tệp")
         tong += n
-    # ảnh: assets gốc → webapp/assets
-    if ASSETS_SRC.exists() and ASSETS_DST.exists():
-        na = sync_assets()
-        print(f"→ ảnh assets/ → webapp/assets: chép {na} tệp")
-        lech = []
-        for f in ASSETS_SRC.rglob("*"):
-            if not f.is_file():
-                continue
-            rel = f.relative_to(ASSETS_SRC)
-            if rel.parts and rel.parts[0] in ASSETS_BO_QUA:
-                continue
-            q = ASSETS_DST / rel
-            if not q.exists() or not filecmp.cmp(f, q, shallow=False):
-                lech.append(str(rel))
-        if lech:
-            print("ẢNH LỆCH SAU ĐỒNG BỘ:", lech[:10])
-            return 1
-        print("ảnh: assets/ và webapp/assets đã giống nhau từng tệp (không tính icon/)")
+    # ảnh: assets gốc → webapp/assets + hai bản nhúng (app điện thoại cũng cần ảnh!)
+    if ASSETS_SRC.exists():
+        kho = [ASSETS_DST] + [d / "assets" for d in BAN_NHUNG if (d / "assets").exists()]
+        for dich in kho:
+            na = sync_assets(dich)
+            print(f"→ ảnh assets/ → {dich.relative_to(ROOT)}: chép {na} tệp")
+        for dich in kho:
+            lech = []
+            for f in ASSETS_SRC.rglob("*"):
+                if not f.is_file():
+                    continue
+                rel = f.relative_to(ASSETS_SRC)
+                if rel.parts and rel.parts[0] in ASSETS_BO_QUA:
+                    continue
+                q = dich / rel
+                if not q.exists() or not filecmp.cmp(f, q, shallow=False):
+                    lech.append(str(rel))
+            if lech:
+                print(f"ẢNH LỆCH SAU ĐỒNG BỘ Ở {dich.relative_to(ROOT)}:", lech[:10])
+                return 1
+        print("ảnh: assets/ , webapp/assets và hai bản nhúng đã giống nhau từng tệp (không tính icon/)")
     # tự kiểm tra: game/ phải giống webapp/ từng tệp một
     loi = []
     for nhom in NHOM:

@@ -24,8 +24,17 @@ import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ow
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
 import { A } from './assets.js?v=46';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { esc, cleanName } from './safe.js?v=46';   /* 08/10: vá XSS qua tên quán người chơi nhập */
 let S, R, rng, ctx, names;
 let pot = newPot();
+/* DẤU KHỞI ĐỘNG (08/10): ghi lại "lần cuối mã game chạy được" vào localStorage.
+ * Vì sao cần: có lần trang chỉ hiện màn mở đầu TĨNH (font ngoài chặn việc chạy mã) mà nhìn bên
+ * ngoài không thể biết mã có chạy hay không. Có dấu này thì mở app ra là tra được ngay:
+ *   localStorage['lhTienBoot'] = "phiên bản|thời điểm"  → soi bằng sqlite của WebKit. */
+try {
+  localStorage.setItem('lhTienBoot', GAME_VERSION + '|' + new Date().toISOString());
+} catch (e) { /* máy chặn localStorage thì bỏ qua, không ảnh hưởng game */ }
+
 /* debug/QA handle (26/09): phơi R/S/ctx ra console để test tự động được — không ảnh hưởng gameplay */
 const __lht = { get R() { return R; }, get S() { return S; }, get ctx() { return ctx; }, get pot() { return pot; }, set pot(v) { pot = v; }, renderLane, renderTicket, renderStations, spawn, serve, timeoutCustomer, canCook, autoCloseCheck, guestCapFor, pickServeSlot, endDay,
   /* 07/10: công cụ kiểm thử sự kiện bất ngờ trên trình duyệt (chỉ để QA) */
@@ -103,7 +112,7 @@ function boot() {
         S.creatorName = creator.name; S.creatorGender = creator.gender; S.creatorLook = creator.look;
         playIntro(document.body, { creator, onDone: () => {
           openShopNaming(document.body, creator).then(shopName => {
-            if (shopName) S.shopName = shopName;
+            if (shopName) S.shopName = cleanName(shopName);
             save(S); updateHud();
             btnPlay.disabled = false;
             enterPrep(); guideAfterIntro();
@@ -125,7 +134,7 @@ function boot() {
       openCreator(document.body).then(creator => {
         playIntro(document.body, { creator, onDone: () => {
           openShopNaming(document.body, creator).then(shopName => {
-            if (shopName) S.shopName = shopName;
+            if (shopName) S.shopName = cleanName(shopName);
             save(S); updateHud();
             enterPrep(); guideAfterIntro();
             toast('Đã mở quán mới — Ngày 1 bắt đầu!', 'good');
@@ -315,7 +324,7 @@ function replayNewLife() {
   openCreator(document.body).then(creator => {
     playIntro(document.body, { creator, onDone: () => {
       openShopNaming(document.body, creator).then(shopName => {
-        if (shopName) S.shopName = shopName;
+        if (shopName) S.shopName = cleanName(shopName);
         save(S); updateHud();
         enterPrep(); guideAfterIntro();
       });
@@ -343,7 +352,7 @@ function renderPrep() {
     const est = Math.round(traffic(S, cfg, evMul(S)) * (cfg.balance?.guestCapMul ?? 12));   // hệ số 14 ≈ số khách/ngày ở rating trung bình
     const trendTxt = evIs(S, 'trend') && S.ev.k && ITEMS[S.ev.k] ? ` · 📈 ${iname(S.ev.k)} gọi gấp đôi` : '';
     h += `<div class="menu-board">
-      <div class="mb-head">🧾 Menu hôm nay — ${S.shopName || 'Lẩu Hẻm Tiên'}</div>
+      <div class="mb-head">🧾 Menu hôm nay — ${esc(S.shopName || 'Lẩu Hẻm Tiên')}</div>
       <div class="mb-grid">${menuBases.map(k =>
         `<span class="mb-item"><img src="${A + (SPRITES.pot[k] || '')}" alt="">${iname(k)} <b>${fmtK(S.sell[k])}</b></span>`).join('')}</div>
       <div class="mb-forecast">👥 Khoảng <b>~${est}</b> khách · ca tối 19:00–23:00${trendTxt}</div>
@@ -446,7 +455,8 @@ function renderPrep() {
   const renameBtn = $('btnRenameShop');
   if (renameBtn) renameBtn.onclick = () => {
     openShopNaming(document.body, { name: S.creatorName || 'Chủ quán' }).then(nm => {
-      if (nm) { S.shopName = nm; save(S); updateHud(); renderPrep(); sfx('coin'); toast('Bảng hiệu mới đã treo: ' + nm, 'good', 2600); }
+      const sach = cleanName(nm);
+      if (sach) { S.shopName = sach; save(S); updateHud(); renderPrep(); sfx('coin'); toast('Bảng hiệu mới đã treo: ' + sach, 'good', 2600); }
     });
   };
   /* màn thống kê */
@@ -1260,7 +1270,7 @@ function renderSummary(res) {
   const rev = recRev(hist), cost = recCost(hist, cfg);
   $('summaryBody').innerHTML = `
   <div class="sum-title">🌙 Hết ngày ${S.day - 1}</div>
-  <div class="sum-sub">${S.shopName || 'Lẩu Hẻm Tiên'}</div>
+  <div class="sum-sub">${esc(S.shopName || 'Lẩu Hẻm Tiên')}</div>
   <div class="sum-stats">
     <div class="sum-stat"><b>${R.today.served}</b><span>nồi đã bán</span></div>
     <div class="sum-stat"><b>${R.today.lost}</b><span>khách bỏ về</span></div>

@@ -106,6 +106,32 @@ test('mọi món khai báo trong thực đơn phải có hình (lỗi 08/10: th�
   assert.deepEqual(thieu, [], 'món chưa có hình trong manifest: ' + thieu.join(', '));
 });
 
+test('BỐN kho ảnh phải có cùng bộ tệp (lỗi 08/10: bản nhúng android/ios thiếu 73 ảnh → app điện thoại vỡ hình)', () => {
+  const gom = dir => {
+    if (!fs.existsSync(dir)) return null;
+    return new Set([...fs.readdirSync(dir, { recursive: true })]
+      .filter(x => String(x).endsWith('.png'))
+      .map(x => String(x).replace(/\\/g, '/'))
+      .filter(x => !x.startsWith('icon/')));
+  };
+  const goc = gom(ASSETS);
+  assert.ok(goc && goc.size > 250, 'kho ảnh gốc phải có hơn 250 tệp, thấy ' + (goc ? goc.size : 'không có'));
+  const kho = {
+    'webapp/assets': ASSETS_WEB,
+    'android/app/src/main/assets/public/assets': path.join(GAME, '..', 'android', 'app', 'src', 'main', 'assets', 'public', 'assets'),
+    'ios/App/App/public/assets': path.join(GAME, '..', 'ios', 'App', 'App', 'public', 'assets')
+  };
+  const loi = [];
+  for (const [ten, dir] of Object.entries(kho)) {
+    const b = gom(dir);
+    if (!b) { loi.push(ten + ': KHÔNG CÓ thư mục ảnh'); continue; }
+    const thieu = [...goc].filter(x => !b.has(x));
+    const la = [...b].filter(x => !goc.has(x));
+    if (thieu.length || la.length) loi.push(`${ten}: thiếu ${thieu.length}, thừa ${la.length} (vd ${(thieu[0] || la[0])})`);
+  }
+  assert.deepEqual(loi, [], 'kho ảnh lệch nhau — chạy tools/dong-bo.py:\n' + loi.join('\n'));
+});
+
 test('game/ và webapp/ khai báo cùng một bộ hình (không lệch tên tệp)', () => {
   const wa = fs.readFileSync(path.join(GAME, '..', 'webapp', 'js', 'manifest.js'), 'utf8');
   const ga = fs.readFileSync(path.join(GAME, 'js', 'manifest.js'), 'utf8');

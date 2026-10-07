@@ -96,15 +96,27 @@ final class StaticServer {
         }
     }
 
-    /// Map path → file: "/" → webapp/index.html; thử root/webapp/<p> trước, rồi root/<p>.
+    /// DANH SÁCH THƯ MỤC ĐƯỢC PHÉP PHỤC VỤ (vá bảo mật 08/10/2026).
+    /// Lỗi đã bắt được: trước đây hàm resolve nhận MỌI đường dẫn dưới gốc kho, nên
+    /// `/.git/config` trả về 200 — lộ tên miền git, email tác giả; tệp .env, docs, node_modules
+    /// cũng phục vụ được. Nay chỉ mở đúng ba thư mục game cần.
+    private static let THU_MUC_CHO_PHEP: Set<String> = ["webapp", "assets", "icons"]
+
+    /// Map path → file: "/" → webapp/index.html; chỉ trong thư mục cho phép; chặn tệp/thư mục ẩn.
     private func resolve(_ rawPath: String) -> String? {
         var p = rawPath
         if let q = p.firstIndex(of: "?") { p = String(p[..<q]) }
         if let h = p.firstIndex(of: "#") { p = String(p[..<h]) }
         p = p.removingPercentEncoding ?? p
         if p == "/" || p.isEmpty { return ROOT + "/webapp/index.html" }
-        guard !p.contains("..") else { return nil }
+        /* chặn .. và ký tự gạch chéo ngược (Windows-style traversal) */
+        guard !p.contains(".."), !p.contains("\\") else { return nil }
         let rel = p.hasPrefix("/") ? String(p.dropFirst()) : p
+        let manh = rel.split(separator: "/").map(String.init)
+        /* chặn tệp/thư mục ẩn: .git, .env, .DS_Store, .ssh… */
+        guard !manh.isEmpty, !manh.contains(where: { $0.hasPrefix(".") }) else { return nil }
+        /* chỉ phục vụ trong danh sách cho phép */
+        guard let goc = manh.first, Self.THU_MUC_CHO_PHEP.contains(goc) else { return nil }
         let inWebapp = ROOT + "/webapp/" + rel
         if FileManager.default.fileExists(atPath: inWebapp) { return inWebapp }
         let inRoot = ROOT + "/" + rel
@@ -134,7 +146,16 @@ final class StaticServer {
         head += "Content-Type: \(type)\r\n"
         head += "Content-Length: \(body.count)\r\n"
         head += "Cache-Control: no-cache\r\n"
-        head += "Access-Control-Allow-Origin: *\r\n"
+        /* HEADER BẢO MẬT (vá 08/10/2026):
+         *  - bỏ "Access-Control-Allow-Origin: *" cũ: để "*" thì MỌI trang web chàng mở đều đọc
+         *    được nội dung máy chủ nội bộ này (đọc trộm tệp trong kho).
+         *  - thêm nosniff / chặn nhúng khung / chặn gửi referrer / CSP hạn chế nguồn.
+         *    CSP vẫn cho fonts.googleapis + fonts.gstatic vì game đang dùng font VT323 từ đó. */
+        head += "X-Content-Type-Options: nosniff\r\n"
+        head += "X-Frame-Options: DENY\r\n"
+        head += "Referrer-Policy: no-referrer\r\n"
+        /* 08/10: đã tự chủ font (assets/phong-chu) nên CSP KHÔNG cần mở ra tên miền ngoài nữa. */
+        head += "Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; media-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'\r\n"
         head += "Connection: close\r\n\r\n"
         var out = Data(head.utf8)
         if !headOnly { out.append(body) }

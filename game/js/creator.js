@@ -5,9 +5,10 @@
  *
  * Toàn bộ UI + tên gợi ý quán: SÁNG TÁC GỐC của dự án.
  */
-import { SPRITES } from './manifest.js?v=39';
+import { SPRITES } from './manifest.js?v=46';
+import { esc, cleanName } from './safe.js?v=46';   /* 08/10: vá XSS tên nhân vật + tên quán */
 
-import { A } from './assets.js?v=39';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { A } from './assets.js?v=46';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
 const PKEY = String.fromCharCode(108, 104, 84, 105, 101, 110) + 'Creator';   // ghép từ mã ký tự để tránh bộ lọc che literal
 
 /* ===== DIỆN MẶO ===== 4 lựa chọn mỗi giới (từ sheet 8 meowa — crop theo ô).
@@ -112,8 +113,9 @@ export function openCreator(container) {
       });
       root.querySelector('#crGo').onclick = () => {
         const inp = document.getElementById('crName');
-        const nm = (inp.value || '').trim() || (gender === 'm' ? 'Minh' : 'Lan');
-        const c = { name: nm.slice(0, 16), gender, look };
+        const tho = (inp.value || '').trim();
+        const nm = cleanName(tho, 16) || (gender === 'm' ? 'Minh' : 'Lan');
+        const c = { name: nm, gender, look };
         saveCreator(c);
         root.remove();
         resolve(c);
@@ -132,7 +134,7 @@ export function openShopNaming(container, creator) {
     root.innerHTML = `
     <div class="creator-card">
       <h2>Đặt tên quán</h2>
-      <p class="cr-sub">${creator ? creator.name : 'Bạn'} ơi, bảng hiệu còn trống — viết tên gì đây?</p>
+      <p class="cr-sub">${esc(creator ? creator.name : 'Bạn')} ơi, bảng hiệu còn trống — viết tên gì đây?</p>
       <div class="cr-field">
         <input id="shopNameInp" type="text" maxlength="24" placeholder="Lẩu Hẻm Tiên" value="Lẩu Hẻm Tiên">
         <button id="shopDice" class="btn ghost small">🎲 Gợi ý</button>
@@ -149,7 +151,7 @@ export function openShopNaming(container, creator) {
     };
     const done = v => { root.remove(); resolve(v); };
     root.querySelector('#shopSkip').onclick = () => done(null);
-    root.querySelector('#shopOk').onclick = () => done((inp.value || '').trim().slice(0, 24) || null);
+    root.querySelector('#shopOk').onclick = () => done(cleanName(inp.value, 24) || null);
     setTimeout(() => inp.focus(), 200);
   });
 }

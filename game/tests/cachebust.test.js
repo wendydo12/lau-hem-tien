@@ -20,6 +20,32 @@ test('cache-bust: mọi dòng import trong main.js dùng CÙNG một số phiên
   assert.equal(khac.length, 1, 'các import đang lệch phiên bản: ' + khac.join(', '));
 });
 
+test('cache-bust: MỌI tệp js trong cây game phải dùng cùng một phiên bản (lỗi 08/10: audio/creator/intro còn ?v=39)', () => {
+  const goc = [...main.matchAll(/\?v=(\d+)'/g)].map(m => m[1]);
+  const v = goc[0];
+  const lech = [];
+  const duyet = dir => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) { duyet(p); continue; }
+      if (!e.name.endsWith('.js')) continue;
+      const t = fs.readFileSync(p, 'utf8');
+      for (const m of t.matchAll(/\?v=(\d+)/g)) {
+        if (m[1] !== v) lech.push(path.relative(GAME, p) + ' → ?v=' + m[1]);
+      }
+    }
+  };
+  duyet(path.join(GAME, 'js'));
+  assert.deepEqual(lech, [], 'tệp lệch phiên bản cache (phải là ?v=' + v + '):\n' + lech.join('\n'));
+});
+
+test('cache-bust: bản webapp/index.html cũng mang đúng phiên bản', () => {
+  const vi = [...new Set([...main.matchAll(/\?v=(\d+)'/g)].map(m => m[1]))][0];
+  const htmlWebapp = fs.readFileSync(path.join(GAME, '..', 'webapp', 'index.html'), 'utf8');
+  const found = [...new Set([...htmlWebapp.matchAll(/\?v=(\d+)/g)].map(m => m[1]))];
+  assert.ok(found.every(x => x === vi), 'webapp/index.html lệch phiên bản: ' + found.join(', ') + ' (phải là ' + vi + ')');
+});
+
 test('cache-bust: thẻ script và css trong index.html trùng với phiên bản import', () => {
   const vi = [...new Set([...main.matchAll(/\?v=(\d+)'/g)].map(m => m[1]))];
   assert.equal(vi.length, 1, 'main.js có nhiều phiên bản khác nhau: ' + vi.join(', '));
