@@ -15,10 +15,10 @@
  * GIỌNG KỂ: người kể trong game xưng "mình" (chủ quán), gọi người chơi là "bạn" ở chỗ cần —
  * TUYỆT ĐỐI không dùng giọng cá nhân của trợ lý (dự án/chủ dự án/chủ dự án) trong câu chữ trong game.
  */
-import { ITEMS, POT_KEYS } from './data.js';
-import { qty, addStock } from './stock.js';
-import { addExp, EXP } from './cult.js';
-import { wpick } from './rng.js';
+import { ITEMS, POT_KEYS } from './data.js?v=53';
+import { qty, addStock } from './stock.js?v=53';
+import { addExp, EXP } from './cult.js?v=53';
+import { wpick } from './rng.js?v=53';
 
 /* trần thiệt hại cho mọi nhánh xấu (luật 4) */
 export const capBad = (S, v) => Math.max(0, Math.min(Math.round(v), Math.floor((S.money || 0) * 0.12)));

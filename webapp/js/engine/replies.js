@@ -6,9 +6,9 @@
  * Toàn bộ câu chữ phản hồi mẫu + luật tông giọng: SÁNG TÁC GỐC của dự án.
  * (Toàn bộ câu chữ phản hồi do dự án tự viết.)
  */
-import { rating } from './economy.js';
-import { addExp, EXP } from './cult.js';
-import { iname, low } from './data.js';
+import { rating } from './economy.js?v=53';
+import { addExp, EXP } from './cult.js?v=53';
+import { iname, low } from './data.js?v=53';
 
 /* ===== 3 TÔNG GIỌNG ===== */
 export const TONES = {

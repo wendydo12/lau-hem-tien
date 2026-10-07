@@ -288,6 +288,10 @@ body{
 .ing .qty{position:absolute;top:1px;right:3px;font-size:13px;color:var(--ink-soft);font-weight:bold}
 .ing.sel{border-color:var(--magenta);box-shadow:0 0 0 2px var(--magenta) inset;background:#fff0f6}
 .ing.locked{opacity:.4;filter:grayscale(.7)}
+/* 08/10: món nhúng bị chặn vì đã đủ trần của ngày — xám mờ, không phải "hết hàng" */
+.ing.maxed{opacity:.4;filter:grayscale(.6)}
+.tops-count{color:var(--ink-soft);font-size:12px}
+.ing.maxed::after{content:'đủ';position:absolute;top:1px;right:2px;font-size:9px;color:var(--ink-soft);background:rgba(0,0,0,.35);border-radius:3px;padding:0 2px}
 .ing.out{opacity:.55}
 .ing.out::after{content:'HẾT';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   background:rgba(0,0,0,.5);color:var(--red);font-size:14px;border-radius:4px}

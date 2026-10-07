@@ -1,6 +1,6 @@
 /* engine/events.js — sự kiện ngày, quà, tai họa lên lịch, chống gian lận */
-import { EVS, GIFTS, BAD, ITEMS, POT_KEYS, TOP_KEYS, DIP_KEYS } from './data.js';
-import { rating, upgCount, cheatHit, rollLSRate } from './economy.js';
+import { EVS, GIFTS, BAD, ITEMS, POT_KEYS, TOP_KEYS, DIP_KEYS } from './data.js?v=53';
+import { rating, upgCount, cheatHit, rollLSRate } from './economy.js?v=53';
 
 /* cuộn ngày mới: sự kiện + mood + quà + tỷ giá linh thạch  */
 export function rollDay(S, cfg, rng) {

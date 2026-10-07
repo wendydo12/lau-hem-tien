@@ -15,6 +15,25 @@ import { makeCFG } from '../js/engine/config.js';
 
 const GAME = new URL('..', import.meta.url).pathname;
 
+test('pauseDlg KHÔNG crash khi chưa mở ca (lỗi thật trong app log 08/10)', () => {
+  /* Bằng chứng từ sổ lỗi của app: "TypeError: undefined is not an object
+   * (evaluating 'R.paused = true')" — nút ❚❚ trên HUD bấm được ở màn chuẩn bị khi R = null. */
+  const src = fs.readFileSync(path.join(GAME, 'js', 'main.js'), 'utf8');
+  const fn = src.slice(src.indexOf('function pauseDlg()'), src.indexOf('function pauseDlg()') + 600);
+  assert.ok(/if \(!R \|\| !R\.running\)/.test(fn), 'pauseDlg phải có chốt chặn khi chưa mở ca');
+});
+
+test('ngày đầu đủ trần món nhúng: các món còn lại phải XÁM (lớp maxed) + nhãn đếm x/y', () => {
+  const src = fs.readFileSync(path.join(GAME, 'js', 'main.js'), 'utf8');
+  assert.ok(/maxed/.test(src), 'thiếu lớp "maxed" cho món nhúng bị chặn vì đủ trần ngày');
+  assert.ok(/topsCount/.test(src), 'thiếu bộ đếm món nhúng (x/y) cạnh nhãn NHÚNG LẨU');
+  const css = fs.readFileSync(path.join(GAME, 'css', 'main.css'), 'utf8');
+  assert.ok(/\.ing\.maxed/.test(css), 'thiếu CSS cho .ing.maxed');
+  const html = fs.readFileSync(path.join(GAME, 'index.html'), 'utf8');
+  assert.ok(/id="topsCount"/.test(html), 'thiếu phần tử #topsCount trong index.html');
+});
+
+
 test('trần khách trong ca PHẢI ĐÚNG con số ghi ở màn chuẩn bị (bỏ nhiễu ±15%)', () => {
   /* Lỗi chủ dự án bắt 08/10: "số khách là 9 mà serve hết 9 khách khách vẫn vào thêm" —
    * vì màn chuẩn bị ghi ƯỚC LƯỢNG (traffic × hệ số) còn trần thật lại nhân thêm nhiễu 0,85–1,15

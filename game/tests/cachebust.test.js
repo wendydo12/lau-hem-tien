@@ -46,6 +46,31 @@ test('cache-bust: bản webapp/index.html cũng mang đúng phiên bản', () =>
   assert.ok(found.every(x => x === vi), 'webapp/index.html lệch phiên bản: ' + found.join(', ') + ' (phải là ' + vi + ')');
 });
 
+test('cache-bust: KHÔNG import .js tương đối TRẦN (lỗi thật 08/10 — engine cache vĩnh viễn)', () => {
+  /* Chuyện thật: game/js/engine/*.js import lẫn nhau kiểu `from './economy.js'` KHÔNG kèm ?v=
+   * → trình duyệt cache economy.js ở URL không phiên bản, không bao giờ làm mới. Sửa lChance
+   * trong tệp mà người chơi vẫn dùng bản cache cũ → "ko thấy khách order nồi lớn" dù đã fix.
+   * Hàng rào này đảm bảo mọi import .js tương đối trong cây js/ đều mang ?v= để bump-version
+   * kiểm soát được toàn cây. */
+  const tran = [];
+  const duyet = dir => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) { duyet(p); continue; }
+      if (!e.name.endsWith('.js')) continue;
+      const t = fs.readFileSync(p, 'utf8');
+      for (const m of t.matchAll(/from\s+['"](\.{1,2}\/[^'"]*?\.js)['"]/g)) {
+        if (!m[1].includes('?v=')) tran.push(path.relative(GAME, p) + ' → ' + m[1]);
+      }
+      for (const m of t.matchAll(/import\(\s*['"](\.{1,2}\/[^'"]*?\.js)['"]\s*\)/g)) {
+        if (!m[1].includes('?v=')) tran.push(path.relative(GAME, p) + ' → import(' + m[1] + ')');
+      }
+    }
+  };
+  duyet(path.join(GAME, 'js'));
+  assert.deepEqual(tran, [], 'còn import .js TRẦN (sẽ bị cache vĩnh viễn, sửa mã không ăn):\n' + tran.join('\n'));
+});
+
 test('cache-bust: thẻ script và css trong index.html trùng với phiên bản import', () => {
   const vi = [...new Set([...main.matchAll(/\?v=(\d+)'/g)].map(m => m[1]))];
   assert.equal(vi.length, 1, 'main.js có nhiều phiên bản khác nhau: ' + vi.join(', '));

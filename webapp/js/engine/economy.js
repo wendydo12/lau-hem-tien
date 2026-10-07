@@ -1,9 +1,9 @@
 /* engine/economy.js — giá, chi phí, lượng khách, thuế, vay, cầm đồ linh thạch, sổ nợ. */
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, SECRET_KEYS, UPG, BASE_PRICE, XTOP_KEYS } from './data.js';
-import { costOf } from './stock.js';
-import { trafficMul } from './cult.js';
-import { ruinTrafficMul } from './ruin.js';
-import { pendTrafficMul } from './surprise.js';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, SECRET_KEYS, UPG, BASE_PRICE, XTOP_KEYS } from './data.js?v=53';
+import { costOf } from './stock.js?v=53';
+import { trafficMul } from './cult.js?v=53';
+import { ruinTrafficMul } from './ruin.js?v=53';
+import { pendTrafficMul } from './surprise.js?v=53';
 
 /* món secret bán bằng linh thạch (sell = số LS hạ phẩm) */
 const isLSItem = k => ITEMS[k] && ITEMS[k].type === 'secret' && ITEMS[k].sell <= 10;
@@ -46,17 +46,22 @@ export const itemPricey = (S, k, cfg) => k === 'L' ? lPricey(S, cfg)
   : ITEMS[k] && ITEMS[k].type === 'base' ? S.sell[k] >= cfg.potCap
   : S.sell[k] / BASE_PRICE[k] > 1.3;
 export const lPricey = (S, cfg) => S.sell.L > cfg.sizeWarn;
-/* CỠ NỒI L (yêu cầu thiết kế 07/10, chỉnh lại 08/10 theo phản hồi chủ dự án "sao ta ko thấy khách
- * order nồi lớn"): bản 07/10 để ngày 1-3 ăn 0% nồi lớn cho khỏi sốc, nhưng như vậy người chơi mới
- * mấy ngày đầu KHÔNG BAO GIỜ gặp nồi lớn nên tưởng game thiếu tính năng.
- * Nay: nồi lớn có NGAY TỪ NGÀY 1 nhưng HIẾM (6% ≈ 1 trong 16 ly), rồi leo đều
- * 12% → 20% → 28% → 35%. Vẫn giữ luật "đắt quá thì gần như không ai gọi" (lPricey → 3,5%)
- * và "chạm trần phụ thu thì không ai gọi" (>= sizeCap → 0). */
+/* CỠ NỒI L (yêu cầu thiết kế 07/10, chỉnh lại 2 lần 08/10 theo phản hồi chủ dự án).
+ *
+ * Lịch sử: 07/10 để 0% ngày 1-3 (sợ sốc) → người chơi KHÔNG BAO GIỜ gặp nồi lớn.
+ * 08/10 sửa thành 6% → vẫn quá hiếm: ca tối chỉ ~9-12 khách, 6% nghĩa là chỉ ~46% số ca có
+ * một nồi lớn, tức HƠN NỬA số ngày chơi vẫn không thấy → chủ dự án lại báo "ko thấy khách order
+ * nồi lớn". Nguyên nhân gốc: xác suất PHẢI tính theo số khách THẬT của một ca, không phải theo
+ * cảm giác "hiếm".
+ *
+ * Nay: ngày 1-3 = 15% → với ca ~10 khách, P(gặp ≥1 nồi lớn) = 1-0,85^10 ≈ 80%, trung bình ~1,5 nồi
+ * mỗi ca: THẤY ĐƯỢC mà không ngập. Rồi leo đều 22% → 28% → 33% → 38%. Vẫn giữ hai luật giá:
+ * bán nồi lớn quá sizeWarn → còn 3,5%; chạm sizeCap → 0% (không ai gọi). */
 export const lChance = (S, cfg) => {
   if (S.sell.L >= cfg.sizeCap) return 0;
   if (lPricey(S, cfg)) return .035;
   const d = S.day || 1;
-  return d <= 3 ? .06 : d <= 7 ? .12 : d <= 15 ? .20 : d <= 29 ? .28 : .35;
+  return d <= 3 ? .15 : d <= 7 ? .22 : d <= 15 ? .28 : d <= 29 ? .33 : .38;
 };
 export const pricyItems = (S, cfg) => [...POT_KEYS.filter(k => S.unlocked[k] && itemPricey(S, k, cfg)), ...(S.sell.L >= cfg.sizeCap ? ['L'] : [])];
 export function orderPricey(o, S, cfg) {

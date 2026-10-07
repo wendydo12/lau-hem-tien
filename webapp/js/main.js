@@ -1,30 +1,30 @@
 /* main.js — boot + router + UI serve loop (Phase 4). Engine ở js/engine/*, sprite map ở js/manifest.js.
  * CHÚ Ý cache-busting: mọi import đều kèm ?v=N — khi sửa bất kỳ file engine nào, tăng N ở TẤT CẢ các dòng import + script tag. */
-import { makeCFG, GAME_VERSION } from './engine/config.js?v=51';
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR, TOP_SECTIONS } from './engine/data.js?v=51';
-import { fresh, load, save, newPot } from './engine/state.js?v=51';
-import { addStock, qty, take, costOf } from './engine/stock.js?v=51';
-import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=51';
-import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=51';
-import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=51';
-import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=51';
-import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals, MIN_GAP_MS as MIN_GAP_KHACH } from './engine/shift.js?v=51';   /* CA TỐI 19:00-23:00 + khe khách */
-import { makeRNG } from './engine/rng.js?v=51';
-import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=51';
-import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=51';
-import { planShift, drawEvent, resolve as surpriseResolve, capBad } from './engine/surprise.js?v=51';   /* SỰ KIỆN BẤT NGỜ TRONG CA (07/10) */
-import { RUIN_TIERS } from './engine/ruin.js?v=51';
-import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=51';
-import { UPG } from './engine/data.js?v=51';
-import { SPRITES } from './manifest.js?v=51';
-import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=51';
-import { playIntro, introSeen } from './intro.js?v=51';
-import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=51';
+import { makeCFG, GAME_VERSION } from './engine/config.js?v=53';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, BASE_PRICE, iname, PERSONA, WHO_SPR, TOP_SECTIONS } from './engine/data.js?v=53';
+import { fresh, load, save, newPot } from './engine/state.js?v=53';
+import { addStock, qty, take, costOf } from './engine/stock.js?v=53';
+import { fmt, rating, starStr, recRev, recCost, price, traffic } from './engine/economy.js?v=53';
+import { makeNameGen, levelOf, genOrder, matches, maxTops } from './engine/orders.js?v=53';
+import { rollDay, mkBadPlan, evText, evIs, evMul } from './engine/events.js?v=53';
+import { initRuntime, spawn, serve, timeoutCustomer, closeDay, startDay, pourResult, slotCount, roomDebt, payRoomDebt, roomDebtOverdue, pickServeSlot } from './engine/loop.js?v=53';
+import { SHIFT, shiftMs, clockText, shiftFrac, buildArrivals, MIN_GAP_MS as MIN_GAP_KHACH } from './engine/shift.js?v=53';   /* CA TỐI 19:00-23:00 + khe khách */
+import { makeRNG } from './engine/rng.js?v=53';
+import { REALMS, initCult, breakText, fireZone, fillMs as cultFillMs } from './engine/cult.js?v=53';
+import { TONES, TONE_KEYS, genReply, applyReply, unanswered, journeyStats } from './engine/replies.js?v=53';
+import { planShift, drawEvent, resolve as surpriseResolve, capBad } from './engine/surprise.js?v=53';   /* SỰ KIỆN BẤT NGỜ TRONG CA (07/10) */
+import { RUIN_TIERS } from './engine/ruin.js?v=53';
+import { dayStats, rangeStats, bestLine, bestSellers, recOfDay } from './engine/stats.js?v=53';
+import { UPG } from './engine/data.js?v=53';
+import { SPRITES } from './manifest.js?v=53';
+import { sfx, setBoil, setAmbience, toggleAudio, audioOn, setBgm, stopBgm, playGameOver, bgmError, retryBgm } from './audio.js?v=53';
+import { playIntro, introSeen } from './intro.js?v=53';
+import { openCreator, openShopNaming, loadCreator, saveCreator, clearCreator, ownerSprite } from './creator.js?v=53';
 
 const cfg = makeCFG();
 const $ = id => document.getElementById(id);
-import { A } from './assets.js?v=51';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
-import { esc, cleanName } from './safe.js?v=51';   /* 08/10: vá XSS qua tên quán người chơi nhập */
+import { A } from './assets.js?v=53';   // 26/09: 1 nguồn sự thật prefix asset (fix ảnh vỡ GitHub Pages)
+import { esc, cleanName } from './safe.js?v=53';   /* 08/10: vá XSS qua tên quán người chơi nhập */
 let S, R, rng, ctx, names;
 let pot = newPot();
 /* DẤU KHỞI ĐỘNG (08/10): ghi lại "lần cuối mã game chạy được" vào localStorage.
@@ -193,6 +193,10 @@ function showGuide() {
 }
 
 function pauseDlg() {
+  /* FIX 08/10 (lỗi thật trong app log: "TypeError: undefined is not an object (evaluating
+   * 'R.paused = true')" @ main.js:196): nút ❚❚ nằm trên HUD và HUD hiện cả ở màn chuẩn bị —
+   * lúc chưa mở ca thì R = null, bấm là crash. */
+  if (!R || !R.running) { toast('Chưa mở cửa nên không có gì để tạm dừng 🙂', '', 1800); return; }
   R.paused = true;
   R.pauseAt = performance.now();          /* 07/10: giờ đồng hồ ĐỨNG YÊN thật khi tạm dừng */
   modal('<div class="big-ico">❚❚</div><h2>Tạm dừng</h2><p>Quán đang nghỉ một chút.</p>',
@@ -1022,17 +1026,24 @@ function renderStations() {
   const showSecret = R && R.slots.some(c => c && c.xian);
   const tops = [...TOP_KEYS, ...DUOC_KEYS].filter(k => S.unlocked[k]);
   const secrets = showSecret ? SECRET_KEYS.filter(k => S.unlocked[k]) : [];
-  $('stTops').innerHTML = tops.map(k => ingBtn(k, pot.tops.includes(k))).join('')
-    + secrets.map(k => ingBtn(k, pot.tops.includes(k), false, true)).join('');
+  /* 08/10 (chủ dự án: "ko select được những ingredient hiện sẵn trong ngày 2"): ngày đầu mỗi khách
+   * chỉ gọi 1-2 món nhúng (maxTops theo ngày) — khi ĐÃ ĐỦ trần thì các món còn lại xám đi kèm nhãn
+   * "đã đủ", để người chơi hiểu là khách chỉ gọi bấy nhiêu chứ KHÔNG phải nút hỏng. */
+  const maxT = maxTops(S.day, cfg);
+  const duTran = pot.tops.length >= maxT;
+  const ingTop = (k, secret = false) => ingBtn(k, pot.tops.includes(k), false, secret, duTran && !pot.tops.includes(k));
+  $('stTops').innerHTML = tops.map(k => ingTop(k)).join('') + secrets.map(k => ingTop(k, true)).join('');
+  const tc = $('topsCount');
+  if (tc) tc.textContent = `(${pot.tops.length}/${maxT} món)`;
   bindIngs();
   renderPotVisual();
   renderTicket(); renderNeed();   // 26/09: vé đơn cập nhật theo nồi đang nấu
 }
-function ingBtn(k, sel, small = false, secret = false) {
+function ingBtn(k, sel, small = false, secret = false, maxed = false) {
   const q = qty(S, k);
   const it = ITEMS[k];
   const src = spriteOf(k);
-  return `<div class="ing${sel ? ' sel' : ''}${q <= 0 ? ' out' : ''}${secret ? ' secret' : ''}" data-k="${k}">
+  return `<div class="ing${sel ? ' sel' : ''}${q <= 0 ? ' out' : ''}${secret ? ' secret' : ''}${maxed ? ' maxed' : ''}" data-k="${k}"${maxed ? ' title="Khách hôm nay chỉ gọi bấy nhiêu món nhúng"' : ''}>
     <img src="${A + src}" alt="${it.s}">
     <div class="nm">${secret ? '✨' : ''}${it.s}</div>
     <div class="qty">${q > 0 ? q : ''}</div>
@@ -1059,7 +1070,7 @@ function bindIngs() {
       if (pot.tops.includes(k)) { toast(LOCK, 'bad'); sfx('weak'); return; }
       /* trần món nhúng = maxTops dùng chung với engine (ramp theo ngày) */
       const maxT = maxTops(S.day, cfg);
-      if (pot.tops.length >= maxT) toast('Ngày này tối đa ' + maxT + ' món nhúng (ngày sau mở thêm)', 'bad');
+      if (pot.tops.length >= maxT) toast('🍲 Ngày ' + S.day + ' khách chỉ gọi tối đa ' + maxT + ' món nhúng — ngày sau mở thêm', 'bad', 3000);
       else { pot.tops.push(k); sfx('plop'); }
     }
     renderStations();

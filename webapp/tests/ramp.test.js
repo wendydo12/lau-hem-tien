@@ -54,7 +54,9 @@ test('ngày đầu phải thật DỄ: ngày 1-2 đơn trơn (1 món nhúng, kh�
       assert.ok(o.tops.length <= 1, 'ngày ' + day + ' tối đa 1 món nhúng');
     }
     const tyLe = toplon / 600;
-    assert.ok(tyLe <= .12, 'ngày ' + day + ': nồi lớn ' + (tyLe * 100).toFixed(1) + '% — ngày đầu phải hiếm (≤12%)');
+    /* ngày đầu: nồi lớn phải xuất hiện (≥8%) nhưng không ngập (≤22%) — xem lChance 08/10 */
+    assert.ok(tyLe >= .08 && tyLe <= .22,
+      'ngày ' + day + ': nồi lớn ' + (tyLe * 100).toFixed(1) + '% — ngày đầu phải trong khoảng 8-22%');
     assert.equal(potCount(day, makeRNG(9)), 1, 'ngày ' + day + ' mỗi khách 1 nồi');
   }
 });
@@ -84,8 +86,9 @@ test('từng thứ đòi thêm đều leo thang riêng: chấm · cay · cỡ l�
   assert.ok(spicyChance(60, cfg) > spicyChance(30, cfg));
   /* cỡ nồi L (chỉnh 08/10): CÓ ngay từ ngày 1 nhưng hiếm, rồi leo đều tới ngày 30 */
   const s1 = S(1), s5 = S(5), s30 = S(30);
-  assert.ok(lChance(s1, cfg) > 0, 'ngày 1 phải có cơ hội gặp nồi lớn (hiếm cũng được)');
-  assert.ok(lChance(s1, cfg) <= .08, 'ngày 1 nồi lớn phải thật hiếm (≤8%)');
+  /* ngày 1 phải ĐỦ để gặp nồi lớn trong ca ~10 khách: P(≥1) = 1-(1-p)^10 ≥ 75% ⇒ p ≥ ~13% */
+  assert.ok(lChance(s1, cfg) >= .13 && lChance(s1, cfg) <= .20,
+    'ngày 1 nồi lớn phải 13-20% mới đủ thấy mà không ngập, đang là ' + lChance(s1, cfg));
   assert.ok(lChance(s5, cfg) > lChance(s1, cfg) && lChance(s30, cfg) > lChance(s5, cfg));
   /* số nồi: chỉ 1 cho tới ngày 5, sau đó mới dần có 2+ nồi */
   const trung = {};
