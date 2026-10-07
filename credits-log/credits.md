@@ -170,6 +170,12 @@ Số dư trước đợt: 885 credit.
 | 07/10 | job_98556ef2 | xlarge_4_3 | Nền phòng trọ (tường vàng + xanh ngọc, sàn gạch bông) | 25 | 760 | ✅ dùng làm nền màn Phòng ở |
 | 07/10 | job_59ed449d | food | VẼ LẠI nhóm thịt dê (nồi dê, thịt dê tái, đùi nướng, sụn, chao vàng, hũ chao, dê luộc, cháo dê) | 20 | 740 | ✅ QA đọc từng ô — thứ tự khác mô tả, đã gán lại theo ảnh thật |
 
-**Tổng đợt này: 145 credit.** Số dư còn lại: **740 credit**.
+**Tổng đợt 1: 145 credit** (số dư 740).
+| 07/10 | job_697b4987 | food | Món ăn đợt 2 (lẩu riêu cua đồng, bạch tuộc, cá hồi, tôm viên, thanh cua, xúc xích, khoai môn, bắp ngọt) | 20 | 690 | ✅ QA từng ô — 8/8 dùng được (ô 7 ra khoai môn tím, đúng ý) |
+| 07/10 | job_99ad9cc7 | xlarge_4_3 | Nền bộ Động Tiên: sàn lót gỗ + tường be vân gỗ, chân tường gỗ | 25 | 665 | ✅ dùng làm `canh-nen/phong-tu-tien.png` |
+| 07/10 | job_86bdbddc | xlarge_4_3 | Nền bộ Hẻm Việt: sàn gạch bông hoa văn + tường vàng mù tạt & xanh ngọc | 25 | 640 | ✅ dùng làm `canh-nen/phong-hem-viet.png` |
+
+**Tổng cả ngày 07/10: 235 credit. Số dư còn lại: 640 credit.**
+
 Bài học lặp lại: meowa trả thứ tự ô KHÁC mô tả → luôn dựng bảng kiểm có số rồi đọc từng ô trước khi gán tên.
 Ảnh thô giữ ở `_nguon-anh-meowa/` (ngoài thư mục assets để không bị đóng gói).

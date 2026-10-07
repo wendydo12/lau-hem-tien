@@ -118,3 +118,13 @@ Cả hai bộ đã vẽ xong bằng meowa, kiểm từng ô, và nằm trong `as
   chỉ việc đọc từ đó.
 - Xem ảnh: mở `assets/gallery.html` (đã thêm 2 mục "Bộ nội thất ĐỘNG TIÊN" và "HỘI... HẺM VIỆT").
 - Sổ chi phí: `credits-log/credits.md` mục Phase 7 (7 job, 145 credit).
+
+### Bổ sung 07/10 (đợt 2) — sàn và tường riêng cho từng bộ
+
+| tệp | nội dung |
+|---|---|
+| `assets/canh-nen/phong-tu-tien.png` | Nền bộ Động Tiên: sàn lót gỗ, tường be vân gỗ, chân tường gỗ |
+| `assets/canh-nen/phong-hem-viet.png` | Nền bộ Hẻm Việt: sàn gạch bông hoa văn, tường vàng mù tạt + xanh ngọc |
+
+Khai báo ở `SPRITES.room.nenTuTien` và `SPRITES.room.nenHemViet`. Tham khảo hoa văn gạch bông lấy từ
+poster gạch bông Việt Nam (giữ hoạ tiết trung tâm + 4 góc cuộn, bảng màu kem – vàng đất – nâu đỏ).

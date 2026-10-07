@@ -16,7 +16,7 @@ export const SPRITES = {
     thai: 'mon-an/pot_03.png', suki: 'mon-an/pot_04.png', dong_trung: 'mon-an/pot_05.png',
     tu_xuyen: 'mon-an/pot_06.png', hai_san: 'mon-an/pot_07.png',
     canh_chua: 'mon-an/pot_08.png', mam: 'mon-an/pot_09.png',
-    bo: 'mon-an/pot_10.png', de: 'mon-an/pot_11.png'
+    bo: 'mon-an/pot_10.png', de: 'mon-an/pot_11.png', rieu: 'mon-an/pot_12.png'
   },
   /* topping + nước chấm + bí mật */
   item: {
@@ -31,6 +31,10 @@ export const SPRITES = {
     /* 07/10: nhóm thịt bò · thịt dê mới vẽ */
     t_bo_tai: 'mon-an/bo_tai.png', t_bo_cuon: 'mon-an/bo_cuon.png',
     t_de_luoc: 'mon-an/de_luoc.png', t_dui_de: 'mon-an/dui_de.png', d_chao_vang: 'mon-an/chao_vang.png',
+    /* 07/10 đợt 2: hải sản + chả/viên + rau củ */
+    t_bach_tuoc: 'mon-an/bach_tuoc.png', t_ca_hoi: 'mon-an/ca_hoi.png', t_tom_vien: 'mon-an/tom_vien.png',
+    t_thanh_cua: 'mon-an/thanh_cua.png', t_xuc_xich: 'mon-an/xuc_xich.png',
+    t_khoai_mon: 'mon-an/khoai_mon.png', t_bap_ngot: 'mon-an/bap_ngot.png',
     t_ca_dieu: 'mon-an/ca_dieu_lat.png', t_ca_vien_chien: 'mon-an/new1_04.png', t_dau_hu_non: 'mon-an/new1_05.png',
     t_chan_vit: 'mon-an/new1_06.png', t_cai_thia: 'mon-an/new1_07.png',
     d_mix: 'mon-an/new2_00.png', t_cu_sen: 'mon-an/new2_01.png', du_nam_bung_de: 'mon-an/new2_04.png',
@@ -70,7 +74,10 @@ export const SPRITES = {
       den_luu_ly: 'do-vat/tt_den_luu_ly.png', tranh_truc: 'do-vat/tt_tranh_truc.png', tham: 'do-vat/tt_tham.png',
       de_go: 'do-vat/tt_de_go.png'
     },
-    nen: 'canh-nen/phong-tro-tu-tien.png'
+    nen: 'canh-nen/phong-tro-tu-tien.png',
+    /* 07/10: mỗi bộ style có nền riêng — sàn + màu tường */
+    nenTuTien: 'canh-nen/phong-tu-tien.png',   /* sàn gỗ + tường be vân gỗ */
+    nenHemViet: 'canh-nen/phong-hem-viet.png'   /* sàn gạch bông + tường vàng/xanh ngọc */
   },
   scene: 'canh-nen/scene_alley_night.png'
 };

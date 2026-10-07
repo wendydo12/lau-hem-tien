@@ -22,10 +22,12 @@ function seededState(seed = 12345) {
 }
 
 /* ============ 1. DATA ============ */
-test('ITEMS: đủ 11 nồi lẩu (7 gốc + 2 miền Tây + 2 nồi mới 07/10: bò, dê)', () => {
+test('ITEMS: đủ 12 nồi lẩu (7 gốc + 2 miền Tây + 3 nồi mới 07/10: bò, dê, riêu cua)', () => {
   const pots = POT_KEYS;
-  assert.equal(pots.length, 11);
-  ['ca_chua', 'nam', 'suon', 'canh_chua', 'thai', 'mam', 'suki', 'dong_trung', 'tu_xuyen', 'bo', 'de'].forEach(k => assert.ok(ITEMS[k], 'thiếu nồi ' + k));
+  assert.equal(pots.length, 12);
+  ['ca_chua', 'nam', 'suon', 'canh_chua', 'thai', 'mam', 'suki', 'dong_trung', 'tu_xuyen', 'bo', 'de', 'rieu'].forEach(k => assert.ok(ITEMS[k], 'thiếu nồi ' + k));
+  assert.equal(ITEMS.rieu.n, 'Lẩu riêu cua đồng');
+  assert.ok(ITEMS.rieu.unlock >= 500000, 'nồi riêu cua phải là món mở khoá muộn');
   /* 2 nồi mới: mở khoá chia theo mức tiến trình, giá bán cao hơn nồi gốc */
   assert.equal(ITEMS.bo.n, 'Lẩu bò');
   assert.equal(ITEMS.de.n, 'Lẩu dê');

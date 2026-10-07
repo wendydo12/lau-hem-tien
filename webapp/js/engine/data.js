@@ -32,6 +32,7 @@ P('tu_xuyen', 'Lẩu Tứ Xuyên', 'Tứ Xuyên', '#c1121f', 3, 14000, 70000, 40
 /* 07/10: 2 nồi mới theo yêu cầu — mở khoá chia theo mức tiến trình */
 P('bo', 'Lẩu bò', 'Bò', '#d94f2b', 3, 16000, 75000, 200000);
 P('de', 'Lẩu dê', 'Dê', '#7a5c3a', 2, 18000, 85000, 450000);
+P('rieu', 'Lẩu riêu cua đồng', 'Riêu cua', '#e2622e', 2, 15000, 70000, 550000);
 
 /* --- NƯỚC CHẤM (dip) --- */
 const C = mk('dip', 'dip');
@@ -81,6 +82,14 @@ T('t_bo_tai', 'Thịt bò tái', 'Bò tái', '#c85a4a', 1, 9000, 17000, 120000);
 T('t_bo_cuon', 'Bò cuộn', 'Bò cuộn', '#b0503f', 1, 9500, 18000, 180000);
 T('t_de_luoc', 'Thịt dê luộc', 'Dê luộc', '#d8c0a8', 1, 8000, 15000, 260000);
 T('t_dui_de', 'Đùi dê', 'Đùi dê', '#8f4a3a', 1, 10000, 19000, 320000);
+/* 07/10 đợt 2: hải sản + món chả/viên + rau củ — mở khoá rải đều */
+T('t_bach_tuoc', 'Bạch tuộc', 'Bạch tuộc', '#e8b8c0', 1, 11000, 20000, 200000);
+T('t_ca_hoi', 'Cá hồi', 'Cá hồi', '#f08a6a', 1, 12000, 22000, 300000);
+T('t_tom_vien', 'Tôm viên', 'Tôm viên', '#f4a08a', 3, 6000, 11000, 150000);
+T('t_thanh_cua', 'Thanh cua', 'Thanh cua', '#f4e0d0', 3, 5000, 10000, 120000);
+T('t_xuc_xich', 'Xúc xích', 'Xúc xích', '#e07a5a', 3, 5000, 10000, 90000);
+T('t_khoai_mon', 'Khoai môn cắt lát', 'Khoai môn', '#c8a8d8', 3, 4000, 8000, 80000);
+T('t_bap_ngot', 'Bắp ngọt cắt khúc', 'Bắp ngọt', '#f2d24e', 3, 3000, 7000, 60000);
 
 /* --- DƯỢC THIỆN (duoc — cao cấp, khách thường đôi khi gọi) --- */
 const D = mk('duoc', 'duoc');
@@ -110,9 +119,9 @@ export const DUOC_KEYS = Object.keys(ITEMS).filter(k => ITEMS[k].type === 'duoc'
  * Món nào không nằm trong danh sách này sẽ tự rơi vào mục "Món khác" ở màn chuẩn bị. */
 export const TOP_SECTIONS = [
   { l: '🥩 Thịt bò · thịt dê', ks: ['t_bo', 't_bo_tai', 't_bo_cuon', 't_gau', 't_sun', 't_ba_chi', 't_cuu', 't_de', 't_de_luoc', 't_dui_de'] },
-  { l: '🦐 Hải sản', ks: ['t_tom', 't_muc', 't_ngheu', 't_ca_dieu'] },
-  { l: '🍢 Viên · đậu · trứng', ks: ['t_bo_vien', 't_ca_vien', 't_ca_vien_chien', 't_dau_hu_ky', 't_dau_hu_non', 't_trung'] },
-  { l: '🥬 Rau · củ', ks: ['t_rau_muong', 't_cai_cuc', 't_chan_vit', 't_cai_thia', 't_cu_sen'] },
+  { l: '🦐 Hải sản', ks: ['t_tom', 't_muc', 't_ngheu', 't_ca_dieu', 't_bach_tuoc', 't_ca_hoi'] },
+  { l: '🍢 Viên · chả · trứng', ks: ['t_bo_vien', 't_ca_vien', 't_ca_vien_chien', 't_tom_vien', 't_thanh_cua', 't_xuc_xich', 't_dau_hu_ky', 't_dau_hu_non', 't_trung'] },
+  { l: '🥬 Rau · củ', ks: ['t_rau_muong', 't_cai_cuc', 't_chan_vit', 't_cai_thia', 't_cu_sen', 't_khoai_mon', 't_bap_ngot'] },
   { l: '🍄 Nấm', ks: ['t_kim_cham', 't_dong_co', 't_dui_ga'] },
   { l: '🍜 Bún · miến · mì', ks: ['t_mi_goi', 't_mien', 't_bun', 't_udong'] }
 ];
