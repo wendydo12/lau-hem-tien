@@ -18,22 +18,15 @@ Hai bộ style đối lập nhau, người chơi tự chọn hướng:
 - Lần đầu mở: một tin nhắn lạ trong máy ("chỗ này bán đồ không có hoá đơn…") — 1 lần duy nhất, không lặp.
 - Vào từ màn Chuẩn bị: nút **🏮 Hắc thị** (góc dưới), cạnh nút Hướng dẫn.
 
-## 3. Bộ A — Hẻm Việt (12 món, giá tính bằng tiền mặt)
+## 3. Bộ A — Hẻm Việt (14 món, giá tính bằng tiền mặt)
 
-| món | giá | hiệu ứng thật |
-|---|---|---|
-| Tủ thờ ông địa | 1.200.000 | mở sự kiện `ong_dia` (may mắn đêm khuya) |
-| Nồi gang cũ | 400.000 | canh lửa dễ hơn: vạch chuẩn rộng +5% |
-| Ghế nhựa đỏ | 300.000 | khách ngồi đợi lâu hơn 10% |
-| Bàn nhựa + khăn bàn | 500.000 | điểm vệ sinh +8 (đỡ bị phạt) |
-| Quạt cây cũ | 450.000 | khách khó ở bớt cằn nhằn |
-| Xe Wave tàu | 900.000 | đi chợ nhanh: giá nhập nguyên liệu −5% |
-| Dây phơi + kệ chén | 250.000 | hao hụt giảm 5% |
-| Đèn bàn thờ | 200.000 | mở ông địa sớm hơn (từ ngày 8) |
-| Lồng chim chào mào | 350.000 | +2 uy tín |
-| Chậu kiểng + lu nước | 300.000 | bàn chờ mát: khách kiên nhẫn +8% |
-| Lò than tổ ong | 600.000 | nấu nhanh hơn 8% |
-| Tivi cũ có ăng-ten | 700.000 | khách trẻ ngồi lâu hơn, +1 review/ngày |
+Sau khi đọc 4 ảnh nội thất phu quân gửi hôm 07/10, thiếp đã chỉnh lại danh sách cho đúng
+chất phòng trọ Việt: đổi sang **14 món** và cập nhật nét nhận dạng cho từng món.
+**Danh sách chính thức + bảng màu + cách vẽ nằm ở `docs/08-noi-that-phong-tro.md`.**
+Tóm tắt: tủ thờ ông địa, rèm hoa đỏ, TV CRT ăng-ten râu, đài cassette đỏ, máy khâu đen + bàn gỗ,
+ghế bành gỗ chấn song, bàn trà thấp + chiếu cói, lốc lịch + cụm khung ảnh,
+bằng khen "Người tốt việc tốt", tranh sơn mài đỏ son, phích nước + ấm tích chén trà,
+quạt cây cũ, ổ cắm + dây điện chân tường, xe Wave tàu.
 
 ## 4. Bộ B — Động Tiên (12 món, giá tính bằng linh thạch)
 
