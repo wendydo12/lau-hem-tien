@@ -513,7 +513,7 @@ body{
 .rv-reply-av{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--panel-white);border:2px solid var(--panel-line);font-size:14px;margin-right:6px;vertical-align:middle;overflow:hidden}
 .rv-reply-av img{width:100%;height:100%;image-rendering:pixelated}
 
-/* ===== MENU HÔM NAY + THỐNG KÊ (port UI game gốc — 26/09) ===== */
+/* ===== MENU HÔM NAY + THỐNG KÊ (bảng của dự án — 26/09) ===== */
 .pencil { background:none; border:none; cursor:pointer; font-size:.75em; opacity:.7; padding:2px 4px; }
 .pencil:hover { opacity:1; }
 .menu-board { background:#22303c; border:3px solid #6b4a2f; border-radius:12px; padding:10px 12px; margin-bottom:12px; color:#f3ead3; }

@@ -1310,7 +1310,7 @@ function gameOverBankrupt() {
   }, true]]);
 }
 
-/* ============ MÀN THỐNG KÊ (port UI gốc: Theo ngày/Tuần/Tháng — lệnh phu quân 25/09) ============ */
+/* ============ MÀN THỐNG KÊ (Theo ngày/Tuần/Tháng — lệnh phu quân 25/09) ============ */
 let statsBack = 'prep';
 let statsTab = 'day';
 let statsDay = 1;

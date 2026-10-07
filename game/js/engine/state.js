@@ -1,4 +1,5 @@
-/* engine/state.js — S (save state) + fresh/load/save/migrate/sanitize. Port cơ chế Tiệm Trà Nhỏ, đổi tên khóa. */
+/* engine/state.js — S (save state) + fresh/load/save/migrate/sanitize. Thiết kế riêng của dự án:
+ * khóa save, cấu trúc bản ghi, luật migrate/sanitize đều do dự án tự định nghĩa. */
 import { ITEMS, BASE_PRICE } from './data.js';
 import { makeCFG } from './config.js';
 import { recRev, recCost } from './economy.js';

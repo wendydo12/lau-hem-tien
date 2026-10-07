@@ -12,7 +12,7 @@ Mọi pixel art sinh bằng meowa.ai (skill meowa-pixel-gen). Backend-first: eng
 - Khách tu tiên không có linh thạch → "Từ chối" (giữ an toàn, 10 ngày sau nhánh ẩn) / "Ghi sổ nợ" (nhánh: đại năng trả gấp trăm hoặc mất trắng).
 - 7 nồi lẩu: cà chua, nấm, sườn (tầng 1) · Thái, sukiyaki (tầng 2) · đông trùng hạ thảo, Tứ Xuyên (tầng đặc biệt).
 - Topping dùng chung + ngăn "tiên giới" khóa chờ mở (linh chi, huyết sen, thịt linh thú — tính linh thạch).
-- Minigame canh lửa: giữ-nhả đúng vạch xanh (port từ rót trà), vạch hẹp dần theo nồi (Tứ Xuyên khó nhất). Lẩu hỏng = mất nguyên liệu.
+- Minigame canh lửa: giữ-nhả đúng vạch xanh, vạch hẹp dần theo nồi (Tứ Xuyên khó nhất). Lẩu hỏng = mất nguyên liệu.
 - UI chủ đạo: Chef RPG (parchment #f3e5c2 / gỗ caramel #b8894c / viền nâu #5f4523 / nameplate amber #c98d28)
   + điểm ngọc bích/vàng đồng + linh quang cyan/tím (#74cfbf, #9a5fd4) cho khách/đồ tu tiên. 60-30-10.
 - Font: VT323 (Google Fonts, đủ dấu Việt) — Press Start 2P KHÔNG có dấu, cấm dùng.
@@ -83,7 +83,7 @@ docs/                 — 01-tong-quan.md 02-ky-thuat.md 03-san-pham.md 04-van-h
 credits-log/credits.md — mọi job meowa: ngày, job id, template, cost, balance, kết quả
 ```
 Nguyên tắc: engine/ KHÔNG import DOM → test headless bằng `node --test`. UI chỉ đọc state + gọi engine.
-Save: localStorage key 'lhTienSave' + 3 bản backup + mã 8 số (port cơ chế gốc).
+Save: localStorage key 'lhTienSave' + 3 bản backup + mã 8 số (cơ chế save của dự án).
 
 ## Meowa asset plan (615 credit hiện có — ngân sách chặt)
 Ưu tiên template: xlarge_4_3 cho cảnh/UI lớn (25cr/job), sprite-pack 48px/64px cho icon+nhân vật (~10-15cr).

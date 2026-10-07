@@ -28,7 +28,7 @@ export function initRuntime(S, cfg, slotsN) {
 export const slotCount = (S, cfg) => S.upg.slot4 ? 4 : 3;
 const bigOrder = R => R.slots.some(c => c && !c.staffCooking && c.done.filter(x => !x).length >= 3);
 
-/* ---------- MINIGAME CANH LỬA (port startPour/stopPour rót trà) ----------
+/* ---------- MINIGAME CANH LỬA (giữ-nhả canh lửa nồi — thiết kế riêng của dự án) ----------
    Trả về trạng thái: 'perfect' | 'weak' | 'spill'. Không đụng DOM. */
 export function pourResult(fill, S, cfg) {
   let [lo, hi] = cfg.pourPerfect;
