@@ -71,8 +71,11 @@ if (SPRITES.room) {
 }
 
 parts.push(h2(`⚡ Trang bị nâng cấp — ${UPG.length} món`, 'đích tiêu tiền trong game'));
+parts.push(note('Mỗi món một hình riêng (vẽ 08/10). Trước đây kho ảnh dùng lại một hình chung nên nhìn không phân biệt được.'));
+/* 08/10: đọc hình riêng từng món trong SPRITES.upg — thiếu thì mới rơi về hình chung */
+const upgSprite = u => SPRITES.upg?.[u.id] || (u.tier === 'equip' ? 'do-vat/prop_07.png' : 'do-vat/prop2_04.png');
 parts.push(grid(UPG.map(u => card(
-  u.tier === 'equip' ? (SPRITES.prop?.neon || 'do-vat/prop_07.png') : 'do-vat/prop2_04.png',
+  upgSprite(u),
   u.n, u.cost ? (u.cost / 1000000).toFixed(1) + 'tr' : (u.costLS + ' linh thạch')))));
 
 /* đếm mọi tệp ảnh thật có trong assets/ để cuối trang đối chiếu */

@@ -90,6 +90,7 @@ T('t_thanh_cua', 'Thanh cua', 'Thanh cua', '#f4e0d0', 3, 5000, 10000, 120000);
 T('t_xuc_xich', 'Xúc xích', 'Xúc xích', '#e07a5a', 3, 5000, 10000, 90000);
 T('t_khoai_mon', 'Khoai môn cắt lát', 'Khoai môn', '#c8a8d8', 3, 4000, 8000, 80000);
 T('t_bap_ngot', 'Bắp ngọt cắt khúc', 'Bắp ngọt', '#f2d24e', 3, 3000, 7000, 60000);
+T('t_cai_ngot', 'Cải ngọt', 'Cải ngọt', '#8ac05a', 1, 2500, 6000, 70000);   /* 08/10: chốt đủ bộ rau */
 
 /* --- DƯỢC THIỆN (duoc — cao cấp, khách thường đôi khi gọi) --- */
 const D = mk('duoc', 'duoc');
@@ -121,7 +122,7 @@ export const TOP_SECTIONS = [
   { l: '🥩 Thịt bò · thịt dê', ks: ['t_bo', 't_bo_tai', 't_bo_cuon', 't_gau', 't_sun', 't_ba_chi', 't_cuu', 't_de', 't_de_luoc', 't_dui_de'] },
   { l: '🦐 Hải sản', ks: ['t_tom', 't_muc', 't_ngheu', 't_ca_dieu', 't_bach_tuoc', 't_ca_hoi'] },
   { l: '🍢 Viên · chả · trứng', ks: ['t_bo_vien', 't_ca_vien', 't_ca_vien_chien', 't_tom_vien', 't_thanh_cua', 't_xuc_xich', 't_dau_hu_ky', 't_dau_hu_non', 't_trung'] },
-  { l: '🥬 Rau · củ', ks: ['t_rau_muong', 't_cai_cuc', 't_chan_vit', 't_cai_thia', 't_cu_sen', 't_khoai_mon', 't_bap_ngot'] },
+  { l: '🥬 Rau · củ', ks: ['t_rau_muong', 't_cai_cuc', 't_chan_vit', 't_cai_thia', 't_cu_sen', 't_khoai_mon', 't_bap_ngot', 't_cai_ngot'] },
   { l: '🍄 Nấm', ks: ['t_kim_cham', 't_dong_co', 't_dui_ga'] },
   { l: '🍜 Bún · miến · mì', ks: ['t_mi_goi', 't_mien', 't_bun', 't_udong'] }
 ];

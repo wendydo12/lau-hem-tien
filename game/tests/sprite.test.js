@@ -12,6 +12,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { SPRITES } from '../js/manifest.js';
+import { UPG, TOP_SECTIONS } from '../js/engine/data.js';
 
 const GAME = new URL('..', import.meta.url).pathname;              // .../game/
 /* Trang game nằm ở /webapp/index.html nên đường dẫn ảnh "../assets/..." trỏ về assets/ ở GỐC KHO
@@ -81,6 +82,28 @@ test('kho ảnh: assets/ (app phục vụ) và webapp/assets (bản sao) phải 
   const thieu = [...a].filter(x => !b.has(x));
   const la = [...b].filter(x => !a.has(x));
   assert.deepEqual({ thieu, la }, { thieu: [], la: [] }, 'hai kho ảnh lệch nhau — chạy tools/dong-bo.py');
+});
+
+test('mỗi món trang bị nâng cấp phải có HÌNH RIÊNG (lỗi 08/10: kho ảnh dùng lại 1 hình chung)', () => {
+  const upg = SPRITES.upg;
+  assert.ok(upg, 'manifest phải có khối upg — mỗi món nâng cấp một hình riêng');
+  const thieu = UPG.map(u => u.id).filter(id => !upg[id]);
+  assert.deepEqual(thieu, [], 'món nâng cấp chưa có hình riêng: ' + thieu.join(', '));
+  const ds = UPG.map(u => upg[u.id]);
+  assert.equal(new Set(ds).size, ds.length,
+    'trang bị dùng trùng hình nhau — phải vẽ riêng từng món: ' + ds.join(', '));
+  for (const [id, f] of Object.entries(upg)) {
+    assert.ok(fs.existsSync(path.join(ASSETS, f)), `hình trang bị ${id} thiếu tệp ${f}`);
+  }
+  /* tệp riêng biệt thật, không phải 13 tên cùng trỏ 1 ảnh */
+  const noiDung = UPG.map(u => fs.readFileSync(path.join(ASSETS, upg[u.id])).length);
+  assert.ok(new Set(noiDung).size >= 10, 'nhiều món trang bị có tệp ảnh trùng kích thước — nghi dùng lại 1 ảnh');
+});
+
+test('mọi món khai báo trong thực đơn phải có hình (lỗi 08/10: thêm món mà quên hình)', () => {
+  const thieu = [...new Set(TOP_SECTIONS.flatMap(s => s.ks))]
+    .filter(k => !SPRITES.item[k] && !SPRITES.pot[k]);
+  assert.deepEqual(thieu, [], 'món chưa có hình trong manifest: ' + thieu.join(', '));
 });
 
 test('game/ và webapp/ khai báo cùng một bộ hình (không lệch tên tệp)', () => {

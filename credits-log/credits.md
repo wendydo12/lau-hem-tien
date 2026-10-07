@@ -175,7 +175,16 @@ Số dư trước đợt: 885 credit.
 | 07/10 | job_99ad9cc7 | xlarge_4_3 | Nền bộ Động Tiên: sàn lót gỗ + tường be vân gỗ, chân tường gỗ | 25 | 665 | ✅ dùng làm `canh-nen/phong-tu-tien.png` |
 | 07/10 | job_86bdbddc | xlarge_4_3 | Nền bộ Hẻm Việt: sàn gạch bông hoa văn + tường vàng mù tạt & xanh ngọc | 25 | 640 | ✅ dùng làm `canh-nen/phong-hem-viet.png` |
 
-**Tổng cả ngày 07/10: 235 credit. Số dư còn lại: 640 credit.**
+| 07/10 | job_587e6645 | object_2 | 8 trang bị hẻm (máy đậy nắp, biển neon, ghế+quạt, điện thoại quay clip, bàn ghế vỉa hè, mái che, nồi gang, xe đẩy chi nhánh) | 20 | 620 | ❌ RA SAI — meowa trả một bộ đồ bếp chung chung (nồi cơm điện, bếp ga, giỏ chiên…) không đúng 8 món |
+| 07/10 | job_c9a4a15f | object_2 | Vẽ LẠI 8 trang bị hẻm theo công thức "ô 1…ô 8" | 20 | 600 | ✅ 8/8 đúng — dùng làm `do-vat/upg_*.png` |
+| 07/10 | job_874df536 | object_2 | 5 pháp bảo tiên gia (tụ linh trận, an thần trận, lò địa hỏa, hộ pháp, biển cầm đồ) + 3 món để dành | 20 | 580 | ✅ 8/8 đúng — 5 ô đầu dùng, 3 ô dư giữ ở `_meowa/du-phong-xian_*.png` |
+| 07/10 | job_fb275a33 | food | Bộ rau thêm (cải ngọt + 7 loại rau củ) | 20 | 560 | ⚠️ meowa tự đổi đề: ra bộ rau chung (bắp cải, bông cải, cà rốt…). Ô 7 là bó cải ngọt → lọc tia sáng, dùng làm `mon-an/cai_ngot.png` |
+
+**Tổng cả ngày 07/10: 315 credit. Số dư còn lại: 570 credit.**
+
+Ghi chú quan trọng: với template sprite-pack, meowa ĐỔI ĐỀ nếu chỉ liệt kê tên món theo nhóm chủ đề
+(bảo "trang bị quán lẩu" → trả một bộ đồ bếp bất kỳ). Công thức đúng là khai từng ô "cell 1 … cell 8 …",
+mỗi ô mô tả đầy đủ và ghi rõ "8 vật KHÔNG liên quan tới nhau" — lúc đó mới ra đúng từng ô.
 
 Bài học lặp lại: meowa trả thứ tự ô KHÁC mô tả → luôn dựng bảng kiểm có số rồi đọc từng ô trước khi gán tên.
 Ảnh thô giữ ở `_nguon-anh-meowa/` (ngoài thư mục assets để không bị đóng gói).

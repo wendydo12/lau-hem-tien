@@ -35,6 +35,7 @@ export const SPRITES = {
     t_bach_tuoc: 'mon-an/bach_tuoc.png', t_ca_hoi: 'mon-an/ca_hoi.png', t_tom_vien: 'mon-an/tom_vien.png',
     t_thanh_cua: 'mon-an/thanh_cua.png', t_xuc_xich: 'mon-an/xuc_xich.png',
     t_khoai_mon: 'mon-an/khoai_mon.png', t_bap_ngot: 'mon-an/bap_ngot.png',
+    t_cai_ngot: 'mon-an/cai_ngot.png',   /* 08/10: thêm cho đủ bộ rau */
     t_ca_dieu: 'mon-an/ca_dieu_lat.png', t_ca_vien_chien: 'mon-an/new1_04.png', t_dau_hu_non: 'mon-an/new1_05.png',
     t_chan_vit: 'mon-an/new1_06.png', t_cai_thia: 'mon-an/new1_07.png',
     d_mix: 'mon-an/new2_00.png', t_cu_sen: 'mon-an/new2_01.png', du_nam_bung_de: 'mon-an/new2_04.png',
@@ -78,6 +79,15 @@ export const SPRITES = {
     /* 07/10: mỗi bộ style có nền riêng — sàn + màu tường */
     nenTuTien: 'canh-nen/phong-tu-tien.png',   /* sàn gỗ + tường be vân gỗ */
     nenHemViet: 'canh-nen/phong-hem-viet.png'   /* sàn gạch bông + tường vàng/xanh ngọc */
+  },
+  /* TRANG BỊ NÂNG CẤP (08/10): mỗi món một hình riêng — trước đây kho ảnh dùng lại 1 hình chung.
+   * 8 món hẻm + 5 pháp bảo tiên gia. */
+  upg: {
+    sealer: 'do-vat/upg_sealer.png', sign: 'do-vat/upg_sign.png', seats: 'do-vat/upg_seats.png',
+    ads: 'do-vat/upg_ads.png', slot4: 'do-vat/upg_slot4.png', ac: 'do-vat/upg_ac.png',
+    premium: 'do-vat/upg_premium.png', branch: 'do-vat/upg_branch.png',
+    tulin: 'do-vat/upg_tulin.png', anthan: 'do-vat/upg_anthan.png', phap_khi: 'do-vat/upg_phap_khi.png',
+    ho_phap: 'do-vat/upg_ho_phap.png', cam_do: 'do-vat/upg_cam_do.png'
   },
   scene: 'canh-nen/scene_alley_night.png'
 };
