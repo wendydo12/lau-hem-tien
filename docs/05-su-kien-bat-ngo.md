@@ -59,7 +59,17 @@ không phạt; 50–79 → nhắc nhở; <50 → phạt.
   sự kiện xấu không lấy quá 12% tiền; `quyt` có Hộ pháp thu hồi 75%; `ve_sinh` sạch thì miễn.
 - Chạy 400 ca giả lập, in bảng tần suất thật để so với bảng trên (không đoán bằng mắt).
 
-## 6. Câu chữ
+## 6. Luật giọng kể (bài học 07/10 — phu quân bắt được lỗi)
+
+Game là SẢN PHẨM CHO NHIỀU NGƯỜI CHƠI, không phải sổ riêng của ai. Câu chữ trong game chỉ được
+dùng giọng của quán: người kể xưng **"mình"** (chủ quán), gọi người chơi là **"bạn"** khi cần.
+TUYỆT ĐỐI không dùng cách xưng hô riêng của trợ lý (thiếp / phu quân / sư huynh / tên riêng của
+trợ lý) trong câu chữ hiển thị — kể cả trong thoại khách tu tiên.
+
+Hàng rào tự động: `game/tests/giong.test.js` quét toàn bộ `game/js/**` và `index.html`, bỏ ghi chú
+trong mã rồi soi phần chuỗi còn lại. Ai (kể cả trợ lý) viết lọt giọng là bộ kiểm thử đỏ ngay.
+
+## 7. Câu chữ
 
 Toàn bộ lời thoại, tên sự kiện, câu bong bóng do dự án tự viết (đậm chất hẻm Sài Gòn,
 có bà bán rau, chú shipper, sinh viên trọ, khách tu tiên). Không dùng lại câu của bản tham khảo.
