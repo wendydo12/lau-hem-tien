@@ -147,12 +147,15 @@ export const dname = o => {
 
 /* ===== NÂNG CẤP ===== (chữ mô tả: sáng tác gốc) */
 export const UPG = [
-  { id: 'sealer', n: 'Máy đậy nắp tự chế', d: 'Nấu đúng món là máy tự đậy nắp bưng tận bàn, khách vui bụng típ thêm 30%', cost: 3000000, tier: 'equip' },
-  { id: 'sign', n: 'Bảng neon "LẨU"', d: 'Đèn sáng rực cả con hẻm, khách đi ngang tạt vào nhiều hơn 20%', cost: 400000, tier: 'equip' },
-  { id: 'seats', n: 'Ghế nhựa + quạt máy', d: 'Có chỗ ngồi đàng hoàng, khách sẵn lòng đợi lâu hơn 25%', cost: 500000, tier: 'equip' },
-  { id: 'ads', n: 'Quay clip đăng mạng', d: 'Clip lẩu sôi sùng sục lên xu hướng, khách tìm tới thêm 25%', cost: 600000, tier: 'equip' },
-  { id: 'slot4', n: 'Cơi nới vỉa hè', d: 'Kê thêm bàn, phục vụ được 4 khách cùng lúc', cost: 800000, tier: 'equip' },
-  { id: 'ac', n: 'Mái che + hơi nước', d: 'Chỗ chờ mát mẻ, khách đợi lâu cũng bớt cằn nhằn', cost: 900000, tier: 'equip' },
+  { id: 'sealer', n: 'Máy đậy nắp tự chế', d: 'Nấu đúng món là máy tự đậy nắp bưng tận bàn, khách vui bụng típ thêm 30%', cost: 6000000, tier: 'equip' },
+  { id: 'sign', n: 'Bảng neon "LẨU"', d: 'Đèn sáng rực cả con hẻm, khách đi ngang tạt vào nhiều hơn 20%', cost: 800000, tier: 'equip' },
+  { id: 'seats', n: 'Ghế nhựa + quạt máy', d: 'Có chỗ ngồi đàng hoàng, khách sẵn lòng đợi lâu hơn 25%', cost: 1000000, tier: 'equip' },
+  { id: 'ads', n: 'Quay clip đăng mạng', d: 'Clip lẩu sôi sùng sục lên xu hướng, khách tìm tới thêm 25%', cost: 1200000, tier: 'equip' },
+  { id: 'slot4', n: 'Cơi nới vỉa hè', d: 'Kê thêm bàn, phục vụ được 4 khách cùng lúc', cost: 1600000, tier: 'equip' },
+  /* 08/10: hai đích dài hạn cho tiền dư — mua xong mới thấy quán "lên đời" */
+  { id: 'premium', n: 'Nồi gang Nhật + bếp ga công nghiệp', d: 'Lửa đều, nấu nhanh: khách tới thêm 15%, canh lửa dễ hơn', cost: 12000000, tier: 'equip' },
+  { id: 'branch', n: 'Mở chi nhánh hẻm bên', d: 'Thêm một xe lẩu ở đầu hẻm kia: khách tới thêm 30% — nhưng điện nước và lương tăng theo', cost: 40000000, tier: 'equip' },
+  { id: 'ac', n: 'Mái che + hơi nước', d: 'Chỗ chờ mát mẻ, khách đợi lâu cũng bớt cằn nhằn', cost: 1800000, tier: 'equip' },
   /* tầng tiên giới — trả bằng LINH THẠCH hạ phẩm */
   { id: 'tulin', n: 'Tụ linh trận', d: 'Trận pháp dẫn linh khí về hẻm, khách tu tiên nghe mùi mà tìm tới (+20%)', costLS: 50, tier: 'xian' },
   { id: 'anthan', n: 'An thần trận', d: 'Khách tu tiên ngồi chờ mà tâm bất động, đạo tâm vững thêm 25%', costLS: 80, tier: 'xian' },

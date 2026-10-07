@@ -24,9 +24,21 @@ export const DEFAULT_CONFIG = {
   overtimePerHour: 40000,    // tăng ca sau 22:00
   rent: 40000,               // tiền mặt bằng /ngày
   utilBase: 20000,           // điện nước cơ bản /ngày
-  utilPerUpg: 8000,          // +điện nước mỗi trang bị
-  taxThreshold: 1000000000,  // ngưỡng doanh thu NĂM miễn thuế (hộ kinh doanh 2026)
-  vat: 3, pit: 1.5,          // % GTGT + TNCN trên doanh thu
+  utilPerUpg: 20000,          // +điện nước mỗi trang bị
+  /* CÂN BẰNG KINH TẾ (08/10/2026): đo bằng tools/mo-phong-kinh-te.mjs trước khi chốt.
+   * Trước đây chơi 20 ngày là dư 27 triệu (lãi gấp 16 lần ngày đầu) — quá dễ.
+   * Bốn tay vặn ở đây: biên lợi nhuận, chi phí lớn dần theo ngày, phí bảo trì thiết bị, thuế. */
+  balance: {
+    costMul: 1.60,            // giá nhập nguyên liệu ×1,30 (biên lợi nhuận ~4,4× → ~3,4×)
+    rentGrowthPerDay: 0.0167, // tiền nhà & điện nước ×(1 + (ngày-1) × 0,0167) ≈ ×1,5 sau 30 ngày
+    maintenanceOf: 0.012,     // phí bảo trì mỗi ngày = 1,2% tổng giá trị trang bị đang có
+    guestCapMul: 12,          // nền khách/ngày = nền khách × 12 (trước là ×14)
+    guestSoftBase: 13,        // TRẦN MỀM số khách/ngày: 13 khách + mỗi ngày thêm 0,45
+    guestSoftPerDay: 0.45,    // (ngày 30 ≈ 26 khách, ngày 60 ≈ 40) — quán hẻm không thể đông vô hạn
+    utilPerGuest: 1500        // điện nước/nấu nướng tính theo khách thật đã phục vụ
+  },
+  taxThreshold: 120000000,   // ngưỡng doanh thu NĂM miễn thuế — 120 triệu (thuế bắt đầu ăn từ khoảng ngày 35-40)
+  vat: 4, pit: 2,            // % GTGT + TNCN trên doanh thu (tổng 6%)
   bankMax: 1000000, bankRate: 25,          // vay ngân hàng: tối đa, lãi %/năm (360 ngày)
   hotMax: 3000000, hotRate: 45,            // vay nóng hắc thị (ẩn)
   loanLow: 200000,           // két dưới mức này mới cho vay

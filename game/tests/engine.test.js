@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { makeCFG, DEFAULT_CONFIG } from '../js/engine/config.js';
 import { ITEMS, POT_KEYS, TOP_KEYS, DIP_KEYS, DUOC_KEYS, SECRET_KEYS, XTOP_KEYS, BASE_PRICE, UPG, TOP_SECTIONS } from '../js/engine/data.js';
 import { fresh, loadFrom, newPot, sanitize } from '../js/engine/state.js';
-import { addStock, qty, take, expireStock } from '../js/engine/stock.js';
+import { addStock, qty, take, expireStock, costOf } from '../js/engine/stock.js';
 import { price, unitCost, traffic, rating, takeLoan, payDayLoan, sellLS, buyLS, rollLSRate, addDebt, resolveDebts, cheatHit, dayTax, recRev, recCost, priceLS, pricyItems } from '../js/engine/economy.js';
 import { genOrder, matches, wrongKinds, levelOf, maxPat, stars, pickBrat, makeNameGen } from '../js/engine/orders.js';
 import { reviewText, reviewFits, xReviewText, addReview } from '../js/engine/reviews.js';
@@ -83,9 +83,15 @@ test('thực đơn bí mật: khách thường KHÔNG BAO GIỜ gọi món secre
   assert.ok(secretSeen >= 10, 'khách tu tiên phải gọi món bí mật, thực tế ' + secretSeen);
 });
 
-test('UPG: 6 trang bị phàm + 5 trang bị tiên', () => {
-  assert.equal(UPG.filter(u => u.tier === 'equip').length, 6);
+test('UPG: 8 trang bị phàm + 5 trang bị tiên (08/10: thêm 2 đích dài hạn)', () => {
+  assert.equal(UPG.filter(u => u.tier === 'equip').length, 8);
   assert.equal(UPG.filter(u => u.tier === 'xian').length, 5);
+  /* hai món cao cấp mới phải đắt hẳn để tiền dư có chỗ tiêu */
+  const premium = UPG.find(u => u.id === 'premium'), branch = UPG.find(u => u.id === 'branch');
+  assert.ok(premium && branch, 'phải có nồi gang Nhật và chi nhánh hẻm bên');
+  assert.ok(premium.cost >= 10000000 && branch.cost >= 30000000, 'đích dài hạn phải đắt');
+  /* giá nhập tính theo hệ số cân bằng: mọi giá phải đúng costOf */
+  assert.equal(costOf(cfg, 'nam'), Math.round(ITEMS.nam.cost * (cfg.balance?.costMul ?? 1)));
 });
 
 /* ============ 2. KHO + HẠN DÙNG ============ */
@@ -110,7 +116,7 @@ test('kho: hết hạn tự đổ bỏ + tính tiền mất', () => {
   const out = expireStock(S, cfg);
   assert.equal(out.length, 1);
   assert.equal(out[0].q, 10);
-  assert.equal(out[0].v, 10 * ITEMS.t_bo.cost);
+  assert.equal(out[0].v, 10 * costOf(cfg, 't_bo'));   /* tính theo giá nhập thật (đã nhân hệ số cân bằng) */
   assert.equal(qty(S, 't_bo'), 0);
 });
 
@@ -136,7 +142,7 @@ test('unitCost: chi phí 1 nồi = base + chấm + topping thường + nồi ch�
   const S = seededState();
   const o = { base: 'nam', dip: 'd_chao', tops: ['t_bo', 'x_linh_chi'], size: 'N' };
   /* món secret bán linh thạch không tính tiền VNĐ */
-  assert.equal(unitCost(o, cfg), ITEMS.nam.cost + ITEMS.d_chao.cost + ITEMS.t_bo.cost + ITEMS.sup.cost);
+  assert.equal(unitCost(o, cfg), costOf(cfg, 'nam') + costOf(cfg, 'd_chao') + costOf(cfg, 't_bo') + costOf(cfg, 'sup'));
 });
 
 test('traffic: rating cao → hệ số khách cao; giá rẻ (index<1) hút thêm khách', () => {
@@ -236,12 +242,19 @@ test('chống gian lận: két > 100 triệu trước ngày 30 bị trộm sạc
   assert.ok(S.badNow && S.badNow.all);
 });
 
-test('thuế: dưới ngưỡng 1 tỷ/năm = 0, vượt ngưỡng tính 4.5%', () => {
+test('thuế luỹ tiến (08/10): dưới ngưỡng = 0, vượt ngưỡng = 6%, vượt gấp ba = 9,6%', () => {
   const S = seededState();
+  const nguong = cfg.taxThreshold;
+  assert.ok(nguong > 0 && nguong <= 150000000, 'ngưỡng miễn thuế năm phải thấp (đang là ' + nguong + ') — trước đây 1 tỷ nên thuế vô nghĩa');
   S.yearRev = 0;
-  assert.equal(dayTax(S, cfg, 500000000), 0);
-  const t = dayTax(S, cfg, 600000000);  /* yearRev = 1.1 tỷ > ngưỡng */
-  assert.equal(t, Math.round(600000000 * 4.5 / 100));
+  assert.equal(dayTax(S, cfg, nguong - 1000000), 0, 'dưới ngưỡng không đóng');
+  S.yearRev = nguong - 1000000;
+  const t1 = dayTax(S, cfg, 5000000);
+  assert.equal(t1, Math.round(5000000 * (cfg.vat + cfg.pit) / 100));
+  S.yearRev = nguong * 3 + 1;
+  const t2 = dayTax(S, cfg, 5000000);
+  assert.ok(t2 > t1, 'quán lớn đóng nhiều hơn');
+  assert.equal(t2, Math.round(5000000 * (cfg.vat + cfg.pit) * 1.6 / 100));
 });
 
 /* ============ 4. ORDERS ============ */
@@ -727,11 +740,40 @@ test('story debt: vốn 500k, nợ 2 triệu hạn ngày 7, trả được khi �
   assert.equal(S.money, 500000);
   assert.equal(S.debtRoom.paid, true);
   assert.equal(payRoomDebt(S, cfg), false);  // trả rồi không trừ lần 2
-  // quá hạn
+  // GIA HẠN 7 NGÀY (08/10): quá hạn ngày 8 KHÔNG mất phòng, chỉ bị phạt
   const S2 = fresh(cfg); S2.day = 8;
-  assert.equal(roomDebtOverdue(S2, cfg), true);
+  assert.equal(roomDebtOverdue(S2, cfg), false, 'ngày 8 mới quá hạn 1 ngày — còn trong ân hạn');
+  const rd8 = roomDebt(S2, cfg);
+  assert.equal(rd8.late, true, 'phải báo đang trả muộn');
+  assert.equal(rd8.fee, 200000, 'phạt trả muộn 200k');
+  assert.equal(rd8.owed, 2200000, 'phải trả 2 triệu + 200k phạt');
   const S3 = fresh(cfg); S3.day = 7;
   assert.equal(roomDebtOverdue(S3, cfg), false);  // ngày 7 = hạn chót, chưa quá
-  S3.debtRoom.paid = true; S3.day = 20;
-  assert.equal(roomDebtOverdue(S3, cfg), false);  // đã trả thì không bao giờ quá hạn
+  const S4 = fresh(cfg); S4.day = 15;             // quá 7 ngày ân hạn
+  assert.equal(roomDebtOverdue(S4, cfg), true, 'hết ân hạn mới mất phòng');
+});
+
+test('tiền phòng HẰNG THÁNG (08/10): trả xong món đầu thì mở chu kỳ 30 ngày kế tiếp', async () => {
+  const { makeCFG } = await import('../js/engine/config.js');
+  const { fresh } = await import('../js/engine/state.js');
+  const { roomDebt, payRoomDebt, RENT_CYCLE } = await import('../js/engine/loop.js');
+  const cfg = makeCFG();
+  const S = fresh(cfg);
+  S.day = 4; S.money = 5000000;
+  assert.equal(payRoomDebt(S, cfg), true, 'trả món nợ mở màn');
+  /* sau khi trả: tới hạn tháng sau = ngày đã trả + 30 */
+  let rd = roomDebt(S, cfg);
+  assert.equal(rd.paid, false, 'tháng kế tiếp đã mở');
+  assert.equal(rd.amount, cfg.storyDebt.amount, 'mỗi tháng 2 triệu');
+  assert.equal(rd.due, 4 + RENT_CYCLE, 'hạn tháng sau = ngày trả + 30');
+  assert.equal(rd.cycle, 2);
+  assert.equal(rd.daysLeft, 30, 'ngày 4, hạn 34 → còn 30 ngày');
+  /* chưa tới hạn thì không bị coi là quá hạn */
+  const { roomDebtOverdue } = await import('../js/engine/loop.js');
+  assert.equal(roomDebtOverdue(S, cfg), false);
+  S.day = 40;
+  assert.ok(roomDebt(S, cfg).late, 'quá hạn tháng thứ hai phải báo muộn');
+  S.money = 3000000;
+  assert.equal(payRoomDebt(S, cfg), true);
+  assert.equal(roomDebt(S, cfg).cycle, 3, 'trả xong lại mở tháng kế');
 });

@@ -79,7 +79,21 @@ function STAFF_WAGE(S, cfg) {
   if (S.upg.staff3) w += (cfg.wage3 || 150000);
   return w;
 }
-export const fixed = (S, cfg) => ({ rent: cfg.rent, util: cfg.utilBase + upgCount(S) * cfg.utilPerUpg });
+/* chi phí cố định mỗi ngày: tiền nhà + điện nước (lớn dần theo ngày) + phí bảo trì thiết bị
+ * (1,2% tổng giá trị trang bị đang có — càng nhiều đồ càng tốn tiền giữ). */
+export function fixed(S, cfg) {
+  const b = cfg.balance || {};
+  const g = 1 + Math.max(0, (S.day - 1)) * (b.rentGrowthPerDay || 0);
+  const upgVal = UPG.filter(u => S.upg[u.id]).reduce((a, u) => a + (u.cost || 0), 0);
+  /* điện nước tăng theo LƯỢNG KHÁCH thật đã phục vụ (gas, đá, nước rửa, điện) */
+  const perGuest = Math.round((S.cur?.served || 0) * (b.utilPerGuest || 0));
+  return {
+    rent: Math.round(cfg.rent * g),
+    util: Math.round((cfg.utilBase + upgCount(S) * cfg.utilPerUpg) * g) + perGuest,
+    maint: Math.round(upgVal * (b.maintenanceOf || 0)),
+    perGuest
+  };
+}
 
 /* ---------- uy tín quán ---------- */
 /* điểm sao trung bình của 40 review gần nhất; quán mới chưa có ai đánh giá thì lấy 4 sao */
@@ -112,8 +126,9 @@ function nenKhachTheoSao(sao, ngay) {
 function heSoTrangBi(S) {
   const bang = S.upg.sign ? .2 : 0;
   const clip = S.upg.ads ? .25 : 0;
+  const caoCap = (S.upg.premium ? .15 : 0) + (S.upg.branch ? .30 : 0);   /* 08/10: đích dài hạn */
   const kinhNghiem = Math.min(S.day, 40) * .012;
-  return 1 + bang + clip + kinhNghiem;
+  return 1 + bang + clip + caoCap + kinhNghiem;
 }
 
 /* chỉ số giá 1.0 = bán đúng giá mặc định; dưới 1 là rẻ hơn */
@@ -169,14 +184,20 @@ export const recRev = r => Object.values(r.sales || {}).reduce((a, x) => a + (x.
 export function recCost(r, cfg) {
   const ingCost = Object.entries(r.ing || {}).reduce((a, [k, q]) => a + q * costOf(cfg, k), 0);
   const cogs = r.restock != null ? r.restock : ingCost + (r.waste?.v || 0);
-  return cogs + (r.rent || 0) + (r.util || 0) + (r.tax || 0) + (r.wage || 0) + (r.fee || 0);
+  return cogs + (r.rent || 0) + (r.util || 0) + (r.maint || 0) + (r.tax || 0) + (r.wage || 0) + (r.fee || 0);
 }
 
 /* ---------- thuế hộ kinh doanh (VAT 3% + PIT 1.5%, ngưỡng 1 tỷ/năm) ---------- */
+/* Thuế hộ kinh doanh, LUỸ TIẾN theo doanh thu năm (08/10):
+ * dưới ngưỡng miễn thuế → 0; vượt ngưỡng → mức cơ bản (VAT+TNCN);
+ * vượt mốc cao (gấp 3 ngưỡng) → mức cao — quán càng lớn đóng càng nhiều, đúng luật thật. */
 export function dayTax(S, cfg, dayRevenue) {
   S.yearRev = (S.yearRev || 0) + dayRevenue;
-  if (S.yearRev <= cfg.taxThreshold) return 0;
-  return Math.round(dayRevenue * (cfg.vat + cfg.pit) / 100);
+  const nguong = cfg.taxThreshold;
+  if (S.yearRev <= nguong) return 0;
+  const cao = S.yearRev > nguong * 3;
+  const muc = cao ? (cfg.vat + cfg.pit) * 1.6 : (cfg.vat + cfg.pit);
+  return Math.round(dayRevenue * muc / 100);
 }
 
 /* ---------- vay nóng / vay ngân hàng ---------- */

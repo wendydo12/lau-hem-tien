@@ -20,6 +20,7 @@ import { makeRNG } from '../game/js/engine/rng.js';
 import { evMul } from '../game/js/engine/events.js';
 
 const N = Number(process.argv[2] || 20);
+const EFF = Number(process.env.EFF || 1);   // EFF=0.8 → bỏ sót 20% khách (người chơi lơ đễnh)
 const cfg = makeCFG();
 const rng = makeRNG(20261007);
 const S = fresh(cfg);
@@ -28,19 +29,34 @@ const rows = [];
 
 for (let day = 1; day <= N; day++) {
   /* ---- CHUẨN BỊ: nhập hàng cho số khách dự kiến ---- */
-  const cap = Math.max(3, Math.round(traffic(S, cfg, evMul(S)) * 14));
+  const b = cfg.balance || {};
+  const soft = Math.round((b.guestSoftBase ?? 13) + (S.day - 1) * (b.guestSoftPerDay ?? 0.45));
+  const cap = Math.max(3, Math.min(Math.round(traffic(S, cfg, evMul(S)) * (b.guestCapMul ?? 12)), soft));
+  /* Người chơi biết việc: mua trong phạm vi tiền đang có, ưu tiên nồi rẻ trước,
+   * mua đủ cho số khách dự kiến chứ không ôm cả 12 loại nồi. */
   let spend = 0;
-  const need = Math.ceil(cap * 1.6);            // 1,6 phần nồi/khách cho thoải mái
-  const sups = cap + 4;
-  if (qty(S, 'sup') < sups) { const q = sups - qty(S, 'sup'); addStock(S, 'sup', q, cfg); spend += q * costOf(cfg, 'sup'); }
-  const keys = POT_KEYS.filter(k => S.unlocked[k]);
-  const per = Math.ceil(need / Math.max(1, keys.length));
-  keys.forEach(k => { const q = Math.max(0, per - qty(S, k)); if (q) { addStock(S, k, q, cfg); spend += q * costOf(cfg, k); } });
-  /* vài loại nước chấm + topping để khách gọi gì cũng có */
+  const cash = S.money;
+  /* người chơi thật không dồn hết tiền vào hàng: tối đa 55% tiền đang có, chừa 20k */
+  const budget = () => Math.max(0, Math.min(cash * 0.55, S.money - spend - 20000));
+  const mua = (k, q) => {
+    const donGia = costOf(cfg, k);
+    const qm = Math.min(q, Math.floor(budget() / Math.max(1, donGia)));
+    if (qm > 0) { addStock(S, k, qm, cfg); spend += qm * donGia; }
+    return qm;
+  };
+  /* nồi chén trước (không có là không nấu được) */
+  const needSup = cap + 2;
+  if (qty(S, 'sup') < needSup) mua('sup', needSup - qty(S, 'sup'));
+  /* rồi tới vài loại nồi chính, rẻ trước, mỗi loại chia đều phần còn thiếu */
+  const keys = POT_KEYS.filter(k => S.unlocked[k]).sort((a, b) => costOf(cfg, a) - costOf(cfg, b)).slice(0, 4);
+  const canMua = Math.ceil(cap * 1.15);
+  const per = Math.ceil(canMua / Math.max(1, keys.length));
+  keys.forEach(k => { const q = Math.max(0, per - qty(S, k)); if (q) mua(k, q); });
+  /* nước chấm + vài topping cơ bản */
   ['d_muoi_ot', 'd_chao', 't_bo_vien', 't_rau_muong', 't_mi_goi'].forEach(k => {
     if (!ITEMS[k]) return;
-    const q = Math.max(0, Math.ceil(cap * 1.2) - qty(S, k));
-    if (q) { addStock(S, k, q, cfg); spend += q * costOf(cfg, k); }
+    const q = Math.max(0, Math.ceil(cap * 1.1) - qty(S, k));
+    if (q) mua(k, q);
   });
   S.money -= spend;
   S.cur.restock = (S.cur.restock || 0) + spend;
@@ -57,6 +73,8 @@ for (let day = 1; day <= N; day++) {
     if (!r) break;
     arrivals++;
     R.today.arrived++;
+    /* người chơi thật không hoàn hảo: EFF<1 thì có khách bị bỏ quên, họ bỏ về */
+    if (EFF < 1 && rng.next() > EFF) { R.today.lost++; continue; }
     if (r.kind !== 'ok' && r.kind !== 'star') continue;
     const i = r.slot;
     const c = R.slots[i];
@@ -74,7 +92,8 @@ for (let day = 1; day <= N; day++) {
   R.slots.forEach((c, i) => { if (c) { R.slots[i] = null; R.today.lost++; } });
 
   /* ---- ĐÓNG NGÀY ---- */
-  if (S.debtRoom && !S.debtRoom.paid && S.money >= S.debtRoom.amount) payRoomDebt(S, cfg);
+  { const rd = roomDebt(S, cfg); if (!rd.paid && S.money >= rd.owed) payRoomDebt(S, cfg); }
+  if (process.env.DEBUG) console.error(`[ngày ${day}] tiền trước khi đóng ${Math.round(S.money)} · nhập hàng ${spend} · doanh thu ${recRev(S.cur)} · restock ghi ${S.cur.restock}`);
   const res = closeDay(ctx);
   const rev = recRev(res.rev != null ? S.history[0] : S.history[0]);
   const h = S.history[0];

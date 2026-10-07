@@ -263,8 +263,8 @@ export function closeDay(ctx) {
 
   /* chi phí cố định */
   const fx = fixed(S, cfg);
-  S.cur.rent = fx.rent; S.cur.util = fx.util;
-  S.money -= fx.rent + fx.util;
+  S.cur.rent = fx.rent; S.cur.util = fx.util; S.cur.maint = fx.maint || 0;
+  S.money -= fx.rent + fx.util + (fx.maint || 0);
 
   /* lương nhân viên + tăng ca */
   const wage = wageDay(S, cfg);
@@ -297,7 +297,7 @@ export function closeDay(ctx) {
   rollDay(S, cfg, rng);
   if (!S.badPlan || S.day > S.badPlan.start + 90) S.badPlan = mkBadPlan(S.day, rng);
   autoBak(S); save(S);
-  return { rev, tax, wage, loanOut, expired, rent: fx.rent, util: fx.util, dayProfit, ruin };
+  return { rev, tax, wage, loanOut, expired, rent: fx.rent, util: fx.util, maint: fx.maint || 0, dayProfit, ruin };
 }
 
 /* ---------- đầu ngày mới: biến cố sổ nợ + tai họa + quà + GATE pha tu tiên ---------- */
@@ -322,21 +322,50 @@ export function startDay(ctx) {
   return out;
 }
 
-/* ---------- NỢ PHÒNG TRỌ (cốt truyện intro: 2 triệu, hạn 7 ngày) ---------- */
+/* ---------- TIỀN PHÒNG TRỌ (08/10) ----------
+ * Món nợ mở màn 2 triệu (cốt truyện, hạn ngày 7) → sau khi trả thì thành CHU KỲ 30 NGÀY:
+ * cứ mỗi tháng trả tiền phòng 2 triệu. Quá hạn KHÔNG mất phòng ngay — chủ nhà cho khất thêm
+ * 7 ngày và phạt 200k; quá 7 ngày ân hạn mới mất phòng (game over). Luật này để người chơi
+ * mới không bị đá ra khỏi game vì một tuần đầu lỡ tay, mà vẫn có sức ép trả đều. */
+export const RENT_CYCLE = 30;         // chu kỳ 30 ngày (mỗi tháng)
+export const RENT_GRACE = 7;          // gia hạn thêm 7 ngày sau hạn
+export const RENT_LATE_FEE = 200000;  // phạt trả muộn
+
+/* khoản đang tới hạn: món nợ mở màn, hoặc tiền phòng của tháng hiện tại */
+function debtSlot(S, cfg) {
+  const d = S.debtRoom || (S.debtRoom = { amount: cfg.storyDebt.amount, due: cfg.storyDebt.dueDay, paid: false, cycle: 1 });
+  if (!d.paid) return d;                       // còn món nợ mở màn
+  /* đã trả món đầu → sang chuỗi tiền phòng hằng tháng. Trả xong kỳ nào thì mở ngay kỳ kế tiếp,
+   * luôn cách nhau đúng 30 ngày kể từ ngày trả. */
+  if (!S.roomRent) {
+    S.roomRent = { amount: d.amount, due: (d.paidDay || d.due) + RENT_CYCLE, paid: false, cycle: 2 };
+  } else if (S.roomRent.paid) {
+    S.roomRent = {
+      amount: S.roomRent.amount,
+      due: (S.roomRent.paidDay || S.roomRent.due) + RENT_CYCLE,
+      paid: false,
+      cycle: (S.roomRent.cycle || 2) + 1
+    };
+  }
+  return S.roomRent;
+}
 export function roomDebt(S, cfg) {
-  const d = S.debtRoom || (S.debtRoom = { amount: cfg.storyDebt.amount, due: cfg.storyDebt.dueDay, paid: false });
-  return { ...d, daysLeft: d.due - S.day };   // ngày 7 là hạn chót (daysLeft=0)
+  const cur = debtSlot(S, cfg);
+  const late = !cur.paid && S.day > cur.due;
+  const fee = late ? RENT_LATE_FEE : 0;
+  return { ...cur, first: (cur.cycle || 1) === 1, late, fee, owed: (cur.amount || 0) + fee, daysLeft: cur.due - S.day };
 }
 export function payRoomDebt(S, cfg) {
-  const d = S.debtRoom;
-  if (!d || d.paid) return false;
-  if (S.money < d.amount) return false;
-  S.money -= d.amount;
-  d.paid = true;
-  d.paidDay = S.day;
+  const rd = roomDebt(S, cfg);
+  if (rd.paid) return false;
+  if (S.money < rd.owed) return false;
+  S.money -= rd.owed;
+  const cur = debtSlot(S, cfg);
+  cur.paid = true; cur.paidDay = S.day; cur.paidAmount = rd.owed;
+  if (cur.cycle === 1) { S.debtRoom.paidDay = S.day; S.debtRoom.paidAmount = rd.owed; }
   return true;
 }
 export function roomDebtOverdue(S, cfg) {
-  const d = S.debtRoom;
-  return !!(d && !d.paid && S.day > d.due);   // sáng ngày 8 chưa trả = quá hạn
+  const cur = debtSlot(S, cfg);
+  return !!(!cur.paid && S.day > cur.due + RENT_GRACE);   // hết 7 ngày ân hạn mới mất phòng
 }

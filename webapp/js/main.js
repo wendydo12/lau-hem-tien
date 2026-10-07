@@ -205,7 +205,7 @@ function updateHud() {
    * ở màn chuẩn bị (chưa có runtime) hiện mức ước lượng ~X khách cho chủ quán liệu hàng */
   const gEl = $('hudGuests');
   if (gEl) {
-    const est = Math.round(traffic(S, cfg, evMul(S)) * 14);
+    const est = Math.round(traffic(S, cfg, evMul(S)) * (cfg.balance?.guestCapMul ?? 12));
     gEl.textContent = R ? '👥 ' + R.today.arrived + '/' + R.today.cap : '👥 ~' + est + ' khách';
   }
   const lsChip = $('hudLS');
@@ -340,7 +340,7 @@ function renderPrep() {
     const [wf, wt] = [Math.max(1, S.day - 7), S.day - 1];
     const bl = bestLine(S, wf, wt);
     /* dự báo khách hôm nay (tính từ công thức lượng khách + hệ số mùa) */
-    const est = Math.round(traffic(S, cfg, evMul(S)) * 14);   // hệ số 14 ≈ số khách/ngày ở rating trung bình
+    const est = Math.round(traffic(S, cfg, evMul(S)) * (cfg.balance?.guestCapMul ?? 12));   // hệ số 14 ≈ số khách/ngày ở rating trung bình
     const trendTxt = evIs(S, 'trend') && S.ev.k && ITEMS[S.ev.k] ? ` · 📈 ${iname(S.ev.k)} gọi gấp đôi` : '';
     h += `<div class="menu-board">
       <div class="mb-head">🧾 Menu hôm nay — ${S.shopName || 'Lẩu Hẻm Tiên'}</div>
@@ -358,14 +358,15 @@ function renderPrep() {
   if (!rd.paid) {
     const late = rd.daysLeft < 0;
     const urgent = rd.daysLeft <= 2;
+    const nhan = rd.first ? 'Nợ tiền phòng' : 'Tiền phòng tháng ' + rd.cycle;
     h += `<div class="debt-banner${urgent ? ' urgent' : ''}${late ? ' late' : ''}">
       <span class="debt-ico">🏠</span>
-      <div class="debt-txt"><b>Nợ tiền phòng: ${fmtD(rd.amount)}</b>
-        <small>${late ? 'QUÁ HẠN! Sang ngày mai không trả là mất phòng!' : rd.daysLeft === 0 ? 'HẠN CHÓT HÔM NAY!' : 'Còn ' + rd.daysLeft + ' ngày (hạn ngày ' + rd.due + ')'}</small></div>
-      <button class="pill debt-pay" id="btnPayDebt"${S.money < rd.amount ? ' disabled' : ''}>${S.money >= rd.amount ? 'Trả ngay' : 'Thiếu ' + fmtD(rd.amount - S.money)}</button>
+      <div class="debt-txt"><b>${nhan}: ${fmtD(rd.owed)}</b>
+        <small>${late ? 'QUÁ HẠN — chủ nhà cho khất tới ngày ' + (rd.due + 7) + ', phạt thêm ' + fmtD(rd.fee) : rd.daysLeft === 0 ? 'HẠN CHÓT HÔM NAY!' : 'Còn ' + rd.daysLeft + ' ngày (hạn ngày ' + rd.due + ')'}</small></div>
+      <button class="pill debt-pay" id="btnPayDebt"${S.money < rd.owed ? ' disabled' : ''}>${S.money >= rd.owed ? 'Trả ngay' : 'Thiếu ' + fmtD(rd.owed - S.money)}</button>
     </div>`;
   } else {
-    h += `<div class="debt-banner paid"><span class="debt-ico">✅</span><div class="debt-txt"><b>Đã trả tiền phòng!</b><small>Thoát cảnh nợ nần — yên tâm buôn bán (trả ngày ${rd.paidDay})</small></div></div>`;
+    h += `<div class="debt-banner paid"><span class="debt-ico">✅</span><div class="debt-txt"><b>Đã trả tiền phòng tháng ${rd.cycle}!</b><small>Tháng này nhẹ người — tháng sau tới hạn ngày ${rd.due} (trả ngày ${rd.paidDay})</small></div></div>`;
   }
   /* ---- BANNER PHÁ SẢN (thang hậu quả âm tiền liên tiếp) ---- */
   if ((S.ruin || 0) > 0) {
@@ -459,7 +460,8 @@ function renderPrep() {
   /* trả nợ phòng trọ */
   const payBtn = $('btnPayDebt');
   if (payBtn) payBtn.onclick = () => {
-    if (payRoomDebt(S, cfg)) { sfx('coin'); toast('Đã trả 2.000.000đ tiền phòng — nhẹ cả người!', 'good', 3200); save(S); updateHud(); renderPrep(); }
+    const rd0 = roomDebt(S, cfg);
+    if (payRoomDebt(S, cfg)) { sfx('coin'); toast('Đã trả ' + fmtD(rd0.owed) + ' tiền phòng — nhẹ cả người!', 'good', 3200); save(S); updateHud(); renderPrep(); }
     else toast('Chưa đủ tiền trả nợ phòng', 'bad');
   };
   $('prepBody').querySelectorAll('[data-inc]').forEach(b => b.onclick = () => { const k = b.dataset.inc; const step = k === 'sup' ? 10 : 5; if (S.money >= planCost() + step * costOf(cfg, k)) { plan[k] = (plan[k] || 0) + step; sfx('tick'); renderPrep(); } else toast('Không đủ tiền nhập thêm', 'bad'); });
@@ -629,8 +631,13 @@ function canCook() {
  * mức trần. Số thật dao động nhẹ ±15% nên ngày nào cũng hơi khác, không phải lúc nào cũng
  * đúng y con số. Khách tới đủ trần → thôi mời khách. */
 function guestCapFor(S0, cfg0, rng0) {
-  const est = Math.round(traffic(S0, cfg0, evMul(S0)) * 14);
-  return Math.max(3, Math.round(est * (0.85 + rng0.next() * 0.3)));
+  const b = cfg0.balance || {};
+  const est = Math.round(traffic(S0, cfg0, evMul(S0)) * (b.guestCapMul ?? 12));
+  /* TRẦN MỀM (08/10): quán trong hẻm nhỏ không thể đông vô hạn — dù nổi tiếng tới đâu,
+   * sức chứa + tay nghề chủ quán cũng có giới hạn, trần nới rất chậm theo ngày. */
+  const soft = Math.round((b.guestSoftBase ?? 13) + (S0.day - 1) * (b.guestSoftPerDay ?? 0.45));
+  const est2 = Math.min(est, soft);
+  return Math.max(3, Math.round(est2 * (0.85 + rng0.next() * 0.3)));
 }
 /* dải nhắc thiếu hàng: khách gọi món quán không có → bỏ về. Chỉ nhắc MỘT dải nhỏ trên màn bán
  * (tự tắt khi có khách ngồi xuống nấu được), thay vì bắn thông báo liên tục gây nhặng xị. */
@@ -1258,6 +1265,7 @@ function renderSummary(res) {
   <div class="sum-line"><span>Nhập nguyên liệu (đã trả)</span><span class="neg">−${fmtD(hist.restock || 0)}</span></div>
   ${hist.spoil.n ? `<div class="sum-line"><span>Hỏng/hết hạn ${hist.spoil.n} phần</span><span class="neg">(đã gồm trong nhập)</span></div>` : ''}
   <div class="sum-line"><span>Tiền nhà + điện nước</span><span class="neg">−${fmtD(res.rent + res.util)}</span></div>
+  ${res.maint ? `<div class="sum-line"><span>Bảo trì thiết bị</span><span class="neg">−${fmtD(res.maint)}</span></div>` : ''}
   ${res.wage ? `<div class="sum-line"><span>Lương nhân viên</span><span class="neg">−${fmtD(res.wage)}</span></div>` : ''}
   ${res.loanOut ? `<div class="sum-line"><span>Trả nợ</span><span class="neg">−${fmtD(res.loanOut)}</span></div>` : ''}
   ${res.tax ? `<div class="sum-line"><span>Thuế</span><span class="neg">−${fmtD(res.tax)}</span></div>` : ''}

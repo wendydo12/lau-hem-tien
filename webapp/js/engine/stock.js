@@ -34,7 +34,11 @@ export function expireStock(S, cfg) {
   return out;
 }
 
-export function costOf(cfg, k) { return cfg.cost?.[k] ?? ITEMS[k]?.cost ?? 0; }
+/* giá nhập = giá gốc × hệ số cân bằng (một chỗ duy nhất, dễ chỉnh và dễ đo lại) */
+export function costOf(cfg, k) {
+  const goc = cfg.cost?.[k] ?? ITEMS[k]?.cost ?? 0;
+  return Math.round(goc * (cfg.balance?.costMul ?? 1));
+}
 
 export function lifeTxt(S, k, cfg) {
   const l = cfg?.life?.[k] ?? ITEMS[k]?.life ?? 0;
