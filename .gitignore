@@ -14,3 +14,5 @@ qa-*.png
 # chữ ký phát hành Android (CẤM commit — mật khẩu nằm trong keystore.properties)
 android/keystore/
 android/keystore.properties
+ios/App/archive.plist
+tmp_poster/
