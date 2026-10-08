@@ -37,20 +37,31 @@ test('lịch nền: phần đầu ca không khe nào thưa quá KHE_NEN_MS (18 g
   }
 });
 
-test('khi chủ quán phục vụ kịp: khách vào sớm nhất mỗi KHE_LIEN_TUC_MS (6 giây)', () => {
+test('khi chủ quán phục vụ kịp: khách vào đều mỗi KHE_LIEN_TUC_MS suốt ca (luật 08/10 đêm)', () => {
   const cfg = makeCFG();
   const nhanh = cfg.balance?.moiNhanhNhat ?? 3;
   const total = shiftMs();
-  for (const cap of [10, 12, 20]) {
-    const a = buildArrivals(cap, total, rng(cap + 5));
-    /* mốc sớm nhất có thể = mốc nền ÷ hệ số đẩy nhanh */
-    const som = a.map(t => t / nhanh);
-    for (let i = 1; i < som.length; i++) {
-      if (a[i] < total * 0.75) {
-        assert.ok(som[i] - som[i - 1] <= KHE_LIEN_TUC_MS + 1200,
-          `cap ${cap}: khi phục vụ kịp vẫn còn khe ${Math.round(som[i] - som[i - 1])}ms > ${KHE_LIEN_TUC_MS}ms`);
-      }
+  /* số mốc vãng lai theo ĐÚNG công thức main.js: cap × khachVuotKpi, có SÀN phủ kín ca */
+  const san = Math.ceil(total / KHE_LIEN_TUC_MS);
+  for (const cap of [10, 20, 26]) {
+    const walkin = Math.max(Math.round(cap * (cfg.balance.khachVuotKpi ?? 2)), san);
+    const a = buildArrivals(walkin, total, rng(cap + 5));
+    /* mô phỏng đúng công thức mời khách mới của main.js (chủ quán nhanh, luôn còn chỗ):
+     * mốc mời = max(mốc nền ÷ moiNhanhNhat, lượt trước + KHE_LIEN_TUC_MS).
+     * Luật CŨ (mốc nền ÷ nhanh, KHÔNG sàn 6s) hút cả ca vào 1/3 đầu — luật MỚI phải rải đều. */
+    let truoc = -1e9;
+    const khe = [];
+    for (const moc of a) {
+      const somNhat = Math.max(moc / nhanh, truoc + KHE_LIEN_TUC_MS);
+      if (truoc > 0) khe.push(somNhat - truoc);
+      truoc = somNhat;
     }
+    const lonNhat = Math.max(...khe);
+    assert.ok(lonNhat <= KHE_LIEN_TUC_MS + 2500,
+      `cap ${cap}: phục vụ kịp mà vẫn có khe ${Math.round(lonNhat)}ms — khách lại dồn/thưa bất thường`);
+    /* và mốc mời cuối phải phủ gần hết ca — không được "hết khách" từ giữa ca */
+    assert.ok(truoc >= total * 0.9,
+      `cap ${cap}: khách cuối vào lúc ${Math.round(truoc)}ms < 90% ca — ca bị hút cạn sớm`);
   }
 });
 

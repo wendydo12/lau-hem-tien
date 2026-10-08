@@ -3,7 +3,7 @@
  * tiền giấy, linh thạch tinh thể, và dế đêm ngoài hẻm.
  * Mọi waveform/tần số/envelope dưới đây là tự thiết kế cho dự án này. */
 
-import { A, absAsset } from './assets.js?v=59';   // 26/09: 1 nguồn sự thật
+import { A, absAsset } from './assets.js?v=60';   // 26/09: 1 nguồn sự thật
 const AU = { ctx: null, on: true, mus: true, started: false };
 
 /* ===== CHẨN ĐOÁN NHẠC (08/10) — BẢN IM LẶNG =====

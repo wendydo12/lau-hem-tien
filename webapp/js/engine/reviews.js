@@ -1,6 +1,6 @@
 /* engine/reviews.js — máy ghép review khớp sự thật, chống lặp câu (TXT/PARTS/LONG). */
-import { TXT, PARTS, LONG, TAIL_MOOD, MOOD, STAR_TXT, STARS, dname, iname, low } from './data.js?v=59';
-import { XIAN_RECOGNIZE, initCult } from './cult.js?v=59';
+import { TXT, PARTS, LONG, TAIL_MOOD, MOOD, STAR_TXT, STARS, dname, iname, low } from './data.js?v=60';
+import { XIAN_RECOGNIZE, initCult } from './cult.js?v=60';
 
 /* bảng nhận diện ý trong câu review — dùng để kiểm câu nói có khớp sự thật không.
  * Mỗi nhóm là một ý khách có thể phàn nàn/khen; tên nhóm đặt theo tiếng Việt cho dễ đọc.

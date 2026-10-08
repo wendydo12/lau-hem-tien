@@ -53,8 +53,9 @@ export const MIN_GAP_MS = 2500;
  * giữ nguyên, chỉ đổi NHỊP phân bố.
  * Cách kéo: soi từng khe một theo mốc GỐC, khe nào xa quá `khe` thì kéo mốc sau về; KHÔNG kéo
  * dây chuyền (nếu kéo dây chuyền thì cả ca dồn vào một phút đầu rồi bỏ trống nửa sau).
- * Lịch nền giữ khe tối đa KHE_NEN_MS (18 giây) — khi chủ quán phục vụ kịp, main.js còn đẩy nhanh
- * gấp `moiNhanhNhat` lần (3) nên khách thực tế vào sớm nhất mỗi KHE_LIEN_TUC_MS (6 giây). */
+ * Lịch nền giữ khe tối đa KHE_NEN_MS (18 giây). 08/10 ĐÊM (sửa luật dồn cục): mốc mời khách nay
+ * = max(mốc nền ÷ moiNhanhNhat, lượt mời trước + KHE_LIEN_TUC_MS) — phục vụ nhanh thì khách vào
+ * đều mỗi 6 giây SUỐT CA thay vì bị hút hết vào 1/3 thời gian đầu như công thức cũ. */
 export const KHE_LIEN_TUC_MS = 6000;    /* khe MỤC TIÊU khi chủ quán phục vụ kịp (đẩy nhanh 3×) */
 export const KHE_NEN_MS = 18000;         /* khe TỐI ĐA của lịch nền ở phần đầu ca = 3 × khe mục tiêu */
 export function buildArrivals(cap, total = shiftMs(), rng, curve = GUEST_CURVE, khe = KHE_NEN_MS, den = 0.75) {

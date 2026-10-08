@@ -1,9 +1,9 @@
 /* engine/state.js — S (save state) + fresh/load/save/migrate/sanitize. Thiết kế riêng của dự án:
  * khóa save, cấu trúc bản ghi, luật migrate/sanitize đều do dự án tự định nghĩa. */
-import { ITEMS, BASE_PRICE } from './data.js?v=59';
-import { makeCFG } from './config.js?v=59';
-import { recRev, recCost } from './economy.js?v=59';
-import { addStock } from './stock.js?v=59';
+import { ITEMS, BASE_PRICE } from './data.js?v=60';
+import { makeCFG } from './config.js?v=60';
+import { recRev, recCost } from './economy.js?v=60';
+import { addStock } from './stock.js?v=60';
 
 /* BUGFIX 25/09: trước đây 2 hằng này là literal bị bộ lọc che secret ghi thành '***' khi chép qua tool —
  * SAVE và INTRO dùng CHUNG 1 key, ghi đè nhau. Chuyển sang nối chuỗi để giữ literal thật. */

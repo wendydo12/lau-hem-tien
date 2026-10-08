@@ -50,7 +50,9 @@ for (let day = 1; day <= N; day++) {
   /* 08/10 tối (KPI mềm): chỉ tiêu = dự báo (không trần mềm); mô phỏng người chơi biết việc
    * phục vụ được chỉ tiêu + ~15% khách vượt (những ai tới đúng giờ). */
   const chiTieu = Math.max(6, Math.round(traffic(S, cfg, evMul(S)) * (b.guestCapMul ?? 12) * (1 + (P.eff.khach || 0) / 100)));
-  const cap = chiTieu + Math.round(chiTieu * 0.15);
+  /* 08/10 ĐÊM (KPI mềm tới 22:00): lịch khách vãng lai = chỉ tiêu × khachVuotKpi, phủ kín ca —
+   * mô phỏng phải đo đúng luật game thật, không dùng công thức +15% cũ. */
+  const cap = Math.round(chiTieu * (b.khachVuotKpi ?? 2));
   /* Người chơi biết việc: mua trong phạm vi tiền đang có, ưu tiên nồi rẻ trước,
    * mua đủ cho số khách dự kiến chứ không ôm cả 12 loại nồi. */
   let spend = 0;

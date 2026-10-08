@@ -1,5 +1,5 @@
 /* engine/config.js — CFG mặc định của chủ game (người chơi không sửa được). Số liệu cân theo Lẩu Hẻm Tiên. */
-export const GAME_VERSION = '0.1.13';
+export const GAME_VERSION = '0.1.15';
 
 export const DEFAULT_CONFIG = {
   /* CA TỐI (yêu cầu chủ dự án 08/10/2026 tối): quán mở 19:00 → 22:00, ĐÓNG ĐÚNG 22:00; chỉ tiêu khách là mức mềm (đạt là xong, vượt càng tốt) — đồng hồ nhảy từng 10 phút
@@ -8,7 +8,7 @@ export const DEFAULT_CONFIG = {
   shift: { startH: 19, endH: 22, tickMin: 10, tickSec: 8 },
   cfgVer: 1,
   dayMin: 3.2,               // phút thật cho 1 ca bán — suy từ cfg.shift (24 nhịp × 8 giây = 192s)
-  autoCloseSec: 15,          // ĐỦ TRẦN KHÁCH + quán trống liên tục bấy nhiêu giây → tự đóng cửa (chốt 06/10: 15 giây)
+  autoCloseSec: 15,          // HẾT NGUYÊN LIỆU + quán trống liên tục bấy nhiêu giây → tự đóng cửa (06/10; ca vẫn đóng đúng 22:00)
   startMoney: 500000,        // vốn ban đầu (VNĐ) — cốt truyện intro: nghỉ việc, còn đúng 500k
   storyDebt: { amount: 2000000, dueDay: 7 }, // NỢ PHÒNG TRỌ theo cốt truyện: 2 triệu, hạn trả trong 7 ngày
   /* GATE PHA TU TIÊN (yêu cầu thiết kế 25/09): sau ngày 7 + trả hết nợ phòng + dư 1 triệu
@@ -36,8 +36,11 @@ export const DEFAULT_CONFIG = {
     guestSoftBase: 13,        // TRẦN MỀM số khách/ngày: 13 khách + mỗi ngày thêm 0,45
     guestSoftPerDay: 0.45,    // (ngày 30 ≈ 26 khách, ngày 60 ≈ 40) — quán hẻm không thể đông vô hạn
     utilPerGuest: 1500,       // điện nước/nấu nướng tính theo khách thật đã phục vụ
-    moiNhanhNhat: 3           // KHÁCH VÀO LIÊN TỤC (08/10): cho phép mời khách sớm nhất bằng 1/3
-                              // nhịp nền khi còn chỗ ngồi trống — quán luôn có khách, tổng không đổi
+    moiNhanhNhat: 3,          // KHÁCH VÀO LIÊN TỤC (08/10): cho phép mời khách sớm nhất bằng 1/3
+                              // nhịp nền khi còn chỗ ngồi trống — nhưng hai lượt mời luôn cách
+                              // nhau ≥ KHE_LIEN_TUC_MS (08/10 đêm) nên không dồn cả ca vào phút đầu
+    khachVuotKpi: 2           // LỊCH KHÁCH VÃNG LAI (08/10 đêm) = chỉ tiêu × hệ số này, phủ kín ca
+                              // tới 22:00. Chỉ tiêu là MỐC MỀM (ĐẠT/VƯỢT), không phải trần khoá khách
   },
   taxThreshold: 120000000,   // ngưỡng doanh thu NĂM miễn thuế — 120 triệu (thuế bắt đầu ăn từ khoảng ngày 35-40)
   vat: 4, pit: 2,            // % GTGT + TNCN trên doanh thu (tổng 6%)

@@ -34,13 +34,14 @@ test('L2 · KPI mềm: scheduleSpawns KHÔNG được chặn khách khi arrived 
   assert.ok(/KPI mềm/.test(than), 'scheduleSpawns phải ghi chú KPI mềm để ai sửa cũng thấy luật');
 });
 
-test('L3 · autoCloseCheck không dính chỉ tiêu: chỉ hết lịch cả ca mới được tự đóng', () => {
+test('L3 · autoCloseCheck không dính chỉ tiêu: tự đóng chỉ khi hết lịch vãng lai hoặc hết nguyên liệu', () => {
   const i = main.indexOf('function autoCloseCheck');
-  const than = main.slice(i, i + 1400);
+  const than = main.slice(i, i + 1600);
   assert.ok(!/R\.today\.arrived < R\.today\.cap/.test(than),
     'autoCloseCheck còn đợi đủ trần khách — sẽ kẹt không đóng, hoặc ngược lại đóng theo chỉ tiêu');
   assert.ok(/R\.spawnIdx >= R\.arrivals\.length/.test(than),
     'phải dựa trên "mời hết lịch khách cả ca"');
+  assert.ok(/hetHang/.test(than), 'phải có nhánh hết nguyên liệu (luật 08/10 đêm)');
   assert.ok(/emptySince/.test(than) && /15|autoCloseSec/.test(than),
     'vẫn phải trống đủ autoCloseSec giây rồi mới đóng');
 });

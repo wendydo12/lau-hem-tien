@@ -1,15 +1,15 @@
 /* engine/loop.js — vòng lặp ngày: spawn khách (thường/tiên/đại năng/hạc), serve, tổng kết. Vòng lặp ngày của dự án. */
-import { ITEMS, UPG, PERSONA, XPERSONA, STARS } from './data.js?v=59';
-import { levelOf, genOrder, matches, wrongKinds, maxPat, stars, pickBrat, makeNameGen, potCount } from './orders.js?v=59';
-import { qty, take, expireStock } from './stock.js?v=59';
-import { price, priceLS, sv, unitCost, recSale, recRev, recCost, traffic, pricyItems, orderPricey, priceIdx, wageDay, fixed, dayTax, payDayLoan, resolveDebts } from './economy.js?v=59';
-import { addReview } from './reviews.js?v=59';
-import { ev, evIs, evMul, rollDay, badCheck, takeGift, mkBadPlan } from './events.js?v=59';
-import { newRec, newPot, save, autoBak } from './state.js?v=59';
-import { makeRNG } from './rng.js?v=59';
-import { addExp, EXP, fireZone, tipMul, lsMul, wasteMul } from './cult.js?v=59';
-import { ruinUpdate } from './ruin.js?v=59';
-import { collectPending } from './surprise.js?v=59';
+import { ITEMS, UPG, PERSONA, XPERSONA, STARS } from './data.js?v=60';
+import { levelOf, genOrder, matches, wrongKinds, maxPat, stars, pickBrat, makeNameGen, potCount } from './orders.js?v=60';
+import { qty, take, expireStock } from './stock.js?v=60';
+import { price, priceLS, sv, unitCost, recSale, recRev, recCost, traffic, pricyItems, orderPricey, priceIdx, wageDay, fixed, dayTax, payDayLoan, resolveDebts } from './economy.js?v=60';
+import { addReview } from './reviews.js?v=60';
+import { ev, evIs, evMul, rollDay, badCheck, takeGift, mkBadPlan } from './events.js?v=60';
+import { newRec, newPot, save, autoBak } from './state.js?v=60';
+import { makeRNG } from './rng.js?v=60';
+import { addExp, EXP, fireZone, tipMul, lsMul, wasteMul } from './cult.js?v=60';
+import { ruinUpdate } from './ruin.js?v=60';
+import { collectPending } from './surprise.js?v=60';
 
 export const FACES = ['🧑','👩','👨','👧','🧔','👩‍🦰','👵','🧑‍🎓','👦','👱‍♀️','🧑‍💼','👴','👩‍💻','🧑‍🔧','👩‍🎓','👨‍🍳','👩‍🎨','🧑‍🎤','👱','👩‍🦱','👨‍🦱','🧕','👲','🧒','👸','🤵','👷‍♀️','🧑‍🚀','🥷','🧑‍🌾'];
 export const XFACE = ['🧙','🧝','🧚','⚔️','🌙','✨','🔥','❄️'];
@@ -20,7 +20,7 @@ export function initRuntime(S, cfg, slotsN) {
     mode: 'prep', tab: 'kho', plan: {},
     slots: new Array(slotsN || 3).fill(null),
     online: [], running: false, paused: false, uid: 0,
-    today: { rev: 0, served: 0, lost: 0, wrong: 0, tips: 0, onl: 0, fee: 0, stars: [], soldLost: 0, priceLost: 0, lsEarned: 0, arrived: 0, cap: 0, surprise: [] },
+    today: { rev: 0, served: 0, lost: 0, wrong: 0, tips: 0, onl: 0, fee: 0, stars: [], soldLost: 0, priceLost: 0, lsEarned: 0, arrived: 0, cap: 0, walkin: 0, surprise: [] },
     focus: null
   };
   return R;

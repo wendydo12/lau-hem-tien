@@ -1,9 +1,9 @@
 /* engine/orders.js — sinh đơn hàng theo cấp độ, so khớp nồi, tính sao. Tính theo công thức của dự án. */
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, SIZES, PERSONA, XPERSONA, NM_HO, NM_NU, NM_NAM, NM_BE, NM_TIEN, NM_TIEN_DANH, SLOW_KEYS, slowN } from './data.js?v=59';
-import { qty } from './stock.js?v=59';
-import { addOk, addSkip, lChance, priceIdx, orderPricey, overCap } from './economy.js?v=59';
-import { wpick } from './rng.js?v=59';
-import { patMul, bratMul } from './cult.js?v=59';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, DUOC_KEYS, SECRET_KEYS, SPICY, SIZES, PERSONA, XPERSONA, NM_HO, NM_NU, NM_NAM, NM_BE, NM_TIEN, NM_TIEN_DANH, SLOW_KEYS, slowN } from './data.js?v=60';
+import { qty } from './stock.js?v=60';
+import { addOk, addSkip, lChance, priceIdx, orderPricey, overCap } from './economy.js?v=60';
+import { wpick } from './rng.js?v=60';
+import { patMul, bratMul } from './cult.js?v=60';
 
 export const levelOf = (day, cfg) => day >= cfg.levels.l4 ? 4 : day >= cfg.levels.l3 ? 3 : day >= cfg.levels.l2 ? 2 : 1;
 

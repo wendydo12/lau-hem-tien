@@ -38,11 +38,16 @@ test('ngày đầu đủ trần món nhúng: các món còn lại phải XÁM (l
 test('CHỈ TIÊU (KPI mềm): KHÔNG được chặn khách khi đã đạt chỉ tiêu', () => {
   /* Chốt chủ dự án 08/10 tối: "nếu giao 10 khách là đạt kpi trong ngày thì hơn thì dc vượt chỉ
    * tiêu thôi, chứ kp mới 9h mấy đã hết khách đóng cửa" — phục vụ đủ chỉ tiêu vẫn phải nhận
-   * khách thêm cho tới hết giờ. */
+   * khách thêm cho tới hết giờ.
+   * 08/10 đêm: HUD/tổng kết ĐƯỢC PHÉP so arrived với cap để hiện ✅/🔥 (chỉ hiển thị) — luật cấm
+   * là so trong LOGIC MỜI/ĐÓNG (scheduleSpawns, autoCloseCheck, trySpawn). */
   const src = fs.readFileSync(path.join(GAME, 'js', 'main.js'), 'utf8');
-  assert.ok(!/R\.today\.arrived >= R\.today\.cap/.test(src.replace(/\n/g, ' '))
-      || !/thôi mời khách/.test(src),
-    'còn logic "đủ trần → thôi mời khách" — vi phạm KPI mềm (khách phải vào thêm tới hết giờ)');
+  const spawnFn = src.slice(src.indexOf('function scheduleSpawns'), src.indexOf('function tickCustomers'));
+  const closeFn = src.slice(src.indexOf('function autoCloseCheck'), src.indexOf('function scheduleSpawns'));
+  for (const [ten, fn] of [['scheduleSpawns', spawnFn], ['autoCloseCheck', closeFn]]) {
+    assert.ok(!/R\.today\.arrived >= R\.today\.cap/.test(fn.replace(/\n/g, ' ')),
+      ten + ' còn logic "đủ trần → thôi mời khách" — vi phạm KPI mềm (khách phải vào thêm tới hết giờ)');
+  }
 });
 
 test('đủ khách là tự đóng: autoCloseCheck phải dựa trên "đã mời hết lịch"', () => {
@@ -55,10 +60,10 @@ test('đủ khách là tự đóng: autoCloseCheck phải dựa trên "đã mờ
     'thông báo hết khách còn dùng điều kiện arrived >= cap — sẽ không báo khi bộ đếm thiếu');
 });
 
-test('hướng dẫn trong game ghi đúng 15 giây (không còn 20 giây)', () => {
+test('hướng dẫn trong game ghi đúng luật đóng cửa (22:00; đóng sớm chỉ khi hết nguyên liệu)', () => {
   const src = fs.readFileSync(path.join(GAME, 'js', 'main.js'), 'utf8');
-  assert.ok(/vắng liên tục 15 giây/.test(src), 'hướng dẫn phải ghi 15 giây cho khớp luật thật');
-  assert.ok(!/vắng liên tục 20 giây/.test(src), 'hướng dẫn còn ghi 20 giây (cũ)');
+  assert.ok(/hết sạch nguyên liệu/.test(src), 'hướng dẫn phải ghi rõ đóng sớm chỉ khi hết nguyên liệu');
+  assert.ok(!/vắng liên tục 15 giây thì tổng kết sớm/.test(src), 'hướng dẫn còn luật cũ (mời hết lịch sớm là đóng)');
 });
 
 
@@ -78,13 +83,15 @@ test('màn chuẩn bị ghi "miễn phí" cho món 0 đồng, không ghi "0đ/ph
 const main = fs.readFileSync(path.join(GAME, 'js/main.js'), 'utf8');
 const cfg = makeCFG();
 
-test('tự đóng cửa: đúng 15 giây quán trống liên tục KHI ĐÃ HẾT LỊCH KHÁCH CẢ CA', () => {
+test('tự đóng cửa: đúng 15 giây quán trống liên tục KHI HẾT LỊCH VÃNG LAI hoặc HẾT NGUYÊN LIỆU', () => {
   assert.equal(cfg.autoCloseSec, 15, 'autoCloseSec phải là 15 giây theo yêu cầu thiết kế');
   assert.ok(/autoCloseCheck/.test(main), 'phải có hàm autoCloseCheck');
   assert.ok(!/if \(!hetLich && R\.today\.arrived < R\.today\.cap\)/.test(main),
     'autoCloseCheck còn DÍNH chỉ tiêu khách — vi phạm KPI mềm (đủ chỉ tiêu vẫn nhận khách)');
   assert.ok(/R\.spawnIdx >= R\.arrivals\.length/.test(main),
     'điều kiện tự đóng phải dựa trên "mời hết lịch khách cả ca"');
+  assert.ok(/hetHang = !canCook\(\)/.test(main),
+    'tự đóng sớm phải có nhánh HẾT NGUYÊN LIỆU (luật 08/10 đêm: hết hàng mới đóng, đủ KPI thì không)');
   assert.ok(/R\.slots\.some\(c => c\)/.test(main),
     'còn khách ngồi thì không được tự đóng cửa');
   assert.ok(/R\.emptySince/.test(main), 'phải đếm mốc quán trống liên tục');
@@ -92,7 +99,7 @@ test('tự đóng cửa: đúng 15 giây quán trống liên tục KHI ĐÃ HẾ
 
 test('tự đóng cửa gọi endDay (tổng kết) chứ không chỉ tắt ca', () => {
   const i = main.indexOf('function autoCloseCheck');
-  const than = main.slice(i, i + 1400);
+  const than = main.slice(i, i + 2000);
   assert.ok(/endDay\(\)/.test(than), 'autoCloseCheck phải gọi endDay để ra màn tổng kết');
 });
 
