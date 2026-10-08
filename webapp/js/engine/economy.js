@@ -1,9 +1,9 @@
 /* engine/economy.js — giá, chi phí, lượng khách, thuế, vay, cầm đồ linh thạch, sổ nợ. */
-import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, SECRET_KEYS, UPG, BASE_PRICE, XTOP_KEYS } from './data.js?v=54';
-import { costOf } from './stock.js?v=54';
-import { trafficMul } from './cult.js?v=54';
-import { ruinTrafficMul } from './ruin.js?v=54';
-import { pendTrafficMul } from './surprise.js?v=54';
+import { ITEMS, POT_KEYS, DIP_KEYS, TOP_KEYS, SECRET_KEYS, UPG, BASE_PRICE, XTOP_KEYS } from './data.js?v=59';
+import { costOf } from './stock.js?v=59';
+import { trafficMul } from './cult.js?v=59';
+import { ruinTrafficMul } from './ruin.js?v=59';
+import { pendTrafficMul } from './surprise.js?v=59';
 
 /* món secret bán bằng linh thạch (sell = số LS hạ phẩm) */
 const isLSItem = k => ITEMS[k] && ITEMS[k].type === 'secret' && ITEMS[k].sell <= 10;

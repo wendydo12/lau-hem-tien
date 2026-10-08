@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#241509">
+<title>🍲 Lẩu Hẻm Tiên</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="../assets/icon/app_icon_180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LẩuTiên">
+<!-- 08/10/2026: bỏ nạp font từ Google — font VT323 nay tự chủ trong assets/phong-chu/
+     (thẻ stylesheet ngoài chặn việc chạy mã, mạng chậm là game đứng ở màn mở đầu) -->
+<link rel="stylesheet" href="css/main.css?v=54">
+</head>
+<body>
+  <div id="app">
+    <!-- HUD trên -->
+    <header id="hud" hidden>
+      <button id="btnPause" class="icon-btn" aria-label="Tạm dừng">❚❚</button>
+      <button id="btnAudio" class="icon-btn" aria-label="Bật/tắt âm thanh">🔊</button>
+      <button id="btnGuideHud" class="icon-btn" aria-label="Hướng dẫn cách chơi" title="Hướng dẫn cách chơi">❔</button>
+      <div class="hud-day"><span id="hudDay">Ngày 1</span><small id="hudClock">19:00</small><small id="hudGuests">👥 0</small><i class="shift-bar" id="hudShiftWrap"><b id="hudShiftBar"></b></i></div>
+      <div class="hud-shop">
+        <span id="hudName">Lẩu Hẻm Tiên</span>
+        <span id="hudMoney">400.000đ</span>
+      </div>
+      <div class="hud-right">
+        <span id="hudRealm" class="realm-chip" title="Cảnh giới tu vi chủ quán">🧑‍🍳 <b>Phàm nhân</b></span>
+        <span id="hudLS" class="ls-chip" hidden>💎 <b>0</b></span>
+        <span id="hudStars">★★★★☆</span>
+        <small id="hudRating">4,0 · 0 đánh giá</small>
+      </div>
+    </header>
+
+    <!-- Màn chào -->
+    <section id="splash" class="screen">
+      <div class="splash-art"></div>
+      <h1 class="title-glow">LẨU HẺM TIÊN</h1>
+      <p class="tagline">Hẻm nhỏ, vị tiên — hương vị lẩu ăn quên lối về.</p>
+      <div class="splash-btns">
+        <button id="btnPlay" class="btn big">🍲 Mở quán</button>
+        <button id="btnNew" class="btn ghost" hidden>Quán mới</button>
+        <button id="btnGuide" class="btn ghost small">Hướng dẫn</button>
+      </div>
+      <small class="ver"></small>
+    </section>
+
+    <!-- Màn chuẩn bị (placeholder Phase 5) -->
+    <section id="prep" class="screen" hidden>
+      <div id="prepBody" class="panel"></div>
+      <button id="btnOpen" class="btn big">Mở cửa</button>
+    </section>
+
+    <!-- Màn bán -->
+    <section id="sell" class="screen" hidden>
+      <div id="sceneBand">
+        <div id="sceneWrap">
+          <canvas id="scene" width="756" height="996"></canvas>
+          <div id="lane"></div>
+          <div id="toastWrap"></div>
+        </div>
+      </div>
+      <div id="counter">
+        <!-- CỘT TRÁI: nồi đang nấu + 3 nút — 27/09: 2 CỘT y hệt "bản hồi đầu" (v0.1.6, yêu cầu thiết kế) -->
+        <div id="potArea">
+          <div id="potVisual"></div>
+          <div id="potChips"></div>
+          <div id="fireBar" class="fire-bar" hidden>
+            <div class="fire-fill"><div id="fireFill"></div></div>
+            <div class="fire-zone" id="fireZone"></div>
+          </div>
+          <div id="stActions" class="st-actions col">
+            <button id="btnCook" class="btn cook">🔥 Canh lửa nấu</button>
+            <button id="btnServe" class="btn serve">🍲 Bưng cho khách</button>
+            <button id="btnTrash" class="btn ghost small">🗑 Đổ bỏ</button>
+          </div>
+        </div>
+        <!-- trạm chọn -->
+        <div id="stations">
+          <div class="station">
+            <div class="st-label">NỒI</div>
+            <div id="stPots" class="st-grid"></div>
+          </div>
+          <div class="station">
+            <div class="st-label">CỠ · CAY · CHẤM</div>
+            <div id="stSize" class="st-row"></div>
+            <div id="stSpicy" class="st-row"></div>
+            <div id="stDip" class="st-row"></div>
+          </div>
+          <div class="station">
+            <div class="st-label">NHÚNG LẨU <span id="topsCount" class="tops-count"></span> <span id="secretHint" class="secret-hint" hidden>🔮 thực đơn bí mật đã mở</span></div>
+            <div id="stTops" class="st-grid tops"></div>
+          </div>
+        </div>
+      </div></section>
+
+    <!-- Tổng kết ngày -->
+    <section id="summary" class="screen" hidden>
+      <div class="panel" id="summaryBody"></div>
+      <button id="btnNextDay" class="btn big">Ngày tiếp theo →</button>
+    </section>
+
+    <!-- THỐNG KÊ (theo ngày/tuần/tháng — bảng riêng của dự án) -->
+    <section id="stats" class="screen" hidden>
+      <div class="panel" id="statsBody"></div>
+      <button id="btnCloseStats" class="btn ghost small">← Quay lại</button>
+    </section>
+
+    <!-- TƯỜNG ĐÁNH GIÁ + PHẢN HỒI (tính năng đặc biệt) -->
+    <section id="reviews" class="screen" hidden>
+      <div class="rv-head">
+        <h2>📋 Đánh giá của khách</h2>
+        <small id="rvSum"></small>
+        <button id="btnCloseReviews" class="btn ghost small">← Quay lại</button>
+      </div>
+      <div id="reviewList" class="rv-list"></div>
+    </section>
+
+    <!-- Modal chung -->
+    <div id="modal" class="modal" hidden><div class="modal-card" id="modalCard"></div></div>
+    <div id="toast" class="toast" hidden></div>
+  </div>
+    <!-- SỔ GHI LỖI (08/10): script THƯỜNG, chạy trước module — nếu module chết thì nó vẫn ghi
+         được lỗi vào localStorage['lhTienLoi'] để tra trong app macOS (không có console). -->
+    <script src="js/loi.js?v=54"></script>
+    <script type="module" src="js/main.js?v=54"></script>
+</body>
+</html>

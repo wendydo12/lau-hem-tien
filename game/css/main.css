@@ -94,6 +94,9 @@ body{
   border-bottom:3px solid var(--ink);
   box-shadow:inset 0 2px 0 var(--wood-hi);
   flex-shrink:0;z-index:20;
+  /* 08/10: app iOS vẽ tràn viền → HUD phải chừa safe-area trên (Dynamic Island/notch)
+     nếu không sẽ bị viên thuốc đen che mất nút. Web thường inset=0 nên vô hại. */
+  padding-top:calc(8px + env(safe-area-inset-top, 0px));
 }
 .hud-day{display:flex;flex-direction:column;line-height:1;color:var(--panel-white);min-width:64px}
 .hud-day span{font-size:20px;font-weight:bold}
@@ -112,6 +115,24 @@ body{
 .ls-chip{background:rgba(154,95,212,.3);border:2px solid var(--violet);border-radius:20px;
   padding:1px 8px;font-size:16px;color:#e8d8ff;box-shadow:0 0 8px var(--glow)}
 .ls-chip b{color:var(--teal)}
+
+/* ===== HUD màn hẹp (08/10 — fix "chữ 4,0 · 0 đánh giá bị cắt mép phải" trên iPhone):
+   bề ngang 402px không nhét nổi 3 nút tròn 40px + ngày + tiền + cảnh giới + sao + rating.
+   Giải pháp: thu nút, thu chữ, ẨN dòng rating dài (thông tin trùng với số sao ngay trên —
+   không mất dữ liệu), khoá min-width để không gì tràn mép. PC >=480px giữ nguyên bản đầy đủ. */
+@media (max-width: 479px){
+  #hud{gap:6px;padding-left:8px;padding-right:8px}
+  .icon-btn{width:34px;height:34px;font-size:15px}
+  .hud-day{min-width:52px}
+  .hud-day span{font-size:17px}
+  .hud-day small{font-size:13px}
+  .hud-shop #hudName{font-size:13px}
+  .hud-shop #hudMoney{font-size:20px}
+  .hud-right{min-width:0;gap:0}
+  .realm-chip{font-size:10px;padding:1px 6px;max-width:86px}
+  .hud-right #hudStars{font-size:15px}
+  #hudRating{display:none}          /* dòng chữ dài gây tràn — số sao vẫn còn */
+}
 
 /* ===== screens ===== */
 .screen{flex:1;display:flex;flex-direction:column;padding:14px;gap:10px;overflow:hidden}
@@ -133,6 +154,11 @@ body{
 /* ===== sell screen ===== */
 #sell{padding:0;gap:0}
 #sceneBand{position:relative;width:100%;flex:0 0 auto;height:38%;max-height:46%;overflow:hidden;display:flex;justify-content:center;align-items:flex-start;background:var(--skyband,#0d0f26)}
+/* 08/10 (fix "dải đen letterbox hai bên"): ảnh scene_alley_night.png trong suốt ~37px
+   mỗi mép → nền band lộ ra. Nền cũ #0d0f26 tối hơn trời đêm trong ảnh (#272135) nên
+   thành 2 vệt đen lạ. Nay: gradient mô phỏng đúng mạch màu ảnh — trời tím trên cùng,
+   tối dần xuống nền hẻm — mép ảnh và nền liền mạch. */
+#sceneBand{background:linear-gradient(to bottom,#272135 0%,#201b2e 45%,#1a1522 100%)}
 #sceneWrap{position:relative;width:auto;height:100%;max-width:100%;aspect-ratio:378/498;overflow:visible}
 /* SÂN KHẤU RỘNG HƠN (yêu cầu thiết kế 06/10 17:48): trước đây khung cảnh chỉ rộng bằng chiều cao
    (tỉ lệ dọc 378/498) nên bong bóng gọi món bị CẮT CHỮ ở mép ("Lẩu cà chua" mất chữ L) và đè
@@ -305,7 +331,8 @@ body{
 .st-actions .btn{flex:1;min-width:90px;font-size:18px;padding:8px 6px}
 #stations { flex:1;display:flex;flex-direction:column;gap:8px;overflow-y:auto;padding-right:2px }
 /* nút hành động LUÔN thấy: dính đáy khu trạm */
-#counter{flex:1;display:flex;gap:10px;padding:10px;overflow:hidden;background:var(--bg)}
+/* 08/10: bản trong media landscape — chừa safe-area đáy (home indicator) như bản gốc */
+#counter{flex:1;display:flex;gap:10px;padding:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom, 0px));overflow:hidden;background:var(--bg)}
 .cust .bubble{max-width:min(210px,44vw);min-width:100px;font-size:16px;white-space:normal;line-height:1.2;padding:5px 9px}
 /* menu request trong bubble: chữ + hàng icon món */
 .ob-txt{display:block;font-weight:bold;white-space:nowrap;font-size:16px}

@@ -10,3 +10,7 @@ qa-*.png
 
 # bộ đệm phân tích mã của gitnexus (36MB, không thuộc kho)
 .gitnexus/
+
+# chữ ký phát hành Android (CẤM commit — mật khẩu nằm trong keystore.properties)
+android/keystore/
+android/keystore.properties

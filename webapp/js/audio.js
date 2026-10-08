@@ -3,12 +3,39 @@
  * tiền giấy, linh thạch tinh thể, và dế đêm ngoài hẻm.
  * Mọi waveform/tần số/envelope dưới đây là tự thiết kế cho dự án này. */
 
-import { A, absAsset } from './assets.js?v=54';   // 26/09: 1 nguồn sự thật
+import { A, absAsset } from './assets.js?v=59';   // 26/09: 1 nguồn sự thật
 const AU = { ctx: null, on: true, mus: true, started: false };
+
+/* ===== CHẨN ĐOÁN NHẠC (08/10) — BẢN IM LẶNG =====
+ * Root cause đã tìm ra và fix: WKWebView Capacitor (capacitor://) chặn fetch() tới
+ * mp3 ("ERR 0") trong khi <img> vẫn tải được → nhạc chết sạch, ảnh vẫn sống.
+ * Fix: fetchBuffer() dùng XMLHttpRequest (xem bên dưới).
+ * Overlay này KHÔNG hiện khi mọi thứ chạy đúng (yêu cầu của chủ quán 08/10:
+ * "đừng hiện cái xanh đó trong game"). Nó chỉ tự hiện khi có dòng FAIL — giữ lại
+ * làm bảo hiểm chẩn đoán; chạm vào bảng để ẩn. Khi bản XHR được xác nhận ổn định
+ * qua vài phiên chơi thì xoá hẳn khối này. */
+const IS_NATIVE = location.protocol === 'capacitor:' || /^https?:\/\/localhost/.test(location.origin);
+let _dbgEl = null;
+const _dbgLog = [];
+function dbg(msg) {
+  _dbgLog.push(msg);
+  if (_dbgLog.length > 40) _dbgLog.shift();
+  if (!IS_NATIVE || _dbgEl || !/FAIL|FATAL/.test(msg)) return;   // chỉ dựng bảng khi CÓ lỗi
+  try {
+    _dbgEl = document.createElement('div');
+    _dbgEl.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:2147483647;pointer-events:auto;' +
+      'background:rgba(0,0,0,.75);color:#7CFC00;font:11px/1.4 monospace;white-space:pre-wrap;' +
+      'max-height:32vh;overflow:hidden;padding:3px 5px;text-align:left';
+    _dbgEl.addEventListener('click', () => { _dbgEl.hidden = !_dbgEl.hidden; });
+    _dbgEl.textContent = _dbgLog.slice(-12).join('\n');
+    document.documentElement.appendChild(_dbgEl);
+  } catch (e) {}
+}
 try {
   const a = JSON.parse(localStorage.getItem('lhTAudio'));
   if (a) { AU.on = a.on !== false; AU.mus = a.mus !== false; }
 } catch (e) {}
+dbg('swich: am=' + AU.on + ' nhac=' + AU.mus);   // 08/10: nghi án #1 — cờ tắt lưu trong máy
 
 function saveAu() { try { localStorage.setItem('lhTAudio', JSON.stringify({ on: AU.on, mus: AU.mus })); } catch (e) {} }
 
@@ -16,8 +43,9 @@ function saveAu() { try { localStorage.setItem('lhTAudio', JSON.stringify({ on: 
 function au() {
   if (!AU.ctx) {
     const C = window.AudioContext || window.webkitAudioContext;
-    if (!C) return null;
+    if (!C) { dbg('FATAL: no AudioContext class'); return null; }
     const c = AU.ctx = new C();
+    dbg('ctx created sr=' + c.sampleRate + ' state=' + c.state);
     AU.master = c.createGain(); AU.master.gain.value = .85; AU.master.connect(c.destination);
     AU.fx = c.createGain(); AU.fx.gain.value = 1; AU.fx.connect(AU.master);      // sfx
     AU.mg = c.createGain(); AU.mg.gain.value = 0; AU.mg.connect(AU.master);      // ambience
@@ -28,21 +56,37 @@ function au() {
     for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
   }
   if (AU.ctx.state === 'suspended' && !document.hidden) {
+    dbg('ctx suspended -> resume');
     AU.ctx.resume().then(() => {   // 27/09: iOS/Safari có thể suspend lại context — BGM bị nuốt → tự khởi lại
+      dbg('ctx resumed OK state=' + AU.ctx.state);
+      if (AU._wantBgm) setBgm(AU._wantBgm.key);
+      if (AU._wantStreet) startStreet();
+      if (AU._wantKitchen) startKitchen();
+    }).catch((e) => { dbg('ctx resume FAIL: ' + e); });
+  }
+  return AU.ctx;
+}
+/* unlock audio bằng gesture thật.
+ * 08/10 (fix "mất nhạc trên app iOS"): trước đây chỉ bắt gesture MỘT LẦN ({once:true}) —
+ * nếu lần đó AudioContext resume hụt (iOS app native hay suspend context lúc lạnh),
+ * nhạc im luôn cả ván. Nay: mọi pointerdown đều thử resume lại cho tới khi context
+ * thực sự chạy; thêm visibilitychange để đòi lại tiếng khi quay về từ nền. */
+function unlockAudio() {
+  AU.started = true;
+  const c = au();
+  if (c && c.state === 'suspended') {
+    c.resume().then(() => {
       if (AU._wantBgm) setBgm(AU._wantBgm.key);
       if (AU._wantStreet) startStreet();
       if (AU._wantKitchen) startKitchen();
     }).catch(() => {});
   }
-  return AU.ctx;
 }
-/* unlock audio bằng gesture thật đầu tiên */
-function unlockAudio() {
-  if (AU.started) return;
-  AU.started = true;
-  au();
-}
-document.addEventListener('pointerdown', unlockAudio, { once: true });
+document.addEventListener('pointerdown', unlockAudio);
+document.addEventListener('touchend', unlockAudio);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && AU.ctx) unlockAudio();
+});
 
 /* tone: 1 nốt có glide tần số */
 function tn(f, at, dur, type, vol, to, dest) {
@@ -122,6 +166,34 @@ const SFX = {
   tick() { tn(600, 0, .04, 'square', .035); },
 };
 
+/* ============ NẠP FILE ÂM THANH — fetchBuffer (fix 08/10 "app iOS mất nhạc") ============
+ * THỦ PHẠM (đo thật bằng overlay chẩn đoán trên iPhone): mọi fetch() tới mp3 trong
+ * app iOS trả "ERR 0" — WKWebView của Capacitor (scheme capacitor://) CHẶN fetch()
+ * tới custom scheme, trong khi <img src="../assets/..."> vẫn tải bình thường (ảnh sống,
+ * nhạc chết sạch — đúng triệu chứng chàng báo).
+ * CÁCH CHỮA: đọc file bằng XMLHttpRequest — cùng cơ chế tải tài nguyên với <img>,
+ * iOS cho phép với capacitor://. Giữ fetch làm dự phòng cho web/Android nếu XHR lỗi.
+ * MỌI chỗ nạp âm thanh trong file này PHẢI đi qua fetchBuffer — cấm gọi fetch trực tiếp. */
+function fetchBuffer(url) {
+  return new Promise((ok, no) => {
+    try {
+      const x = new XMLHttpRequest();
+      x.open('GET', url, true);
+      x.responseType = 'arraybuffer';
+      x.onload = () => {
+        if ((x.status === 200 || x.status === 0) && x.response && x.response.byteLength > 0) ok(x.response);
+        else fallbackFetch(url, ok, no);   // status 0 + rỗng = iOS từ chối → thử fetch
+      };
+      x.onerror = () => fallbackFetch(url, ok, no);
+      x.send();
+    } catch (e) { fallbackFetch(url, ok, no); }
+  });
+}
+function fallbackFetch(url, ok, no) {
+  fetch(url).then(r => r.ok ? r.arrayBuffer() : Promise.reject(new Error('http ' + r.status)))
+    .then(ok).catch(no);
+}
+
 /* ============ vòng sôi lăn tăn khi giữ lửa + TIẾNG BẾP THẬT ============ */
 /* File thật từ tiengdong.com (CC/free SFX library — ghi nguồn trong credits-log):
  * - am-thanh/street_buzz.mp3   = ồn ào nhà hàng đường phố → ambience nền suốt giờ bán
@@ -136,7 +208,7 @@ function loadSmp() {
   Object.entries(SMP).forEach(([k, url]) => {
     if (SBUF[k] || SBUF[k + '_loading']) return;
     SBUF[k + '_loading'] = true;
-    fetch(url).then(r => r.ok ? r.arrayBuffer() : Promise.reject(0))
+    fetchBuffer(url)
       .then(b => new Promise((ok, no) => { const p = c.decodeAudioData(b, ok, no); if (p && p.then) p.then(ok, no); }))
       .then(buf => { SBUF[k] = buf; if (k === 'street' && AU._wantStreet) startStreet(); if (k === 'kitchen' && AU._wantKitchen) startKitchen(); })
       .catch(() => { SBUF[k] = null; });
@@ -295,9 +367,10 @@ function loadIntroBuf(url) {
   const c = AU.ctx; if (!c) return Promise.reject(0);
   if (IBUF[url]) return Promise.resolve(IBUF[url]);
   if (IBUF[url + '_l']) return IBUF[url + '_l'];
-  const p = fetch(url).then(r => r.ok ? r.arrayBuffer() : Promise.reject(0))
-    .then(b => new Promise((ok, no) => { const q = c.decodeAudioData(b, ok, no); if (q && q.then) q.then(ok, no); }))
-    .then(buf => { IBUF[url] = buf; delete IBUF[url + '_l']; return buf; });
+  dbg('intro fetch ' + url.split('/').pop());
+  const p = fetchBuffer(url).then(b => { dbg('intro bytes ' + url.split('/').pop() + ' ' + b.byteLength); return new Promise((ok, no) => { const q = c.decodeAudioData(b, ok, no); if (q && q.then) q.then(ok, no); }); })
+    .then(buf => { dbg('intro decoded ' + url.split('/').pop() + ' ' + buf.duration.toFixed(1) + 's'); IBUF[url] = buf; delete IBUF[url + '_l']; return buf; })
+    .catch(e => { dbg('intro LOAD FAIL ' + url.split('/').pop() + ': ' + e); throw e; });
   IBUF[url + '_l'] = p;
   return p;
 }
@@ -353,9 +426,10 @@ function loadBgmBuf(key) {
   const c = AU.ctx; if (!c) return Promise.reject(0);
   if (BBUF[key]) return Promise.resolve(BBUF[key]);
   if (BBUF[key + '_l']) return BBUF[key + '_l'];
-  const p = fetch(BGM_FILES[key]).then(r => r.ok ? r.arrayBuffer() : Promise.reject(0))
-    .then(b => new Promise((ok, no) => { const q = c.decodeAudioData(b, ok, no); if (q && q.then) q.then(ok, no); }))
-    .then(buf => { BBUF[key] = buf; delete BBUF[key + '_l']; return buf; });
+  dbg('bgm fetch ' + key);
+  const p = fetchBuffer(BGM_FILES[key]).then(b => { dbg('bgm bytes ' + key + ' ' + b.byteLength); return new Promise((ok, no) => { const q = c.decodeAudioData(b, ok, no); if (q && q.then) q.then(ok, no); }); })
+    .then(buf => { dbg('bgm decoded ' + key + ' ' + buf.duration.toFixed(1) + 's'); BBUF[key] = buf; delete BBUF[key + '_l']; return buf; })
+    .catch(e => { dbg('bgm LOAD FAIL ' + key + ': ' + e); throw e; });
   BBUF[key + '_l'] = p;
   return p;
 }
@@ -367,6 +441,7 @@ function fadeOutBgm(cur) {
   } catch (e) {}
 }
 export function setBgm(key) {
+  dbg('setBgm(' + key + ') on=' + AU.on + ' mus=' + AU.mus);
   if (!AU.on || !AU.mus || !key) { AU._wantBgm = null; return stopBgm(); }
   AU._wantBgm = { key };   // 27/09: ghi nhớ — context chưa unlock/đang suspend thì phát lại sau
   const c = au(); if (!c) return;
@@ -383,6 +458,7 @@ export function setBgm(key) {
     s.start(0);
     bgmCur = { key, src: s, gain: g };
     AU._bgmErr = null;
+    dbg('bgm PLAYING ' + key + ' ctx=' + c.state);
   }).catch(() => { AU._bgmErr = key; });   // 27/09: không im lặng — UI thấy được + retry
 }
 export const bgmError = () => AU._bgmErr || null;
@@ -408,7 +484,7 @@ export function playGameOver() {
     s.start(0);
   };
   if (goBuf) { fire(goBuf); return; }
-  fetch(absAsset('am-thanh/game_over.mp3')).then(r => r.ok ? r.arrayBuffer() : Promise.reject(0))
+  fetchBuffer(absAsset('am-thanh/game_over.mp3'))
     .then(b => new Promise((ok, no) => { const q = c.decodeAudioData(b, ok, no); if (q && q.then) q.then(ok, no); }))
     .then(buf => { goBuf = buf; fire(buf); })
     .catch(() => { try { SFX.wrong(); } catch (e) {} });   // fallback synth nếu thiếu file

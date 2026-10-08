@@ -9,17 +9,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         /* Lẩu Hẻm Tiên — BGM là mp3 phát qua Web Audio (audio.js).
-           Mặc định iOS dùng AVAudioSession category .ambient:
-             - gạt cần IM LẶNG  -> nhạc TẮT NGÚM (đây chính là bug "mất phần nhạc")
-             - app khác đang phát -> nhạc mình bị trộn/tắt
-           Game có nhạc nền chủ đích => phải là .playback, và .mixWithOthers
-           để không cướp tiếng của app khác (podcast/nhạc chàng đang nghe). */
+           iOS mặc định dùng AVAudioSession category .ambient:
+             - gạt cần IM LẶNG  -> nhạc TẮT NGÚM (bug "mất phần nhạc" 08/10)
+           08/10 lần 2: bỏ .mixWithOthers — tổ hợp .playback + .mixWithOthers trên
+           một số bản iOS vẫn bị cần im lặng chi phối (đo thực tế: app đã có
+           .playback+.mixWithOthers mà iPhone vẫn im). .playback thuần đảm bảo
+           phát nhạc kể cả cần im lặng + màn khoá. Game có nhạc nền chủ đích
+           nên chấp nhận việc dừng nhạc app khác. */
         do {
-            try AVAudioSession.sharedInstance().setCategory(
-                .playback,
-                mode: .default,
-                options: [.mixWithOthers]
-            )
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {
             print("[LauHemTien] AVAudioSession lỗi: \(error)")

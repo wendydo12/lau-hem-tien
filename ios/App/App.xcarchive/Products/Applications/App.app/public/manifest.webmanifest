@@ -1,0 +1,16 @@
+{
+  "name": "Lẩu Hẻm Tiên",
+  "short_name": "LẩuTiên",
+  "description": "Hẻm nhỏ, vị tiên — hương vị lẩu ăn quên lối về. Game quản lý quán lẩu pixel thuần Việt.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#241509",
+  "theme_color": "#241509",
+  "lang": "vi",
+  "icons": [
+    { "src": "../assets/icon/app_icon_192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "../assets/icon/app_icon_512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "../assets/icon/app_icon_180.png", "sizes": "180x180", "type": "image/png", "purpose": "maskable" }
+  ]
+}

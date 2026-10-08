@@ -1,0 +1,12 @@
+{
+	"appId": "com.uyennhi.lauhemtien",
+	"appName": "Lẩu Hẻm Tiên",
+	"webDir": "webapp",
+	"android": {
+		"allowMixedContent": true
+	},
+	"server": {
+		"androidScheme": "https"
+	},
+	"packageClassList": []
+}

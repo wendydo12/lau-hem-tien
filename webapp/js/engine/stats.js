@@ -1,8 +1,8 @@
 /* engine/stats.js — THỐNG KÊ ngày/tuần/tháng + bán chạy (bảng theo ngày / tuần / tháng).
  * Đọc S.history (rec ngày đã đóng) + S.cur (ngày đang bán) — không đổi state. */
-import { rating } from './economy.js?v=54';
-import { recRev, recCost } from './economy.js?v=54';
-import { iname } from './data.js?v=54';
+import { rating } from './economy.js?v=59';
+import { recRev, recCost } from './economy.js?v=59';
+import { iname } from './data.js?v=59';
 
 /* lấy rec của 1 ngày đã qua (history lưu mới→cũ) */
 export function recOfDay(S, day) {

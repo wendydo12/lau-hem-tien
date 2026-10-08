@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LẨU HẺM TIÊN — Kho ảnh đầy đủ</title>
+<style>
+  :root { --bg:#1a1426; --panel:#241c33; --wood:#b8894c; --cream:#f3e5c2; --amber:#c98d28; --teal:#74cfbf; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--cream); font-family:'Trebuchet MS','Segoe UI',sans-serif;
+         padding:36px 4vw 90px; background-image:radial-gradient(ellipse at 50% -10%, rgba(154,95,212,.12), transparent 60%); }
+  h1 { font-size:34px; letter-spacing:2px; text-align:center; margin-bottom:6px; text-shadow:0 0 24px rgba(201,141,40,.5); }
+  .sub { text-align:center; color:#a89bb8; margin-bottom:26px; font-size:14px; }
+  .tong { text-align:center; color:var(--teal); margin-bottom:44px; font-size:14px; }
+  h2 { font-size:20px; color:var(--amber); margin:44px 0 6px; display:flex; align-items:center; gap:12px; }
+  h2::after { content:''; flex:1; height:2px; background:linear-gradient(90deg, var(--wood), transparent); }
+  .badge { font-size:11px; background:rgba(116,207,191,.15); color:var(--teal); border:1px solid rgba(116,207,191,.4);
+           padding:2px 8px; border-radius:99px; font-weight:400; }
+  .note { color:#a89bb8; font-size:13px; margin-bottom:18px; }
+  .grid { display:grid; gap:14px; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); }
+  .card { background:var(--panel); border:2px solid #3a2f4d; border-radius:12px; padding:12px; text-align:center; }
+  .card img { width:100%; max-width:128px; image-rendering:pixelated; display:block; margin:0 auto 8px; }
+  .label { font-size:12.5px; line-height:1.35; }
+  .label small { color:#a89bb8; display:block; font-size:11px; }
+  footer { margin-top:60px; color:#a89bb8; font-size:12.5px; text-align:center; }
+</style>
+</head>
+<body>
+<h1>LẨU HẺM TIÊN — KHO ẢNH</h1>
+<div class="sub">Trang này sinh tự động từ danh mục trong mã — thêm món mới thì chạy lại <code>node tools/tao-gallery.mjs</code></div>
+<div class="tong">274 tệp ảnh trong kho · 12 nồi lẩu · 43 đồ nhúng · 10 nước chấm · 32 món nội thất</div>
+<h2>🌃 Cảnh nền &amp; nền phòng <span class="badge">vẽ bằng meowa · art direction của dự án</span></h2>
+
+<div class="note">Nền sân khấu bán hàng + nền cho màn &quot;Phòng ở&quot;: mỗi bộ style có sàn và màu tường riêng.</div>
+
+<div class="grid">
+<div class="card"><img src="canh-nen/scene_alley_night.png" alt="Hẻm đêm — sân khấu bán hàng" loading="lazy"><div class="label">Hẻm đêm — sân khấu bán hàng</div></div>
+<div class="card"><img src="canh-nen/phong-tu-tien.png" alt="Nền bộ Động Tiên" loading="lazy"><div class="label">Nền bộ Động Tiên <small>sàn gỗ + tường be</small></div></div>
+<div class="card"><img src="canh-nen/phong-hem-viet.png" alt="Nền bộ Hẻm Việt" loading="lazy"><div class="label">Nền bộ Hẻm Việt <small>sàn gạch bông + tường vàng/xanh</small></div></div>
+</div>
+
+<h2>🍲 Nồi lẩu — 12 món <span class="badge">mỗi nồi một sprite 64×64</span></h2>
+
+<div class="grid">
+<div class="card"><img src="mon-an/pot_00.png" alt="Lẩu cà chua" loading="lazy"><div class="label">Lẩu cà chua <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/pot_01.png" alt="Lẩu nấm" loading="lazy"><div class="label">Lẩu nấm <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/pot_02.png" alt="Lẩu sườn" loading="lazy"><div class="label">Lẩu sườn <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/pot_08.png" alt="Lẩu canh chua cá" loading="lazy"><div class="label">Lẩu canh chua cá <small>mở ở 100k</small></div></div>
+<div class="card"><img src="mon-an/pot_03.png" alt="Lẩu Thái" loading="lazy"><div class="label">Lẩu Thái <small>mở ở 150k</small></div></div>
+<div class="card"><img src="mon-an/pot_09.png" alt="Lẩu mắm" loading="lazy"><div class="label">Lẩu mắm <small>mở ở 300k</small></div></div>
+<div class="card"><img src="mon-an/pot_04.png" alt="Lẩu sukiyaki" loading="lazy"><div class="label">Lẩu sukiyaki <small>mở ở 250k</small></div></div>
+<div class="card"><img src="mon-an/pot_05.png" alt="Lẩu đông trùng hạ thảo" loading="lazy"><div class="label">Lẩu đông trùng hạ thảo <small>mở ở 600k</small></div></div>
+<div class="card"><img src="mon-an/pot_06.png" alt="Lẩu Tứ Xuyên" loading="lazy"><div class="label">Lẩu Tứ Xuyên <small>mở ở 400k</small></div></div>
+<div class="card"><img src="mon-an/pot_10.png" alt="Lẩu bò" loading="lazy"><div class="label">Lẩu bò <small>mở ở 200k</small></div></div>
+<div class="card"><img src="mon-an/pot_11.png" alt="Lẩu dê" loading="lazy"><div class="label">Lẩu dê <small>mở ở 450k</small></div></div>
+<div class="card"><img src="mon-an/pot_12.png" alt="Lẩu riêu cua đồng" loading="lazy"><div class="label">Lẩu riêu cua đồng <small>mở ở 550k</small></div></div>
+</div>
+
+<h2>🥣 Nước chấm — 10 món</h2>
+
+<div class="grid">
+<div class="card"><img src="mon-an/topping2_00.png" alt="Muối ớt xanh" loading="lazy"><div class="label">Muối ớt xanh <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/topping2_01.png" alt="Chao" loading="lazy"><div class="label">Chao <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/chao_vang.png" alt="Chao vàng" loading="lazy"><div class="label">Chao vàng <small>mở ở 60k</small></div></div>
+<div class="card"><img src="mon-an/topping_03.png" alt="Sa tế" loading="lazy"><div class="label">Sa tế <small>mở ở 120k</small></div></div>
+<div class="card"><img src="mon-an/topping2_03.png" alt="Sốt me" loading="lazy"><div class="label">Sốt me <small>mở ở 150k</small></div></div>
+<div class="card"><img src="mon-an/new2_00.png" alt="Nước chấm mix" loading="lazy"><div class="label">Nước chấm mix <small>mở ở 200k</small></div></div>
+<div class="card"><img src="mon-an/dip_01.png" alt="Tương hào du" loading="lazy"><div class="label">Tương hào du <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/dip_02.png" alt="Sốt bơ đậu phộng" loading="lazy"><div class="label">Sốt bơ đậu phộng <small>mở ở 100k</small></div></div>
+<div class="card"><img src="mon-an/dip_03.png" alt="Ớt tỏi băm" loading="lazy"><div class="label">Ớt tỏi băm <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/dip_06.png" alt="Dầu mè" loading="lazy"><div class="label">Dầu mè <small>mở ở 80k</small></div></div>
+</div>
+
+<h2>🥩 Đồ nhúng lẩu — 43 món</h2>
+
+<div class="grid">
+<div class="card"><img src="mon-an/topping_00.png" alt="Thịt bò" loading="lazy"><div class="label">Thịt bò <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/new3_00.png" alt="Gầu bò" loading="lazy"><div class="label">Gầu bò <small>mở ở 100k</small></div></div>
+<div class="card"><img src="mon-an/new3_01.png" alt="Sụn sườn" loading="lazy"><div class="label">Sụn sườn <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/new1_00.png" alt="Thịt cừu" loading="lazy"><div class="label">Thịt cừu <small>mở ở 200k</small></div></div>
+<div class="card"><img src="mon-an/de_tuoi.png" alt="Thịt dê" loading="lazy"><div class="label">Thịt dê <small>mở ở 250k</small></div></div>
+<div class="card"><img src="mon-an/new1_02.png" alt="Ba chỉ heo mỏng" loading="lazy"><div class="label">Ba chỉ heo mỏng <small>mở ở 150k</small></div></div>
+<div class="card"><img src="mon-an/topping_01.png" alt="Tôm tươi" loading="lazy"><div class="label">Tôm tươi <small>mở ở 150k</small></div></div>
+<div class="card"><img src="mon-an/topping3_00.png" alt="Mực ống" loading="lazy"><div class="label">Mực ống <small>mở ở 150k</small></div></div>
+<div class="card"><img src="mon-an/topping3_01.png" alt="Nghêu" loading="lazy"><div class="label">Nghêu <small>mở ở 200k</small></div></div>
+<div class="card"><img src="mon-an/ca_dieu_lat.png" alt="Cá điêu hồng" loading="lazy"><div class="label">Cá điêu hồng <small>mở ở 250k</small></div></div>
+<div class="card"><img src="mon-an/topping_04.png" alt="Bò viên" loading="lazy"><div class="label">Bò viên <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/topping3_02.png" alt="Cá viên" loading="lazy"><div class="label">Cá viên <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/new1_04.png" alt="Cá viên chiên" loading="lazy"><div class="label">Cá viên chiên <small>mở ở 120k</small></div></div>
+<div class="card"><img src="mon-an/topping3_03.png" alt="Tàu hũ ky" loading="lazy"><div class="label">Tàu hũ ky <small>mở ở 100k</small></div></div>
+<div class="card"><img src="mon-an/new1_05.png" alt="Đậu hũ non" loading="lazy"><div class="label">Đậu hũ non <small>mở ở 80k</small></div></div>
+<div class="card"><img src="mon-an/topping3_04.png" alt="Rau muống" loading="lazy"><div class="label">Rau muống <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/topping2_05.png" alt="Cải cúc" loading="lazy"><div class="label">Cải cúc <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/new1_06.png" alt="Rau chân vịt" loading="lazy"><div class="label">Rau chân vịt <small>mở ở 80k</small></div></div>
+<div class="card"><img src="mon-an/new1_07.png" alt="Cải thìa" loading="lazy"><div class="label">Cải thìa <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/topping_02.png" alt="Nấm kim châm" loading="lazy"><div class="label">Nấm kim châm <small>mở ở 100k</small></div></div>
+<div class="card"><img src="mon-an/new2_05.png" alt="Nấm đông cô" loading="lazy"><div class="label">Nấm đông cô <small>mở ở 120k</small></div></div>
+<div class="card"><img src="mon-an/new2_06.png" alt="Nấm đùi gà" loading="lazy"><div class="label">Nấm đùi gà <small>mở ở 150k</small></div></div>
+<div class="card"><img src="mon-an/new2_01.png" alt="Củ sen" loading="lazy"><div class="label">Củ sen <small>mở ở 100k</small></div></div>
+<div class="card"><img src="mon-an/topping3_05.png" alt="Mì gói" loading="lazy"><div class="label">Mì gói <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/new3_03.png" alt="Miến" loading="lazy"><div class="label">Miến <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/new3_02.png" alt="Bún tươi" loading="lazy"><div class="label">Bún tươi <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/topping2_04.png" alt="Mì udon" loading="lazy"><div class="label">Mì udon <small>mở ở 150k</small></div></div>
+<div class="card"><img src="mon-an/topping3_07.png" alt="Trứng gà" loading="lazy"><div class="label">Trứng gà <small>có sẵn</small></div></div>
+<div class="card"><img src="mon-an/bo_tai.png" alt="Thịt bò tái" loading="lazy"><div class="label">Thịt bò tái <small>mở ở 120k</small></div></div>
+<div class="card"><img src="mon-an/bo_cuon.png" alt="Bò cuộn" loading="lazy"><div class="label">Bò cuộn <small>mở ở 180k</small></div></div>
+<div class="card"><img src="mon-an/de_luoc.png" alt="Thịt dê luộc" loading="lazy"><div class="label">Thịt dê luộc <small>mở ở 260k</small></div></div>
+<div class="card"><img src="mon-an/dui_de.png" alt="Đùi dê" loading="lazy"><div class="label">Đùi dê <small>mở ở 320k</small></div></div>
+<div class="card"><img src="mon-an/bach_tuoc.png" alt="Bạch tuộc" loading="lazy"><div class="label">Bạch tuộc <small>mở ở 200k</small></div></div>
+<div class="card"><img src="mon-an/ca_hoi.png" alt="Cá hồi" loading="lazy"><div class="label">Cá hồi <small>mở ở 300k</small></div></div>
+<div class="card"><img src="mon-an/tom_vien.png" alt="Tôm viên" loading="lazy"><div class="label">Tôm viên <small>mở ở 150k</small></div></div>
+<div class="card"><img src="mon-an/thanh_cua.png" alt="Thanh cua" loading="lazy"><div class="label">Thanh cua <small>mở ở 120k</small></div></div>
+<div class="card"><img src="mon-an/xuc_xich.png" alt="Xúc xích" loading="lazy"><div class="label">Xúc xích <small>mở ở 90k</small></div></div>
+<div class="card"><img src="mon-an/khoai_mon.png" alt="Khoai môn cắt lát" loading="lazy"><div class="label">Khoai môn cắt lát <small>mở ở 80k</small></div></div>
+<div class="card"><img src="mon-an/bap_ngot.png" alt="Bắp ngọt cắt khúc" loading="lazy"><div class="label">Bắp ngọt cắt khúc <small>mở ở 60k</small></div></div>
+<div class="card"><img src="mon-an/cai_ngot.png" alt="Cải ngọt" loading="lazy"><div class="label">Cải ngọt <small>mở ở 70k</small></div></div>
+<div class="card"><img src="mon-an/cai_be_xanh.png" alt="Cải bẹ xanh" loading="lazy"><div class="label">Cải bẹ xanh <small>mở ở 70k</small></div></div>
+<div class="card"><img src="mon-an/bap_chuoi.png" alt="Bắp chuối bào" loading="lazy"><div class="label">Bắp chuối bào <small>mở ở 80k</small></div></div>
+<div class="card"><img src="mon-an/new2_04.png" alt="Nấm bụng dê" loading="lazy"><div class="label">Nấm bụng dê <small>mở ở 350k</small></div></div>
+</div>
+
+<h2>🔮 Thực đơn bí mật — 8 món <span class="badge">chỉ khách tu tiên gọi được</span></h2>
+
+<div class="grid">
+<div class="card"><img src="mon-an/topping_05.png" alt="Linh chi ngàn năm" loading="lazy"><div class="label">Linh chi ngàn năm</div></div>
+<div class="card"><img src="mon-an/new2_07.png" alt="Huyết sen" loading="lazy"><div class="label">Huyết sen</div></div>
+<div class="card"><img src="mon-an/topping_06.png" alt="Thịt linh thú" loading="lazy"><div class="label">Thịt linh thú</div></div>
+<div class="card"><img src="mon-an/topping_07.png" alt="Băng tằm" loading="lazy"><div class="label">Băng tằm</div></div>
+<div class="card"><img src="mon-an/new2_02.png" alt="Nhân sâm ngàn năm" loading="lazy"><div class="label">Nhân sâm ngàn năm</div></div>
+<div class="card"><img src="mon-an/new2_03.png" alt="Đông trùng hạ thảo tiên" loading="lazy"><div class="label">Đông trùng hạ thảo tiên</div></div>
+<div class="card"><img src="mon-an/dip_00.png" alt="Tương tiên giới" loading="lazy"><div class="label">Tương tiên giới</div></div>
+<div class="card"><img src="mon-an/dip_07.png" alt="Mật tương hoàng kim" loading="lazy"><div class="label">Mật tương hoàng kim</div></div>
+</div>
+
+<h2>🧑 Khách người Việt — 8 hình <span class="badge">64×64</span></h2>
+
+<div class="grid">
+<div class="card"><img src="nhan-vat/vn_00.png" alt="Khách 0" loading="lazy"><div class="label">Khách 0</div></div>
+<div class="card"><img src="nhan-vat/vn_01.png" alt="Khách 1" loading="lazy"><div class="label">Khách 1</div></div>
+<div class="card"><img src="nhan-vat/vn_02.png" alt="Khách 2" loading="lazy"><div class="label">Khách 2</div></div>
+<div class="card"><img src="nhan-vat/vn_03.png" alt="Khách 3" loading="lazy"><div class="label">Khách 3</div></div>
+<div class="card"><img src="nhan-vat/vn_04.png" alt="Khách 4" loading="lazy"><div class="label">Khách 4</div></div>
+<div class="card"><img src="nhan-vat/vn_05.png" alt="Khách 5" loading="lazy"><div class="label">Khách 5</div></div>
+<div class="card"><img src="nhan-vat/vn_06.png" alt="Khách 6" loading="lazy"><div class="label">Khách 6</div></div>
+<div class="card"><img src="nhan-vat/vn_07.png" alt="Khách 7" loading="lazy"><div class="label">Khách 7</div></div>
+</div>
+
+<h2>🧙 Khách tu tiên — 16 hình <span class="badge">64×64</span></h2>
+
+<div class="grid">
+<div class="card"><img src="nhan-vat/xian_00.png" alt="Tu tiên 00" loading="lazy"><div class="label">Tu tiên 00</div></div>
+<div class="card"><img src="nhan-vat/xian_01.png" alt="Tu tiên 01" loading="lazy"><div class="label">Tu tiên 01</div></div>
+<div class="card"><img src="nhan-vat/xian_02.png" alt="Tu tiên 02" loading="lazy"><div class="label">Tu tiên 02</div></div>
+<div class="card"><img src="nhan-vat/xian_03.png" alt="Tu tiên 03" loading="lazy"><div class="label">Tu tiên 03</div></div>
+<div class="card"><img src="nhan-vat/xian_04.png" alt="Tu tiên 04" loading="lazy"><div class="label">Tu tiên 04</div></div>
+<div class="card"><img src="nhan-vat/xian_05.png" alt="Tu tiên 05" loading="lazy"><div class="label">Tu tiên 05</div></div>
+<div class="card"><img src="nhan-vat/xian_06.png" alt="Tu tiên 06" loading="lazy"><div class="label">Tu tiên 06</div></div>
+<div class="card"><img src="nhan-vat/xian_07.png" alt="Tu tiên 07" loading="lazy"><div class="label">Tu tiên 07</div></div>
+<div class="card"><img src="nhan-vat/xian_08.png" alt="Tu tiên 08" loading="lazy"><div class="label">Tu tiên 08</div></div>
+<div class="card"><img src="nhan-vat/xian_09.png" alt="Tu tiên 09" loading="lazy"><div class="label">Tu tiên 09</div></div>
+<div class="card"><img src="nhan-vat/xian_10.png" alt="Tu tiên 10" loading="lazy"><div class="label">Tu tiên 10</div></div>
+<div class="card"><img src="nhan-vat/xian_11.png" alt="Tu tiên 11" loading="lazy"><div class="label">Tu tiên 11</div></div>
+<div class="card"><img src="nhan-vat/xian_12.png" alt="Tu tiên 12" loading="lazy"><div class="label">Tu tiên 12</div></div>
+<div class="card"><img src="nhan-vat/xian_13.png" alt="Tu tiên 13" loading="lazy"><div class="label">Tu tiên 13</div></div>
+<div class="card"><img src="nhan-vat/xian_14.png" alt="Tu tiên 14" loading="lazy"><div class="label">Tu tiên 14</div></div>
+<div class="card"><img src="nhan-vat/xian_15.png" alt="Tu tiên 15" loading="lazy"><div class="label">Tu tiên 15</div></div>
+</div>
+
+<h2>🏮 Đồ vật &amp; biển hiệu — 11 món</h2>
+
+<div class="grid">
+<div class="card"><img src="do-vat/prop_07.png" alt="neon" loading="lazy"><div class="label">neon</div></div>
+<div class="card"><img src="do-vat/prop2_00.png" alt="stool_red" loading="lazy"><div class="label">stool_red</div></div>
+<div class="card"><img src="do-vat/prop2_01.png" alt="stool_blue" loading="lazy"><div class="label">stool_blue</div></div>
+<div class="card"><img src="do-vat/prop2_02.png" alt="pot_copper" loading="lazy"><div class="label">pot_copper</div></div>
+<div class="card"><img src="do-vat/prop2_03.png" alt="crane" loading="lazy"><div class="label">crane</div></div>
+<div class="card"><img src="do-vat/prop2_04.png" alt="cauldron" loading="lazy"><div class="label">cauldron</div></div>
+<div class="card"><img src="do-vat/prop2_05.png" alt="cashbox" loading="lazy"><div class="label">cashbox</div></div>
+<div class="card"><img src="do-vat/prop2_06.png" alt="coin_old" loading="lazy"><div class="label">coin_old</div></div>
+<div class="card"><img src="do-vat/prop2_07.png" alt="talisman" loading="lazy"><div class="label">talisman</div></div>
+<div class="card"><img src="do-vat/prop_01.png" alt="lantern" loading="lazy"><div class="label">lantern</div></div>
+<div class="card"><img src="do-vat/prop_02.png" alt="steamer" loading="lazy"><div class="label">steamer</div></div>
+</div>
+
+<h2>🏮 Nội thất ĐỘNG TIÊN — 16 món <span class="badge">thư phòng · thiền thất tu tiên</span></h2>
+
+<div class="note">Trả bằng LINH THẠCH (xa hoa, để dành cuối game). Hiệu ứng thiên về khách tu tiên. Tổng bộ: 124 linh thạch. Mua đủ bộ được: canh lửa +5% · kiên nhẫn +13.1% · bưng bê +8% · uy tín +3.6 · khách tu tiên +15% · khách +3% · khách đêm +5% · đạo tâm +10% (trần mỗi trục: kiên nhẫn +15% · khách tu tiên +15% · khách +3% · khách đêm +5% · đạo tâm +10% · uy tín +4 · canh lửa +5% · bưng bê +8%).</div>
+
+<div class="grid">
+<div class="card"><img src="do-vat/tt_binh_phong.png" alt="Bình phong gỗ" loading="lazy"><div class="label">Bình phong gỗ <small>5 LS — khách tu tiên +3% · uy tín +2</small></div></div>
+<div class="card"><img src="do-vat/tt_an_thu.png" alt="Án thư gỗ mun" loading="lazy"><div class="label">Án thư gỗ mun <small>6 LS — khách tu tiên +5%</small></div></div>
+<div class="card"><img src="do-vat/tt_ke_go.png" alt="Kệ gỗ nhiều tầng" loading="lazy"><div class="label">Kệ gỗ nhiều tầng <small>5 LS — kiên nhẫn +4%</small></div></div>
+<div class="card"><img src="do-vat/tt_ghe_go.png" alt="Ghế gỗ chấn song" loading="lazy"><div class="label">Ghế gỗ chấn song <small>6 LS — kiên nhẫn +5%</small></div></div>
+<div class="card"><img src="do-vat/tt_ban_tra.png" alt="Bàn trà đá" loading="lazy"><div class="label">Bàn trà đá <small>6 LS — kiên nhẫn +5%</small></div></div>
+<div class="card"><img src="do-vat/tt_binh_lam.png" alt="Bình lam gốm" loading="lazy"><div class="label">Bình lam gốm <small>6 LS — uy tín +2</small></div></div>
+<div class="card"><img src="do-vat/tt_den_long.png" alt="Đèn lồng đỏ" loading="lazy"><div class="label">Đèn lồng đỏ <small>4 LS — khách +3%</small></div></div>
+<div class="card"><img src="do-vat/tt_ruong_go.png" alt="Rương gỗ khoá đồng" loading="lazy"><div class="label">Rương gỗ khoá đồng <small>14 LS — giảm mất trộm còn 50%</small></div></div>
+<div class="card"><img src="do-vat/tt_bo_doan.png" alt="Bồ đoàn cũ" loading="lazy"><div class="label">Bồ đoàn cũ <small>8 LS — bưng bê +8%</small></div></div>
+<div class="card"><img src="do-vat/tt_lu_huong.png" alt="Lư hương đồng" loading="lazy"><div class="label">Lư hương đồng <small>9 LS — khách tu tiên +7%</small></div></div>
+<div class="card"><img src="do-vat/tt_gia_kiem.png" alt="Giá kiếm bảy thanh" loading="lazy"><div class="label">Giá kiếm bảy thanh <small>24 LS — chống quỵt</small></div></div>
+<div class="card"><img src="do-vat/tt_guong_dong.png" alt="Gương đồng soi đạo tâm" loading="lazy"><div class="label">Gương đồng soi đạo tâm <small>12 LS — đạo tâm +10%</small></div></div>
+<div class="card"><img src="do-vat/tt_den_luu_ly.png" alt="Đèn lưu ly" loading="lazy"><div class="label">Đèn lưu ly <small>6 LS — khách đêm +5%</small></div></div>
+<div class="card"><img src="do-vat/tt_tranh_truc.png" alt="Tranh trúc sơn thuỷ" loading="lazy"><div class="label">Tranh trúc sơn thuỷ <small>5 LS — khách tu tiên +4%</small></div></div>
+<div class="card"><img src="do-vat/tt_tham.png" alt="Thảm cỏ đan" loading="lazy"><div class="label">Thảm cỏ đan <small>4 LS — kiên nhẫn +3%</small></div></div>
+<div class="card"><img src="do-vat/tt_de_go.png" alt="Đế gỗ kê nồi" loading="lazy"><div class="label">Đế gỗ kê nồi <small>4 LS — canh lửa +5%</small></div></div>
+</div>
+
+<h2>🏠 Nội thất HẺM VIỆT — 16 món <span class="badge">phòng trọ Việt Nam thập niên 80–2000</span></h2>
+
+<div class="note">Trả bằng TIỀN MẶT (đời thường, mua sớm được). Hiệu ứng thiên về kiên nhẫn của khách. Tổng bộ: 4.200.000đ. Mua đủ bộ được: uy tín +4 · kiên nhẫn +20% · khách +3% · khách tu tiên +5% (trần mỗi trục: kiên nhẫn +20% · khách +6% · khách tu tiên +8% · uy tín +6).</div>
+
+<div class="grid">
+<div class="card"><img src="do-vat/hv_rem_hoa.png" alt="Rèm hoa đỏ" loading="lazy"><div class="label">Rèm hoa đỏ <small>250.000đ — uy tín +2</small></div></div>
+<div class="card"><img src="do-vat/hv_tv_crt.png" alt="TV CRT ăng-ten râu" loading="lazy"><div class="label">TV CRT ăng-ten râu <small>320.000đ — kiên nhẫn +8%</small></div></div>
+<div class="card"><img src="do-vat/hv_dai_cassette.png" alt="Đài cassette đỏ" loading="lazy"><div class="label">Đài cassette đỏ <small>240.000đ — kiên nhẫn +6%</small></div></div>
+<div class="card"><img src="do-vat/hv_may_khau.png" alt="Máy khâu đen + bàn gỗ" loading="lazy"><div class="label">Máy khâu đen + bàn gỗ <small>600.000đ — giảm tiền phạt còn 50%</small></div></div>
+<div class="card"><img src="do-vat/hv_tu_nhieu_o.png" alt="Tủ gỗ nhiều ô" loading="lazy"><div class="label">Tủ gỗ nhiều ô <small>120.000đ — kiên nhẫn +3% · uy tín +1</small></div></div>
+<div class="card"><img src="do-vat/hv_ban_tho.png" alt="Bàn thờ ông địa + lư hương" loading="lazy"><div class="label">Bàn thờ ông địa + lư hương <small>1.200.000đ — mở sự kiện</small></div></div>
+<div class="card"><img src="do-vat/hv_loc_lich.png" alt="Lốc lịch + cụm khung ảnh" loading="lazy"><div class="label">Lốc lịch + cụm khung ảnh <small>200.000đ — uy tín +1</small></div></div>
+<div class="card"><img src="do-vat/hv_bang_khen.png" alt="Bằng khen &quot;Người tốt việc tốt&quot;" loading="lazy"><div class="label">Bằng khen &quot;Người tốt việc tốt&quot; <small>150.000đ — bỏ qua lỗi nhỏ +1</small></div></div>
+<div class="card"><img src="do-vat/hv_tranh_son_mai.png" alt="Tranh sơn mài đỏ son" loading="lazy"><div class="label">Tranh sơn mài đỏ son <small>150.000đ — khách tu tiên +5%</small></div></div>
+<div class="card"><img src="do-vat/hv_phich_nuoc.png" alt="Phích nước nóng" loading="lazy"><div class="label">Phích nước nóng <small>120.000đ — kiên nhẫn +3%</small></div></div>
+<div class="card"><img src="do-vat/hv_am_tich.png" alt="Ấm tích + chén trà" loading="lazy"><div class="label">Ấm tích + chén trà <small>160.000đ — kiên nhẫn +4%</small></div></div>
+<div class="card"><img src="do-vat/hv_quat_cay.png" alt="Quạt cây cũ" loading="lazy"><div class="label">Quạt cây cũ <small>200.000đ — kiên nhẫn +5%</small></div></div>
+<div class="card"><img src="do-vat/hv_chieu_coi.png" alt="Chiếu cói" loading="lazy"><div class="label">Chiếu cói <small>160.000đ — kiên nhẫn +4%</small></div></div>
+<div class="card"><img src="do-vat/hv_dep_nhua.png" alt="Đôi dép nhựa trước cửa" loading="lazy"><div class="label">Đôi dép nhựa trước cửa <small>80.000đ — uy tín +1</small></div></div>
+<div class="card"><img src="do-vat/hv_o_cam.png" alt="Ổ cắm + dây điện chân tường" loading="lazy"><div class="label">Ổ cắm + dây điện chân tường <small>120.000đ — mở đồ điện</small></div></div>
+<div class="card"><img src="do-vat/hv_chau_kien.png" alt="Chậu kiểng" loading="lazy"><div class="label">Chậu kiểng <small>130.000đ — khách +3%</small></div></div>
+</div>
+
+<div class="note">Luật cân bằng: chỉ BỘ ĐANG BÀY có hiệu lực (hai bộ không cộng dồn); cùng một trục thì cộng dồn giảm dần ×0.8 và bị cắt trần — chi tiết ở docs/11-gia-noi-that.md.</div>
+
+<h2>⚡ Trang bị nâng cấp — 13 món <span class="badge">đích tiêu tiền trong game</span></h2>
+
+<div class="note">Mỗi món một hình riêng (vẽ 08/10). Trước đây kho ảnh dùng lại một hình chung nên nhìn không phân biệt được.</div>
+
+<div class="grid">
+<div class="card"><img src="do-vat/upg_sealer.png" alt="Máy đậy nắp tự chế" loading="lazy"><div class="label">Máy đậy nắp tự chế <small>6.0tr</small></div></div>
+<div class="card"><img src="do-vat/upg_sign.png" alt="Bảng neon &quot;LẨU&quot;" loading="lazy"><div class="label">Bảng neon &quot;LẨU&quot; <small>0.8tr</small></div></div>
+<div class="card"><img src="do-vat/upg_seats.png" alt="Ghế nhựa + quạt máy" loading="lazy"><div class="label">Ghế nhựa + quạt máy <small>1.0tr</small></div></div>
+<div class="card"><img src="do-vat/upg_ads.png" alt="Quay clip đăng mạng" loading="lazy"><div class="label">Quay clip đăng mạng <small>1.2tr</small></div></div>
+<div class="card"><img src="do-vat/upg_slot4.png" alt="Cơi nới vỉa hè" loading="lazy"><div class="label">Cơi nới vỉa hè <small>1.6tr</small></div></div>
+<div class="card"><img src="do-vat/upg_premium.png" alt="Nồi gang Nhật + bếp ga công nghiệp" loading="lazy"><div class="label">Nồi gang Nhật + bếp ga công nghiệp <small>12.0tr</small></div></div>
+<div class="card"><img src="do-vat/upg_branch.png" alt="Mở chi nhánh hẻm bên" loading="lazy"><div class="label">Mở chi nhánh hẻm bên <small>40.0tr</small></div></div>
+<div class="card"><img src="do-vat/upg_ac.png" alt="Mái che + hơi nước" loading="lazy"><div class="label">Mái che + hơi nước <small>1.8tr</small></div></div>
+<div class="card"><img src="do-vat/upg_tulin.png" alt="Tụ linh trận" loading="lazy"><div class="label">Tụ linh trận <small>50 linh thạch</small></div></div>
+<div class="card"><img src="do-vat/upg_anthan.png" alt="An thần trận" loading="lazy"><div class="label">An thần trận <small>80 linh thạch</small></div></div>
+<div class="card"><img src="do-vat/upg_phap_khi.png" alt="Lò địa hỏa" loading="lazy"><div class="label">Lò địa hỏa <small>60 linh thạch</small></div></div>
+<div class="card"><img src="do-vat/upg_ho_phap.png" alt="Hộ pháp quán" loading="lazy"><div class="label">Hộ pháp quán <small>120 linh thạch</small></div></div>
+<div class="card"><img src="do-vat/upg_cam_do.png" alt="Chỗ quen tiệm cầm đồ" loading="lazy"><div class="label">Chỗ quen tiệm cầm đồ <small>40 linh thạch</small></div></div>
+</div>
+<footer>Toàn bộ hình trong trang này được vẽ riêng cho dự án bằng meowa.ai theo art direction của game.<br>
+Sổ chi phí từng đợt: <code>credits-log/credits.md</code></footer>
+</body>
+</html>
